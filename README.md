@@ -1,2 +1,2 @@
 # Transcendence
-Pong website by the Consumates
+Pong website by the Consummates
