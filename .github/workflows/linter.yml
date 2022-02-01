@@ -3,29 +3,40 @@ name: Lint
 on:
 # Replace pull_request with pull_request_target if you
 # plan to use this action with forks, see the Limitations section
-    pull_request:
+  pull_request:
     branches:
-        - main
+      - main
+  workflow_dispatch:
 
-    workflow_dispatch:
-        
 # Down scope as necessary via https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
 permissions:
-    checks: write
-    contents: write
+  checks: write
+  contents: write
 
 jobs:
-    lint-backend:
-        name: Lint Backend
-        runs-on: ubuntu-latest
+  lint-backend:
+    name: Lint Backend
+    runs-on: ubuntu-latest
 
-        steps:
-        - uses: actions/checkout@v2
-        # Install your linters here
-        - name: lint
-            uses: wearerequired/lint-action@v1
-            with:
-                eslint: true
-                prettier: true
-            run: cd ./src/backend && npm run lint && npm run lint:fix
-    lint-frontend:
+    steps:
+    - uses: actions/checkout@v2
+    # Install your linters here
+    - name: lint
+    uses: wearerequired/lint-action@v1
+    with:
+        eslint: true
+        prettier: true
+    run: cd ./src/backend && npm run lint && npm run lint:fix
+    # lint-frontend:
+    #     name: Lint Frontend
+    #     runs-on: ubuntu-latest
+
+    #     steps:
+    #     - uses: actions/checkout@v2
+    #     # Install your linters here
+    #     - name: lint
+    #         uses: wearerequired/lint-action@v1
+    #         with:
+    #             eslint: true
+    #             prettier: true
+    #         run: cd ./src/frontend && npm run lint && npm run lint:fix
