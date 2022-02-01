@@ -26,7 +26,7 @@ jobs:
       with:
           eslint: true
           prettier: true
-      run: cd ./src/backend && npm run lint && npm run lint:fix
+      # run: cd ./src/backend && npm run lint && npm run lint:fix
     # lint-frontend:
     #     name: Lint Frontend
     #     runs-on: ubuntu-latest
