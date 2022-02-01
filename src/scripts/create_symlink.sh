@@ -22,9 +22,8 @@
 #                                                                              #
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  #
 
-
-SPath="/sgoinfre/$LOGNAME/Containers"
-LPath="/Users/$LOGNAME/Library/Containers"
+SPath="/Users/$LOGNAME/goinfre/Containers/com.docker.docker"
+LPath="/Users/$LOGNAME/Library/Containers/com.docker.docker"
 
 # create containers directory in sgoinfre if it doesn't exist yet
 mkdir -p $SPath
