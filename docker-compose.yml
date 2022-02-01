@@ -3,6 +3,6 @@ services:
   backend:
     build: ./src/backend
     ports:
-      - 3000:3000
+      - 420:420
     volumes:
       - ./src/backend:/app
