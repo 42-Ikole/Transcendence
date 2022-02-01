@@ -14,11 +14,11 @@
 #                                                                              #
 #                           New Coders on the Block                            #
 #    ——————————————————————————————————————————————————————————————————————    #
-#             Mpeerdeman        |   https://github.com/Maqrkk                  #
-#             Rpet              |   https://github.com/rpet91                  #
-#             Mraasvel          |   https://github.com/mraasvel                #
-#             Ikole             |   https://github.com/K1ngmar                 #
-#             Nvan-aac          |   https://github.com/vanaacken               #
+#                 Mpeerdem   |   https://github.com/Maqrkk                     #
+#                 Rpet       |   https://github.com/rpet91                     #
+#                 Mraasvel   |   https://github.com/mraasvel                   #
+#                 Ikole      |   https://github.com/K1ngmar                    #
+#                 Nvan-aac   |   https://github.com/vanaacken                  #
 #                                                                              #
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  #
 
