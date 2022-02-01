@@ -2,8 +2,10 @@ FROM node:latest
 # Create directory
 WORKDIR /app
 
-# Copy files
-COPY . .
-RUN npm install
+# Installation
+RUN apt-get update && \
+    apt-get upgrade && \
+    npm i -g @nestjs/cli
+COPY ./entrypoint.sh .
 
-CMD [ "npm", "run", "start:dev" ]
+ENTRYPOINT [ "bash", "./entrypoint.sh" ]
