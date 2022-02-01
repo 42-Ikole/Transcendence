@@ -22,11 +22,11 @@ jobs:
     - uses: actions/checkout@v2
     # Install your linters here
     - name: lint
-    uses: wearerequired/lint-action@v1
-    with:
-        eslint: true
-        prettier: true
-    run: cd ./src/backend && npm run lint && npm run lint:fix
+      uses: wearerequired/lint-action@v1
+      with:
+          eslint: true
+          prettier: true
+      run: cd ./src/backend && npm run lint && npm run lint:fix
     # lint-frontend:
     #     name: Lint Frontend
     #     runs-on: ubuntu-latest
