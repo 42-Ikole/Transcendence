@@ -1,3 +1,4 @@
+#!/bin/bash
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  #
 #                                                                              #
 #               __    __   ______    ______   ________  _______                #
@@ -20,3 +21,9 @@
 #                 Nvan-aac   |   https://github.com/vanaacken                  #
 #                                                                              #
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  #
+
+# create symlink to goinfre
+bash src/scripts/create_symlink.sh
+
+# run docker compose
+docker-compose up --build
