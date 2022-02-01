@@ -25,7 +25,7 @@
 TargetPath="/Users/$LOGNAME/goinfre/Containers/com.docker.docker"
 OldPath="/Users/$LOGNAME/Library/Containers/com.docker.docker"
 
-# create containers directory in sgoinfre if it doesn't exist yet
+# create containers directory in goinfre if it doesn't exist yet
 mkdir -p $TargetPath
 
 if [[ -L $OldPath ]]; then
