@@ -3,5 +3,5 @@
   <img alt="New Coders On The Block" src="./transcendence turbo.png" />
 </p>
 
-# Transcendence
+# ft_transcendence
 🏓 Pong webapp by the New Coders on the Block.
