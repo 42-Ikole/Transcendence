@@ -22,14 +22,18 @@
 #                                                                              #
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  #
 
-SPath="/Users/$LOGNAME/goinfre/Containers/com.docker.docker"
-LPath="/Users/$LOGNAME/Library/Containers/com.docker.docker"
+TargetPath="/Users/$LOGNAME/goinfre/Containers/com.docker.docker"
+OldPath="/Users/$LOGNAME/Library/Containers/com.docker.docker"
 
 # create containers directory in sgoinfre if it doesn't exist yet
-mkdir -p $SPath
+mkdir -p $TargetPath
 
-# remove old directory
-rm -rf $LPath
-
-# replace it with a symlink to sgroinfre
-ln -s $SPath $LPath
+if [[ -L $OldPath ]]; then
+  echo "Symlink already exists!"
+else
+	# remove old directory
+	rm -rf $OldPath
+	# replace it with a symlink to sgroinfre
+	ln -s $TargetPath $OldPath
+	echo "Symlink created!"
+fi
