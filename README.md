@@ -4,4 +4,4 @@
 </p>
 
 # Transcendence
-🏓 Pong webapp by the New Coders On The Block
+🏓 Pong webapp by the New Coders on the Block.
