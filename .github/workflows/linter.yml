@@ -30,4 +30,4 @@ jobs:
       - name: Install Node.js dependencies
         run: cd ./src/backend && npm ci
       - name: lint
-        run: cd ./src/backend && npm run lint:fix
+        run: cd ./src/backend && npm run lint
