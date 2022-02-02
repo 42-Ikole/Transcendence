@@ -1,8 +1,17 @@
 version: "3.0"
 services:
+# Backend service
   backend:
     build: ./src/backend
     ports:
       - 420:420
     volumes:
       - ./src/backend:/app
+
+# database service
+  database:
+    build: "./src/database"
+    volumes:
+      - ./src/database/volume_claims/:/var/lib/postgresql/data/
+volumes:
+  pvc:
