@@ -143,4 +143,4 @@ dist
 .svelte-kit
 
 # Persistent volume claims
-src/database/volume_claims/
+src/postgres/volume_claims/

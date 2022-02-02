@@ -1,0 +1,14 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "Maaskantje",
+            "Group": "Servers",
+            "Host": "postgres",
+            "Port": 1337,
+            "MaintenanceDB": "postgres",
+            "Username": "NCOTB",
+            "SSLMode": "prefer",
+            "PassFile": "/pgpassfile"
+        }
+    }
+}

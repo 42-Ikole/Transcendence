@@ -1,0 +1,4 @@
+FROM dpage/pgadmin4
+
+ENV PGADMIN_DEFAULT_EMAIL		code@jonguh.com
+ENV PGADMIN_DEFAULT_PASSWORD	Maaskantje

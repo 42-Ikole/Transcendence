@@ -9,11 +9,24 @@ services:
     volumes:
       - ./src/backend:/app
 
-# database service
-  database:
-    container_name: database
-    build: "./src/database"
+# postgres service
+  postgres:
+    container_name: postgres
+    build: "./src/postgres"
     volumes:
-      - ./src/database/volume_claims/:/var/lib/postgresql/data/
+      - ./src/postgres/volume_claims/:/var/lib/postgresql/data/
+
+# pg-admin
+  pgadmin:
+    container_name: pgadmin4
+    depends_on:
+      - postgres
+    build: ./src/pgadmin
+    ports:
+      - 5050:80
+    links:
+      - postgres:pgsql-server
+
+# not sure what this does / if we need it?
 volumes:
-  pvc:
+  postgres-data:
