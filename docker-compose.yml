@@ -26,7 +26,3 @@ services:
       - 5050:80
     links:
       - postgres:pgsql-server
-
-# not sure what this does / if we need it?
-volumes:
-  postgres-data:

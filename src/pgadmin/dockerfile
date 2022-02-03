@@ -2,3 +2,6 @@ FROM dpage/pgadmin4
 
 ENV PGADMIN_DEFAULT_EMAIL		code@jonguh.com
 ENV PGADMIN_DEFAULT_PASSWORD	Maaskantje
+
+COPY ./config/.pgpass /pgadmin4/.pgpass
+COPY ./config/servers.json /pgadmin4/servers.json
