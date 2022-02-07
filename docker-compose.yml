@@ -1,6 +1,8 @@
 version: "3.7"
 services:
   backend:
+    depends_on:
+      - postgres
     build: ./src/backend
     ports:
       - 420:420
@@ -8,8 +10,8 @@ services:
       - ./src/backend:/app
 
   postgres:
-    container_name: pg_container
-    image: postgres:12
+    container_name: pong_db
+    image: postgres:13
     restart: always
     environment:
       POSTGRES_USER: postgres
@@ -21,14 +23,13 @@ services:
     ports:
       - 5432:5432
     restart: unless-stopped
-
   pgadmin:
     container_name: pg_admin_container
     image: dpage/pgadmin4:4.24
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: root
+      PGADMIN_DEFAULT_PASSWORD: root
       PGADMIN_CONFIG_SERVER_MODE: "False"
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
     volumes:
