@@ -22,7 +22,3 @@
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  #
 
 FROM postgres:bullseye
-
-ENV POSTGRES_USER		NCOTB
-ENV POSTGRES_PASSWORD	Fluffy
-ENV POSTGRES_DB			pong_db

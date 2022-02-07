@@ -35,7 +35,11 @@ services:
 # postgres service
   postgres:
     container_name: postgres
-    build: "./src/postgres"
+    build: ./src/postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: pong_db
     volumes:
       - ./src/postgres/volume_claims/:/var/lib/postgresql/data/
 
@@ -44,8 +48,9 @@ services:
     container_name: pgadmin4
     depends_on:
       - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pg.com
+      PGADMIN_DEFAULT_PASSWORD: admin
     build: ./src/pgadmin
     ports:
       - 5050:80
-    links:
-      - postgres:pgsql-server
