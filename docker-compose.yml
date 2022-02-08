@@ -2,7 +2,15 @@ version: "3.0"
 services:
   backend:
     build: ./src/backend
+    container_name: backend
     ports:
       - 420:420
     volumes:
       - ./src/backend:/app
+  frontend:
+    build: ./src/frontend
+    container_name: frontend
+    ports:
+      - 8080:8080
+    volumes:
+      - ./src/frontend:/app
