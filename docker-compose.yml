@@ -29,6 +29,8 @@ services:
     build: ./src/backend
     ports:
       - 420:420
+    depends_on:
+      - postgres
     volumes:
       - ./src/backend:/app
 
