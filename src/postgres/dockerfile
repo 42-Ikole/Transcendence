@@ -21,41 +21,4 @@
 #                                                                              #
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  #
 
-version: "3.0"
-services:
-# Backend service
-  backend:
-    container_name: backend
-    build: ./src/backend
-    ports:
-      - 420:420
-    depends_on:
-      - postgres
-    volumes:
-      - ./src/backend:/app
-
-# postgres service
-  postgres:
-    container_name: postgres
-    build: ./src/postgres
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: pong_db
-    volumes:
-      - ./src/postgres/volume_claims/:/var/lib/postgresql/data/
-
-# pg-admin
-  pgadmin:
-    container_name: pgadmin4
-    depends_on:
-      - postgres
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@pg.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    build: ./src/pgadmin
-    ports:
-      - 5050:80
-    volumes:
-      - ./src/pgadmin/volume_claims/:/var/lib/pgadmin
-  
+FROM postgres:bullseye
