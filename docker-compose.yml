@@ -2,28 +2,43 @@ version: "3.7"
 services:
   backend:
     depends_on:
-      - postgres
+      - db
     build: ./src/backend
     ports:
       - 420:420
     volumes:
       - ./src/backend:/app
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+    restart: always
 
-  postgres:
+  db:
     container_name: pong_db
     image: postgres:13
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      PGDATA: /data/postgres
     volumes:
-      - postgres:/data/postgres
-      - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
-    ports:
-      - 5432:5432
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_HOST=127.0.0.1
+      - POSGRES_PORT=5432
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - PG_DATA=/var/lib/postgresql/data
+    expose:
+      - "5432"
     restart: unless-stopped
+
+
+
+
+
   pgadmin:
+    depends_on:
+      - db
     container_name: pg_admin_container
     image: dpage/pgadmin4:4.24
     restart: always
@@ -34,7 +49,7 @@ services:
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
     volumes:
        - pgadmin:/var/lib/pgadmin
-       - ./docker_pgadmin_servers.json:/pgadmin4/servers.json
+       - ./servers.json:/pgadmin4/servers.json
     ports:
       - 5050:80
     entrypoint:
@@ -43,6 +58,6 @@ services:
       - "/bin/echo 'postgres:5432:*:postgres:password' > /tmp/pgpassfile && chmod 600 /tmp/pgpassfile && /entrypoint.sh"
 
 volumes:
-  postgres:
+  pg_data:
   pgadmin:
 

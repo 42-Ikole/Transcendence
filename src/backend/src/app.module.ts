@@ -15,7 +15,7 @@ import { User } from './users/entities/user.entity';
       port: 5432,
       username: 'root',
       password: 'root',
-      database: 'test',
+      database: 'pong_test',
       entities: [User],
       synchronize: true,
     })
