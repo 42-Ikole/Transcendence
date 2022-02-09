@@ -13,9 +13,9 @@ import { User } from './users/entities/user.entity';
       type: 'postgres',
       host: 'postgres',
       port: 5432,
-      username: 'root',
-      password: 'root',
-      database: 'pong_test',
+      username: 'admin',
+      password: 'admin',
+      database: 'pong_db',
       entities: [User],
       synchronize: true,
     })
