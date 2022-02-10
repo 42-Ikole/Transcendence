@@ -1,12 +1,11 @@
-FROM node:latest
+FROM node:14-buster
 # Create directory
 WORKDIR /app
 
 # Installation
 RUN apt-get update && \
     apt-get upgrade && \
-    npm i -g @nestjs/cli \
-    npm install pg --save
+    npm i -g @nestjs/cli
 COPY ./entrypoint.sh .
 
 ENTRYPOINT [ "bash", "./entrypoint.sh" ]
