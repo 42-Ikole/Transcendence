@@ -68,4 +68,3 @@ services:
       - 5050:80
     volumes:
       - ./src/pgadmin/volume_claims/:/var/lib/pgadmin
-  
