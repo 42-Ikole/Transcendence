@@ -1,0 +1,33 @@
+name: Lint
+
+on:
+# Replace pull_request with pull_request_target if you
+# plan to use this action with forks, see the Limitations section
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Down scope as necessary via https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
+permissions:
+  checks: write
+  contents: write
+
+jobs:
+  lint-backend:
+    name: Lint Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      # ESLint and Prettier must be in `package.json`
+      - name: Install Node.js dependencies
+        run: cd ./src/backend && npm ci
+      - name: lint
+        run: cd ./src/backend && npm run lint

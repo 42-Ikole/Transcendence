@@ -27,12 +27,22 @@ services:
   backend:
     container_name: backend
     build: ./src/backend
+    container_name: backend
     ports:
       - 420:420
     depends_on:
       - postgres
     volumes:
       - ./src/backend:/app
+  frontend:
+    build: ./src/frontend
+    container_name: frontend
+    depends_on:
+      - backend
+    ports:
+      - 8080:8080
+    volumes:
+      - ./src/frontend:/app
 
 # postgres service
   postgres:
@@ -58,4 +68,3 @@ services:
       - 5050:80
     volumes:
       - ./src/pgadmin/volume_claims/:/var/lib/pgadmin
-  
