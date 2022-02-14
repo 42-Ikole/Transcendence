@@ -1,8 +1,8 @@
-FROM node:14-buster
+FROM node:lts-alpine
 
 # Make the 'app' folder the current working directory
 WORKDIR /app
+RUN npm i -g @vue/cli
+COPY ./entrypoint.sh /
 
-COPY ./start.sh .
-
-ENTRYPOINT [ "bash", "./start.sh" ]
+ENTRYPOINT [ "/bin/sh", "/entrypoint.sh" ]
