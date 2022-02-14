@@ -3,8 +3,8 @@ FROM node:latest
 WORKDIR /app
 
 # Installation
-RUN apt-get update && \
-    apt-get upgrade && \
+RUN apt-get update -y && \
+    apt-get upgrade -y && \
     npm i -g @nestjs/cli
 COPY ./entrypoint.sh .
 
