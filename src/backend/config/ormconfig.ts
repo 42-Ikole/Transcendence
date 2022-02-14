@@ -8,7 +8,7 @@ const config: PostgresConnectionOptions = {
 	port:			5432,
 	username:		"admin",
 	password:		"admin",
-	entities:		['src/backend/dist/src/config/orm/*.entity.js'],
+	entities:		['dist/**/*.entity.js'],
 	synchronize:	true		// zou tables kunnen droppen als ze niet in de schema staan
 }
 
