@@ -25,9 +25,5 @@
 # create symlink to goinfre
 bash src/scripts/create_symlink.sh
 
-# create volumes
-mkdir -p src/pgadmin/volume_claims
-mkdir -p src/postgres/volume_claims
-
 # run docker compose
 docker-compose up --build
