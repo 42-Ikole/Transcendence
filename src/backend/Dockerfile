@@ -2,9 +2,7 @@ FROM node:lts-alpine
 # Create directory
 WORKDIR /app
 
-# Installation
-# RUN apt-get update -y && \
-#     apt-get upgrade -y && \
+# Installation: Add apt-get update && apt-get upgrade if using BUSTER
 RUN npm i -g @nestjs/cli
 COPY ./entrypoint.sh /
 
