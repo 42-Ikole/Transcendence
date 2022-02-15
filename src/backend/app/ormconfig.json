@@ -2,8 +2,8 @@
 	"type": "postgres",
 	"host": "postgres",
 	"port": 5432,
-	"username": "admin",
-	"password": "admin",
+	"username": "root",
+	"password": "root",
 	"database": "pong_db",
 	"entities": ["dist/**/*.entity{.ts,.js}"]
 }
