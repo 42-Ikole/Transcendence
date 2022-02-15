@@ -22,12 +22,9 @@
 #                                                                              #
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  #
 
-if [ "$1" == "-clear" ]; then
-	bash src/scripts/clear.sh
-fi
+# run system prune
+docker system prune
 
-# create symlink to goinfre
-bash src/scripts/create_symlink.sh
-
-# run docker compose
-docker-compose up --build
+# remove persistent volume claims
+docker volume rm transcendence_pgadmin_data
+docker volume rm transcendence_pgdata
