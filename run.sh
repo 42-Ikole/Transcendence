@@ -22,8 +22,10 @@
 #                                                                              #
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  #
 
-if [ "$1" == "-clear" ]; then
+if [ "$1" == "-clean" ]; then
 	bash src/scripts/clear.sh
+elif [ "$1" == "-fclean" ]; then
+	bash src/scripts/clear.sh -f
 fi
 
 # create symlink to goinfre

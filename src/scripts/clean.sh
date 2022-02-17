@@ -26,5 +26,9 @@
 docker system prune
 
 # remove persistent volume claims
-docker volume rm transcendence_pgadmin_data
-docker volume rm transcendence_pgdata
+docker volume prune
+
+# prune the images
+if [ "$1" == "-f" ]; then
+	docker image prune
+fi
