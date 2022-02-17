@@ -23,12 +23,12 @@
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  #
 
 # run system prune
-docker system prune
+docker system prune -f
 
 # remove persistent volume claims
-docker volume prune
+docker volume prune -f
 
 # prune the images
 if [ "$1" == "-f" ]; then
-	docker image prune
+	docker image prune -f
 fi
