@@ -29,7 +29,9 @@ elif [ "$1" == "-fclean" ]; then
 fi
 
 # create symlink to goinfre
-bash src/scripts/create_symlink.sh
+if [ "$1" == "-l" ]; then
+	bash src/scripts/create_symlink.sh
+fi
 
 # run docker compose
 docker-compose up --build
