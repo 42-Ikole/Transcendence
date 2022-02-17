@@ -23,9 +23,9 @@
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  #
 
 if [ "$1" == "-clean" ]; then
-	bash src/scripts/clear.sh
+	bash src/scripts/clean.sh
 elif [ "$1" == "-fclean" ]; then
-	bash src/scripts/clear.sh -f
+	bash src/scripts/clean.sh -f
 fi
 
 # create symlink to goinfre
