@@ -18,12 +18,12 @@
   <img alt="New Coders On The Block" src="./src/img/new coders.png"/>
 </p>
 
-### A single page webapplication for playing pong built with `nestjs`, `vue` and `postgres` for the 42 project `ft_transcendence`, created by the ***New Coders on the Block***
+A single page webapplication for playing pong built with `nestjs`, `vue` and `postgres` for the 42 project `ft_transcendence`, created by the ***New Coders on the Block***
 
 # 📋 Requirements:
 
-### This project uses **DOCKER** 🤢 You can download it here:
-### https://www.docker.com/products/docker-desktop
+This project uses **DOCKER** 🤢 You can download it here:  
+https://www.docker.com/products/docker-desktop
 
 # ⚙️ Installation:
 ```bash
@@ -52,9 +52,9 @@ $ bash runs.sh
 	* `420`:  Api layout
 
 # 💖 Collab:
-### Big love to the boys:
-### [@mraasvel](https://github.com/mraasvel)
-### [@mpeerdem](https://github.com/Maqrkk)
-### [@rpet](https://github.com/rpet91)
-### [@nvan-aac](https://github.com/vanaacken)
-### [@ikole](https://github.com/K1ngmar)
+Big love to the boys:
+[@mraasvel](https://github.com/mraasvel)  
+[@mpeerdem](https://github.com/Maqrkk)  
+[@rpet](https://github.com/rpet91)  
+[@nvan-aac](https://github.com/vanaacken)  
+[@ikole](https://github.com/K1ngmar)  
