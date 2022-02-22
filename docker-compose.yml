@@ -23,48 +23,47 @@
 
 version: "3.0"
 services:
-# Backend service
+# Frontend Service
+  frontend:
+    container_name: frontend
+    build: ./src/frontend
+    depends_on:
+      - backend
+    volumes:
+      - ./src/frontend/app:/app
+    ports:
+      - 8080:8080
+# Backend Service
   backend:
     container_name: backend
     build: ./src/backend
-    container_name: backend
-    ports:
-      - 420:420
     depends_on:
       - postgres
     volumes:
-      - ./src/backend:/app
-  frontend:
-    build: ./src/frontend
-    container_name: frontend
-    depends_on:
-      - backend
+      - ./src/backend/app:/app
     ports:
-      - 8080:8080
-    volumes:
-      - ./src/frontend:/app
-
-# postgres service
+      - 3000:3000
+# PostgreSQL Service
   postgres:
     container_name: postgres
     build: ./src/postgres
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: pong_db
+    env_file:
+      - "./src/postgres/env_file"
     volumes:
-      - ./src/postgres/volume_claims/:/var/lib/postgresql/data/
-
-# pg-admin
+      - pgdata:/var/lib/postgresql/data/
+# PgAdmin (v4) Service
   pgadmin:
-    container_name: pgadmin4
+    container_name: pgadmin
+    build: ./src/pgadmin
     depends_on:
       - postgres
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@pg.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    build: ./src/pgadmin
+    env_file:
+      - "./src/pgadmin/config/env_file"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
     ports:
       - 5050:80
-    volumes:
-      - ./src/pgadmin/volume_claims/:/var/lib/pgadmin
+
+volumes:
+  pgdata:
+  pgadmin_data:
