@@ -1,7 +1,5 @@
 FROM node:lts-alpine
-
-# Make the 'app' folder the current working directory
-RUN npm i -g @vue/cli
-COPY ./entrypoint.sh /
 WORKDIR /app
+RUN chown -R node:node /root
+COPY ./entrypoint.sh /
 ENTRYPOINT [ "/bin/sh", "/entrypoint.sh" ]
