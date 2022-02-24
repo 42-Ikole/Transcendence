@@ -1,4 +1,4 @@
-import { PrimaryColumn, Column, Timestamp, Entity } from 'typeorm';
+import { PrimaryColumn, Column, Timestamp, Entity, OneToOne, OneToMany, ManyToOne } from 'typeorm';
 import { Message } from 'src/message/entities/message.entity'
 import { User } from '../../users/entities/user.entity';
 
@@ -6,9 +6,12 @@ import { User } from '../../users/entities/user.entity';
 @Entity()
 export class Chat {
     @PrimaryColumn()
-    key: number;
+    id: number;
 
-    @Column()
+    @ManyToOne(() => User, user => user.owner)
+    owner: User;
+
+    @OneToOne(() => User, user => user.c)
     owner: number;
 
     @Column('int', {array: true})

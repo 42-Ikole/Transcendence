@@ -1,20 +1,22 @@
-import { PrimaryColumn, Column, Entity} from 'typeorm'
+import { PrimaryColumn, Column, Entity, ManyToOne, JoinColumn} from 'typeorm'
 import { User } from '../../users/entities/user.entity';
 
 @Entity()
 export class Match {
     @PrimaryColumn()
-    key: number;
+    id: number;
+
+    @ManyToOne(() => User, user => user.matchesWon)
+    winnerId: User
+
+    @ManyToOne(() => User, user => user.matchesLost)
+    loserId: User
 
     @Column()
-    winnerId: number;
+    winnerScore: number;
 
     @Column()
-    loserId: number;
+    loserScore: number;
 
-    @Column()
-    winnerPoints: number;
 
-    @Column()
-    loserPoints: number;
 }
