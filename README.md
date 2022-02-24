@@ -31,7 +31,7 @@ https://www.docker.com/products/docker-desktop
 $ git clone https://github.com/K1ngmar/Transcendence.git
 
 # Compile:
-$ bash runs.sh
+$ bash run.sh
 ```
 
 # ✅ Features:
@@ -49,7 +49,7 @@ $ bash runs.sh
 * Services on different ports for `localhost`:
 	* `5050`: PGadmin (root@root.com:root)
 	* `8080`: Frontend (here you can play pong, login with intra :O)
-	* `420`:  Api layout
+	* `3000`:  Api layout
 
 # 💖 Collab:
 Big love to the boys:  
