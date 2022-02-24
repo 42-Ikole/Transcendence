@@ -167,3 +167,7 @@ dist
 # Persistent volume claims
 src/postgres/volume_claims/
 src/pgadmin/volume_claims/
+
+# other
+warnings.txt
+src/postgres/sql_scripts/

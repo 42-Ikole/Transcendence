@@ -1,23 +1,24 @@
-import { PrimaryColumn, Column, Timestamp } from 'typeorm';
+import { PrimaryColumn, Column, Timestamp, Entity } from 'typeorm';
 import { Message } from 'src/message/entities/message.entity'
-import { Users } from 'src/users/interfaces/users.interface';
+import { User } from '../../users/entities/user.entity';
 
 
+@Entity()
 export class Chat {
     @PrimaryColumn()
     key: number;
 
     @Column()
-    owner: Users;
+    owner: number;
 
-    @Column({array: true})
-    admin: Users[];
+    @Column('int', {array: true})
+    admin: number[];
 
-    @Column({array: true})
-    member: Users[];
+    @Column('int', {array: true})
+    member: number[];
 
-    @Column({array: true, default: {}})
-    messages: Message[];
+    @Column('int', {array: true, default: {}})
+    messages: number[];
 
     @Column({default: null})
     password: string;

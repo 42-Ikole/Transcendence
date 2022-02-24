@@ -22,16 +22,13 @@
 #                                                                              #
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  #
 
-if [ "$1" == "-clean" ]; then
-	bash src/scripts/clean.sh
-elif [ "$1" == "-fclean" ]; then
-	bash src/scripts/clean.sh -f
-fi
+# run system prune
+docker system prune -f
 
-# create symlink to goinfre
-if [ "$1" == "-l" ]; then
-	bash src/scripts/create_symlink.sh
-fi
+# remove persistent volume claims
+docker volume prune -f
 
-# run docker compose
-docker-compose up --build
+# prune the images
+if [ "$1" == "-f" ]; then
+	docker image prune -f
+fi

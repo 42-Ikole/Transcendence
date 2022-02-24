@@ -1,6 +1,6 @@
-import { PrimaryColumn, Column, Timestamp } from 'typeorm'
-import { Users } from 'src/users/interfaces/users.interface';
+import { PrimaryColumn, Column, Entity, CreateDateColumn, Timestamp } from 'typeorm'
 
+@Entity()
 export class Message {
     @PrimaryColumn()
     key: number;
@@ -9,9 +9,9 @@ export class Message {
     message: string;
 
     @Column()
-    Timestamp: Timestamp;
+    author: number;
 
-    @Column()
-    author: Users
+    @CreateDateColumn()
+    dateCreated: Timestamp;
 
 }

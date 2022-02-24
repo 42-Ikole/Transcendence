@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { Match } from 'src/match/entities/match.entity';
+import { Match } from '../../match/entities/match.entity';
 
 @Entity()
 export class User {
@@ -21,6 +21,6 @@ export class User {
   @Column()
   description: string;
 
-  @Column({array: true, default: {}})
-  matchHistory: Match[]
+  @Column('int', {array: true, default: null})
+  matchHistory: number[]
 }

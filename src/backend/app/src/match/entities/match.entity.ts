@@ -1,15 +1,16 @@
-import { PrimaryColumn, Column } from 'typeorm'
-import { Users } from 'src/users/interfaces/users.interface';
+import { PrimaryColumn, Column, Entity} from 'typeorm'
+import { User } from '../../users/entities/user.entity';
 
+@Entity()
 export class Match {
     @PrimaryColumn()
-    id: number;
+    key: number;
 
     @Column()
-    winner: Users;
+    winnerId: number;
 
     @Column()
-    loser: Users;
+    loserId: number;
 
     @Column()
     winnerPoints: number;
