@@ -11,7 +11,7 @@ export class Message {
     @Column()
     author: number;
 
-    @CreateDateColumn()
-    dateCreated: Timestamp;
+    @Column({type: 'timestamp'})
+    dateCreated: Date;
 
 }
