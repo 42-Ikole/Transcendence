@@ -18,5 +18,8 @@ export class Match {
     @Column()
     loserScore: number;
 
+    @Column({nullable: true})
+    startedAt: Date;
+
 
 }
