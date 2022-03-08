@@ -15,7 +15,7 @@
 import { defineComponent } from "vue";
 import { loginUser, logoutUser, getUserInfo } from "@/utils/Login";
 import { mapState } from "pinia";
-import { useAuthenticationStore } from '@/stores/authentication';
+import { useAuthenticationStore } from "@/stores/authentication";
 
 export default defineComponent({
   data() {
@@ -36,7 +36,7 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useAuthenticationStore, {
-      isAuthenticated: 'getAuthenticationStatus'
+      isAuthenticated: "getAuthenticationStatus",
     }),
   },
 });

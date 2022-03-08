@@ -8,7 +8,6 @@ import { TypeORMSession } from './orm/entities/session.entity';
 import { getRepository } from 'typeorm';
 import { TypeormStore } from 'connect-typeorm';
 
-
 // Swagger = automatic API documentation
 async function setupSwagger(app: INestApplication) {
   const config = new DocumentBuilder()
@@ -38,7 +37,6 @@ async function setupSession(app: INestApplication) {
   app.use(passport.initialize());
   app.use(passport.session());
 }
-
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

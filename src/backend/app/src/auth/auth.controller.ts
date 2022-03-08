@@ -25,7 +25,8 @@ export class AuthController {
   }
 
   @ApiOperation({
-    summary: 'Returns a 403 (forbidden) status code if not logged in, otherwise returns the user\'s data.',
+    summary:
+      "Returns a 403 (forbidden) status code if not logged in, otherwise returns the user's data.",
   })
   @Get('status')
   @UseGuards(AuthenticatedGuard)
