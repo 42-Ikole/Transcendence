@@ -1,13 +1,13 @@
 <template>
-  <PongApp />
+  <LoginApp />
 </template>
 
 <script lang="ts">
-import PongApp from "@/components/PongApp.vue";
 import { defineComponent } from "vue";
+import LoginApp from "../components/LoginApp.vue";
 export default defineComponent({
   components: {
-    PongApp,
+    LoginApp,
   },
 });
 </script>
