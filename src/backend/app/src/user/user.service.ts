@@ -4,16 +4,6 @@ import { Repository } from 'typeorm';
 import { User } from 'src/orm/entities/user.entity';
 import { IUser } from 'src/user/user.interface';
 
-function validateNumber(num: string): void {
-  if (isNaN(parseInt(num))) {
-    console.log('validateNumber: throwing exception...');
-    throw new HttpException(
-      'invalid parameter: expected number: [' + num + ']',
-      HttpStatus.BAD_REQUEST,
-    );
-  }
-}
-
 @Injectable()
 export class UserService {
   constructor(
@@ -33,8 +23,7 @@ export class UserService {
     return this.usersRepository.find();
   }
 
-  async findOne(id: string): Promise<User> {
-    validateNumber(id);
+  async findOne(id: number): Promise<User> {
     return this.usersRepository.findOne(id);
   }
 
@@ -42,8 +31,12 @@ export class UserService {
     return this.usersRepository.findOne({ intraId: user.intraId });
   }
 
-  async remove(id: string): Promise<void> {
-    validateNumber(id);
+  // TODO: change any to partial user type
+  async updateUser(id: number, partialUser: any) {
+    return this.usersRepository.update(id, partialUser);
+  }
+
+  async remove(id: number): Promise<void> {
     await this.usersRepository.delete(id);
   }
 }
