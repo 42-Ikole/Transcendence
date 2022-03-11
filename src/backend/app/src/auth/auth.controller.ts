@@ -4,6 +4,7 @@ import { IntraGuard } from './intra.guard';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestWithUser, AuthenticatedState } from './auth.types';
 import { OAuthGuard } from 'src/2FA/oauth.guard';
+import { AuthenticatedGuard } from './auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -37,5 +38,12 @@ export class AuthController {
   @UseGuards(OAuthGuard)
   logout(@Req() req: Request) {
     req.logout();
+  }
+
+  @ApiOperation({ summary: 'to test if user is completely authenticated'})
+  @Get('test')
+  @UseGuards(AuthenticatedGuard)
+  test() {
+    return "OK";
   }
 }
