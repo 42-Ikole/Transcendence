@@ -41,6 +41,9 @@ export class AuthController {
   @UseGuards(OAuthGuard)
   logout(@Req() req: Request) {
     req.logout();
+    req.session.destroy((error) => {
+      console.error(error);
+    });
   }
 
   @ApiOperation({ summary: 'to test if user is completely authenticated'})
