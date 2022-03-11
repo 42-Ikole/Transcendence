@@ -5,15 +5,18 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestWithUser, AuthenticatedState } from './auth.types';
 import { OAuthGuard } from 'src/2FA/oauth.guard';
 import { AuthenticatedGuard } from './auth.guard';
+import { ConfigService } from '@nestjs/config'
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
+  constructor(private configService: ConfigService) {}
+
   @ApiOperation({ summary: 'This endpoint redirects the user to 42 to login.' })
   @Get('login')
   @UseGuards(IntraGuard)
   async login(@Res() res: Response) {
-    res.redirect(`http://${process.env.DOMAIN_NAME}`);
+    res.redirect(this.configService.get('oauth.REDIRECT_URL'));
   }
 
   @ApiOperation({

@@ -4,16 +4,17 @@ import { UserService } from 'src/user/user.service';
 import { authenticator } from 'otplib';
 import { toFileStream } from 'qrcode';
 import { Response } from 'express';
-
-const APP_NAME = "Transcendence"
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class TwoFactorService {
-	constructor(private userService: UserService) {}
+	constructor(
+		private userService: UserService,
+		private readonly configService: ConfigService) {}
 
 	async generateTFASecret(user: UserWithTwoFactor) {
 		const secret = authenticator.generateSecret();
-		const otpauthUrl = authenticator.keyuri(user.intraId.toString(), APP_NAME, secret);
+		const otpauthUrl = authenticator.keyuri(user.intraId.toString(), this.configService.get("APP_NAME"), secret);
 		await this.userService.updateUser(user.id, { twoFactorSecret: secret });
 		return {
 			secret,

@@ -3,14 +3,17 @@ import { Strategy } from 'passport-42';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { SessionUser } from './auth.types';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class IntraStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly authService: AuthService) {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService) {
     super({
-      clientID: process.env.INTRA_CLIENT_ID,
-      clientSecret: process.env.INTRA_CLIENT_SECRET,
-      callbackURL: `http://${process.env.DOMAIN_NAME}/api/auth/login`,
+      clientID: configService.get('oauth.INTRA_CLIENT_ID'),
+      clientSecret: configService.get('oauth.INTRA_CLIENT_SECRET'),
+      callbackURL: configService.get('oauth.CALLBACK_URL')
     });
   }
 
