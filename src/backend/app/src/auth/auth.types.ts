@@ -1,5 +1,6 @@
 import { Request } from "express";
 import { User } from "src/orm/entities/user.entity";
+import { IsString, IsNotEmpty, IsDefined } from 'class-validator';
 
 export interface UserWithTwoFactor extends User {
 	twoFactorPassed: boolean
@@ -15,7 +16,10 @@ export interface SessionUser {
 };
 
 export class TwoFactorCodeDto {
-	twoFactorCode: string
+	@IsString()
+	@IsNotEmpty()
+	@IsDefined()
+	twoFactorCode: string;
 };
 
 export type AuthenticatedState = "AUTHENTICATED" | "2FA" | "OAUTH";

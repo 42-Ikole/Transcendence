@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserWithTwoFactor } from 'src/auth/auth.types';
 import { UserService } from 'src/user/user.service';
 import { authenticator } from 'otplib';
@@ -23,6 +23,9 @@ export class TwoFactorService {
 	}
 
 	async isTwoFactorCodeValid(code: string, user: UserWithTwoFactor) {
+		if (!user.twoFactorSecret) {
+			throw new BadRequestException({ message: '2FA: User not registered:', user: user.username, id: user.id });
+		}
 		return authenticator.verify({
 			token: code,
 			secret: user.twoFactorSecret
