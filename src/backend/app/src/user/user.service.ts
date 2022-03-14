@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/orm/entities/user.entity';
 import { IUser } from 'src/user/user.interface';
+import { Match } from 'src/orm/entities/match.entity';
 
 function validateNumber(num: string): void {
   if (isNaN(parseInt(num))) {
@@ -17,7 +18,8 @@ function validateNumber(num: string): void {
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private usersRepository: Repository<User>,
+	@InjectRepository(User) private usersRepository: Repository<User>,
+	@InjectRepository(Match) private matchRepository: Repository<Match>
   ) {}
 
   private createFromDto(userDTO: IUser): User {
@@ -45,5 +47,9 @@ export class UserService {
   async remove(id: string): Promise<void> {
     validateNumber(id);
     await this.usersRepository.delete(id);
+  }
+
+  async findMatches(id: number) {
+	  await this.matchRepository.find({ relations: ['winner']})
   }
 }

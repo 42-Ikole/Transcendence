@@ -6,12 +6,14 @@ import { AuthModule } from './auth/auth.module';
 import { config } from './orm/ormconfig';
 import { UserModule } from './user/user.module';
 import { PassportModule } from '@nestjs/passport';
+import { MatchModule } from './match/match.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(config),
-    UserModule,
-    AuthModule,
+	UserModule,
+	MatchModule,
+	AuthModule,
     PassportModule.register({ session: true }),
   ],
   controllers: [AppController],

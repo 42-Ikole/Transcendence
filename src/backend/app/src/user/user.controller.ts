@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -16,6 +16,11 @@ export class UserController {
   @Get(':id')
   async findOne(@Param() params): Promise<User> {
     return await this.userService.findOne(params.id);
+  }
+
+  @Get('posts')
+  async findMatches(@Req() request: any) {
+	  return await this.userService.findMatches(request.user.id);
   }
 
   @Delete(':id')
