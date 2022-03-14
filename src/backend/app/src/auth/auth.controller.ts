@@ -5,7 +5,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestWithUser, AuthenticatedState } from './auth.types';
 import { OAuthGuard } from 'src/2FA/oauth.guard';
 import { AuthenticatedGuard } from './auth.guard';
-import { ConfigService } from '@nestjs/config'
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -27,11 +27,11 @@ export class AuthController {
   status(@Req() req: RequestWithUser) {
     let state: AuthenticatedState;
     if (!req.isAuthenticated()) {
-      state = "OAUTH";
+      state = 'OAUTH';
     } else if (!req.user.twoFactorPassed) {
-      state = "2FA";
+      state = '2FA';
     } else {
-      state = "AUTHENTICATED";
+      state = 'AUTHENTICATED';
     }
     return { state };
   }
@@ -46,10 +46,10 @@ export class AuthController {
     });
   }
 
-  @ApiOperation({ summary: 'to test if user is completely authenticated'})
+  @ApiOperation({ summary: 'to test if user is completely authenticated' })
   @Get('test')
   @UseGuards(AuthenticatedGuard)
   test() {
-    return "OK";
+    return 'OK';
   }
 }
