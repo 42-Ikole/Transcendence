@@ -1,4 +1,7 @@
-import { useAuthenticationStore, type AuthenticatedState } from "@/stores/authentication";
+import {
+  useAuthenticationStore,
+  type AuthenticatedState,
+} from "@/stores/authentication";
 import type { Router } from "vue-router";
 import makeApiCall from "./ApiCall";
 
@@ -12,12 +15,12 @@ export async function logoutUser(router: Router) {
     method: "DELETE",
   });
   const authStore = useAuthenticationStore();
-  router.push('/login');
+  router.push("/login");
   authStore.logout();
 }
 
 export async function getUserInfo() {
-  const response = await makeApiCall('/auth/status');
+  const response = await makeApiCall("/auth/status");
   return response.json();
 }
 

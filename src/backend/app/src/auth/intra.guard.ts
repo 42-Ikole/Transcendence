@@ -9,11 +9,12 @@ import { ConfigService } from '@nestjs/config';
 export class IntraStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly authService: AuthService,
-    private readonly configService: ConfigService) {
+    private readonly configService: ConfigService,
+  ) {
     super({
       clientID: configService.get('oauth.INTRA_CLIENT_ID'),
       clientSecret: configService.get('oauth.INTRA_CLIENT_SECRET'),
-      callbackURL: configService.get('oauth.CALLBACK_URL')
+      callbackURL: configService.get('oauth.CALLBACK_URL'),
     });
   }
 
@@ -39,7 +40,8 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
 export class IntraGuard extends AuthGuard('42') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const activate = (await super.canActivate(context)) as boolean;
-    const request = context.switchToHttp().getRequest();
+	const request = context.switchToHttp().getRequest();
+	console.log("Logging in...");
     await super.logIn(request);
     return activate;
   }

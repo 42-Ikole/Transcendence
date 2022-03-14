@@ -13,7 +13,10 @@ export class UserSerializer extends PassportSerializer {
   }
 
   // Encrypt the user into a cookie
-  serializeUser(user: SessionUser, done: (err: Error, user: SessionUser) => void) {
+  serializeUser(
+    user: SessionUser,
+    done: (err: Error, user: SessionUser) => void,
+  ) {
     done(null, user);
   }
 

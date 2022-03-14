@@ -16,10 +16,10 @@ export class User {
   @Column()
   username: string;
 
-  @Column()
+  @Column({ nullable: true})
   fullName: string;
 
-  @Column()
+  @Column({ nullable: true})
   email: string;
 
   @OneToMany(() => Match, (match: Match) => match.id)
