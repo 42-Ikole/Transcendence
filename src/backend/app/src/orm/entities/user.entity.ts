@@ -24,4 +24,10 @@ export class User {
 
   @OneToMany(() => Match, (match: Match) => match.id)
   matches: Match[];
+  // Two Factor
+  @Column({ nullable: true })
+  twoFactorSecret: string;
+
+  @Column({ default: false })
+  twoFactorEnabled: boolean;
 }

@@ -1,8 +1,19 @@
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
-  </div>
+  <button @click="logout">logout</button>
 </template>
+
+<script lang="ts">
+import { logoutUser } from "@/utils/Login";
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  methods: {
+    logout() {
+      logoutUser(this.$router);
+    }
+  }
+})
+</script>
 
 <style>
 @media (min-width: 1024px) {
