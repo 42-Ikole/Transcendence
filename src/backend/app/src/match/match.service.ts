@@ -4,20 +4,31 @@ import { Repository } from 'typeorm';
 import { Match } from 'src/orm/entities/match.entity';
 import { IMatch } from 'src/match/match.interface';
 
-function validateNumber(num: string): void {
-  if (isNaN(parseInt(num))) {
-    console.log('validateNumber: throwing exception...');
-    throw new HttpException(
-      'invalid parameter: expected number: [' + num + ']',
-      HttpStatus.BAD_REQUEST,
-    );
-  }
-}
 
 @Injectable()
 export class MatchService {
   constructor(
     @InjectRepository(Match) private matchRepository: Repository<Match>,
   ) {}
+
+////////////
+// Create //
+////////////
+
+	createMatch(matchDTO: IMatch): Promise<Match> {
+		// creates user entity
+		const newMatch = this.matchRepository.create(matchDTO);
+  
+		// inserts if not exists
+		return this.matchRepository.save(newMatch);
+	}
+
+/////////////
+// Getters //
+/////////////
+
+  findALL(): Promise<Match[]> {
+	  return this.matchRepository.find(); // SELECT * FROM match
+  }
 
 }

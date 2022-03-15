@@ -12,6 +12,21 @@ export class UserService {
 	@InjectRepository(Match) private matchRepository: Repository<Match>
   ) {}
 
+////////////
+// Create //
+////////////
+	createUser(user: User): Promise<User>
+	{
+	// creates user entity
+	const newUser = this.usersRepository.create(user);
+
+	// inserts if not exists, otherwise its an update
+	return this.usersRepository.save(newUser);
+	}
+
+/////////////
+// Getters //
+/////////////
   private createFromDto(userDTO: IUser): User {
     return this.usersRepository.create(userDTO);
   }
