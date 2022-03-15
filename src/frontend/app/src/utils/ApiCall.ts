@@ -9,7 +9,7 @@ function sleep(milliseconds: number) {
 export async function makeApiCall(uri: string, init?: RequestInit) {
   const prefix = "http://localhost:8080/api";
   // for testing loading and async handling
-  // sleep(1000);
+  sleep(500);
   return await fetch(`${prefix}${uri}`, init);
 }
 

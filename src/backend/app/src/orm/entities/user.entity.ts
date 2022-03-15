@@ -10,4 +10,11 @@ export class User {
 
   @Column()
   username: string;
+
+  // Two Factor
+  @Column({ nullable: true })
+  twoFactorSecret: string;
+
+  @Column({ default: false })
+  twoFactorEnabled: boolean;
 }

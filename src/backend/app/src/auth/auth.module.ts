@@ -5,9 +5,10 @@ import { AuthService } from './auth.service';
 import { UserModule } from 'src/user/user.module';
 import { UserSerializer } from './auth.serializer';
 import { IntraStrategy } from './intra.guard';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [HttpModule, UserModule],
+  imports: [HttpModule, UserModule, ConfigModule],
   controllers: [AuthController],
   providers: [UserSerializer, AuthService, IntraStrategy],
 })

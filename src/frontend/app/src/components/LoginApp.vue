@@ -28,7 +28,7 @@ export default defineComponent({
       loginUser();
     },
     logout() {
-      logoutUser();
+      logoutUser(this.$router);
     },
     async getUserData() {
       this.userData = await getUserInfo();

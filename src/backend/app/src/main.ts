@@ -7,6 +7,7 @@ import * as passport from 'passport';
 import { TypeORMSession } from './orm/entities/session.entity';
 import { getRepository } from 'typeorm';
 import { TypeormStore } from 'connect-typeorm';
+import { ValidationPipe } from '@nestjs/common';
 
 // Swagger = automatic API documentation
 async function setupSwagger(app: INestApplication) {
@@ -43,6 +44,7 @@ async function bootstrap() {
   await setupSwagger(app);
   await setupSession(app);
   app.enableCors(); // For frontend API connection
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(3000);
 }
 bootstrap();

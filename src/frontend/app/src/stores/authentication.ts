@@ -1,22 +1,27 @@
 import { defineStore } from "pinia";
 
+export type AuthenticatedState = "AUTHENTICATED" | "2FA" | "OAUTH";
+
 export const useAuthenticationStore = defineStore("authentication", {
   state: () => {
     return {
-      isAuthenticated: false,
+      authenticatedState: "OAUTH" as AuthenticatedState,
     };
   },
   getters: {
-    getAuthenticationStatus: (state) => {
-      return state.isAuthenticated;
+    isAuthenticated: (state) => {
+      return state.authenticatedState === "AUTHENTICATED";
     },
   },
   actions: {
+    setState(state: AuthenticatedState) {
+      this.authenticatedState = state;
+    },
     login() {
-      this.isAuthenticated = true;
+      this.setState("AUTHENTICATED");
     },
     logout() {
-      this.isAuthenticated = false;
+      this.setState("OAUTH");
     },
   },
 });

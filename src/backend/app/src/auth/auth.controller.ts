@@ -1,43 +1,55 @@
 import { Controller, Delete, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { AuthenticatedGuard } from './auth.guard';
 import { IntraGuard } from './intra.guard';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { RequestWithUser, AuthenticatedState } from './auth.types';
+import { OAuthGuard } from 'src/2FA/oauth.guard';
+import { AuthenticatedGuard } from './auth.guard';
+import { ConfigService } from '@nestjs/config';
 
-@ApiTags('OAuth')
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
+  constructor(private configService: ConfigService) {}
+
   @ApiOperation({ summary: 'This endpoint redirects the user to 42 to login.' })
   @Get('login')
   @UseGuards(IntraGuard)
-  async login() {
-    return;
+  async login(@Res() res: Response) {
+    res.redirect(this.configService.get('oauth.REDIRECT_URL'));
   }
 
   @ApiOperation({
     summary:
-      'The endpoint that the OAuth provider (42) redirects to, we return the user back to the frontend.',
-  })
-  @Get('redirect')
-  @UseGuards(IntraGuard)
-  async redirect(@Res() res: Response) {
-    res.redirect('http://localhost:8080');
-  }
-
-  @ApiOperation({
-    summary:
-      "Returns a 403 (forbidden) status code if not logged in, otherwise returns the user's data.",
+      'Returns the current state of authentication: "AUTHENTICATED" | "2FA" | "OAUTH"',
   })
   @Get('status')
-  @UseGuards(AuthenticatedGuard)
-  status(@Req() req: Request) {
-    return req.user;
+  status(@Req() req: RequestWithUser) {
+    let state: AuthenticatedState;
+    if (!req.isAuthenticated()) {
+      state = 'OAUTH';
+    } else if (!req.user.twoFactorPassed) {
+      state = '2FA';
+    } else {
+      state = 'AUTHENTICATED';
+    }
+    return { state };
   }
 
   @ApiOperation({ summary: 'Logs the user out and kills the session.' })
   @Delete('logout')
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(OAuthGuard)
   logout(@Req() req: Request) {
     req.logout();
+    req.session.destroy((error) => {
+      console.error(error);
+    });
+  }
+
+  @ApiOperation({ summary: 'to test if user is completely authenticated' })
+  @Get('test')
+  @UseGuards(AuthenticatedGuard)
+  test() {
+    return 'OK';
   }
 }
