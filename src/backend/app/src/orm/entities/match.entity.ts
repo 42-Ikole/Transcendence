@@ -6,17 +6,13 @@ export class Match {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, user => user.id, {
-	  eager: true
-  })
+  @ManyToOne(() => User, user => user.id)
   winner: User;
 
   @Column()
   winnerScore: number;
 
-  @ManyToOne(() => User, user => user.id, {
-	  eager: true
-  })
+  @ManyToOne(() => User, user => user.id)
   loser: User;
 
   @Column()
