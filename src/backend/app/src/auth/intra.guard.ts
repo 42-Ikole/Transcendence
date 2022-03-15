@@ -2,15 +2,19 @@ import { Injectable, ExecutionContext } from '@nestjs/common';
 import { Strategy } from 'passport-42';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { User } from 'src/orm/entities/user.entity';
+import { SessionUser } from './auth.types';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class IntraStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly authService: AuthService) {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {
     super({
-      clientID: process.env.INTRA_CLIENT_ID,
-      clientSecret: process.env.INTRA_CLIENT_SECRET,
-      callbackURL: process.env.OAUTH_CALLBACK,
+      clientID: configService.get('oauth.INTRA_CLIENT_ID'),
+      clientSecret: configService.get('oauth.INTRA_CLIENT_SECRET'),
+      callbackURL: configService.get('oauth.CALLBACK_URL'),
     });
   }
 
@@ -22,13 +26,13 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
     access_token: string, // can be used to access API
     refreshToken: string, // can be stored for refreshing access token
     profile: any,
-    callback: (error: any, user: User) => void,
+    callback: (error: any, user: SessionUser) => void,
   ) {
     const { username, id: intraId } = profile;
     const details = { username, intraId };
     console.log('Validate user:', details);
     const user = await this.authService.validateUser(details);
-    callback(null, user);
+    callback(null, { id: user.id, twoFactorPassed: !user.twoFactorEnabled });
   }
 }
 
