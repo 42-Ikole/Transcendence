@@ -48,6 +48,11 @@ export class UserService {
     return this.usersRepository.findOne({ intraId: user.intraId });
   }
 
+
+////////////
+// Update //
+////////////
+
   // TODO: change any to partial user type
   async updateUser(id: number, partialUser: any) {
     return this.usersRepository.update(id, partialUser);
@@ -57,7 +62,12 @@ export class UserService {
     await this.usersRepository.delete(id);
   }
 
-  async findMatches(id: number) {
-	  await this.matchRepository.find({ relations: ['winner']})
+  async findWins(id: number) {
+	  return (await this.usersRepository.findOne(id, {relations: ['wins']})).wins;
+	}
+	
+	async findLosses(id: number) {
+		return (await this.usersRepository.findOne(id, {relations: ['losses']})).losses;
   }
+
 }

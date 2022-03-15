@@ -22,8 +22,11 @@ export class User {
   @Column({ nullable: true})
   email: string;
 
-  @OneToMany(() => Match, (match: Match) => match.id)
-  matches: Match[];
+  @OneToMany(() => Match, match => match.winner)
+  wins: Match[];
+
+  @OneToMany(() => Match, match => match.loser)
+  losses: Match[];
 
   // Two Factor
   @Column({ nullable: true })

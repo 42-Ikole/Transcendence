@@ -32,9 +32,14 @@ export class UserController {
     return await this.userService.findOne(params.id);
   }
 
-  @Get('matches')
-  async findMatches(@Req() request: any) {
-	  return await this.userService.findMatches(request.user.id);
+  @Get('matches_won/:id')
+  async findWinner(@Param('id') id) {
+	  return await this.userService.findWins(id);
+  }
+ 
+  @Get('matches_lost/:id')
+  async findLosses(@Param('id') id) {
+	  return await this.userService.findLosses(id);
   }
 
 /////////////

@@ -26,4 +26,8 @@ export class MatchController {
 		return this.matchService.findALL(); // SELECT * FROM match
 	}
 
+	@Get('userMatches/:id')
+	async	findUserMatches(@Param('id') id): Promise<Match[]> {
+		return this.matchService.findUserMatches(id);
+	}
 }
