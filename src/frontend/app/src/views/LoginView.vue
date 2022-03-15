@@ -1,12 +1,9 @@
 <template>
-<div v-if="isOAuth">
-  <LoginApp />
-</div>
-<div v-else-if="isTwoFactor">
+<div v-if="isTwoFactor">
   <TwoFactorApp />
 </div>
-<div v-else="">
-  <p>You are logged in</p>
+<div v-else>
+  <LoginApp />
 </div>
 </template>
 
