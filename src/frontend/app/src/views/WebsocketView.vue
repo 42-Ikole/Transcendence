@@ -30,10 +30,15 @@ export default defineComponent({
 		}
 	},
 	created() {
-		// this.socket = io('http://localhost:3000');
-		// this.socket.on('msgToClient', (msg: string) => {
-		// 	this.receive(msg);
-		// });
-	}
+		this.socket = io("http://localhost:3000");
+		this.socket.on('msgToClient', (msg: any) => {
+			this.receive(msg);
+		});
+		// console.log("socket io");
+		// console.log("done");
+	},
+	beforeUnmount() {
+		this.socket.disconnect();
+	},
 });
 </script>

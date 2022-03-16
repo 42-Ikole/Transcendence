@@ -27,7 +27,7 @@ async function setupSession(app: INestApplication) {
   app.use(
     session({
       cookie: {
-        maxAge: 1000 * 60 * 60 * 24,
+        maxAge: 1000 * 60 * 60 * 24 * 7,
       },
       secret: 'secret_random_string', // TODO: should be secret and random
       resave: false,
