@@ -4,6 +4,7 @@ import AboutView from "@/views/AboutView.vue";
 import LoginView from "@/views/LoginView.vue";
 import { isLoggedIn } from "@/utils/Login";
 import Enable2FaView from "@/views/Enable2FaView.vue";
+import WebsocketView from "@/views/WebsocketView.vue";
 
 const routes = [
   {
@@ -26,6 +27,11 @@ const routes = [
     name: "2fa",
     component: Enable2FaView,
   },
+  {
+    path: "/websocket",
+    name: "websocket",
+    component: WebsocketView
+  }
 ];
 
 const router = createRouter({
