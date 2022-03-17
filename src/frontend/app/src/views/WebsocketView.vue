@@ -3,7 +3,11 @@
 	<h1>Web Sockets</h1>
 	<input v-model="message" @keyup.enter="submit" placeholder="message">
 	<button @click="submit">Submit</button>
-	<li v-for="msg in messages"> {{ msg }} </li>
+	<p>
+		<ul>
+			<li v-for="msg in messages"> {{ msg }} </li>
+		</ul>
+	</p>
 </div>
 </template>
 
@@ -21,7 +25,6 @@ export default defineComponent({
 	},
 	methods: {
 		submit() {
-			console.log(this.message);
 			this.socket.emit('msgToServer', this.message);
 			this.message = "";
 		},
@@ -30,7 +33,7 @@ export default defineComponent({
 		}
 	},
 	created() {
-		this.socket = io("http://localhost:3000");
+		this.socket = io("http://localhost:3000/chat");
 		this.socket.on('msgToClient', (msg: any) => {
 			this.receive(msg);
 		});

@@ -2,7 +2,7 @@ import { WebSocketServer, OnGatewayInit, WebSocketGateway, OnGatewayConnection, 
 import { Logger } from "@nestjs/common";
 import { Socket, Server } from "socket.io";
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway({ cors: true, namespace: '/chat' })
 export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	private logger: Logger = new Logger("AppGateway");
 	@WebSocketServer() wss: Server;
@@ -19,7 +19,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	@SubscribeMessage('msgToServer')
 	handleMessage(client: Socket, data: string): void {
-		this.wss.emit('msgToClient', client.id.toString() + ": " + data);
+		console.log("recv:", data);
+		console.log("send:", data);
+		this.wss.emit('msgToClient', data);
 		// return { event: 'msgToClient', data };
 	}
 }
