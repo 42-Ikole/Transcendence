@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Param, Req, Post, Body } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { User } from 'src/orm/entities/user.entity';
+import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { userInfo } from 'os';
 
@@ -27,9 +27,14 @@ export class UserController {
     return await this.userService.findAll();
   }
 
-  @Get(':id')
-  async findOne(@Param() params): Promise<User> {
-    return await this.userService.findOne(params.id);
+  @Get('/:id')
+  async findById(@Param('id') id): Promise<User> {
+    return await this.userService.findById(id);
+  }
+
+  @Get('findIntraId/:id')
+  async findByIntraId(@Param('id') id): Promise<User> {
+    return await this.userService.findByIntraId(id);
   }
 
   @Get('matches_won/:id')
@@ -42,12 +47,22 @@ export class UserController {
 	  return await this.userService.findLosses(id);
   }
 
+////////////
+// Update //
+////////////
+
+	@Post('update/:id')
+	async update(@Param('id') id, @Body() user: PartialUser) {
+		console.log("id:", id, "part:", user);
+		return this.userService.update(id, user);
+	}
+
 /////////////
 // Getters //
 /////////////
 
-  @Delete('delete')
-  async remove(@Param() params) {
-    await this.userService.remove(params.id);
+  @Delete('delete/:id')
+  async delete(@Param('id') id) {
+    await this.userService.delete(id);
   }
 }

@@ -21,6 +21,6 @@ export class AuthService {
   }
 
   async findUser(user: IUser) {
-    return this.userService.findUser(user);
+    return this.userService.findByIntraId(user);
   }
 }

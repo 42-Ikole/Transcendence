@@ -35,3 +35,9 @@ export class User {
   @Column({ default: false })
   twoFactorEnabled: boolean;
 }
+
+// creates a partial user where each field is optional
+type Partial<T> = {
+	[P in keyof T]?: T[P];
+};
+export type PartialUser = Partial<User>;
