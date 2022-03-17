@@ -14,6 +14,13 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import io from 'socket.io-client';
+import { Socket } from 'socket.io-client';
+
+interface DataComponent {
+	message: string;
+	messages: string[];
+	socket: Socket;
+}
 
 export default defineComponent({
 	data() {
