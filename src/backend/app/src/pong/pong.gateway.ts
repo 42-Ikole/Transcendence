@@ -1,6 +1,6 @@
-import { WebSocketServer, OnGatewayInit, WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, MessageBody, WsResponse } from "@nestjs/websockets";
-import { Logger } from "@nestjs/common";
+import { WebSocketServer, OnGatewayInit, WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage } from "@nestjs/websockets";
 import { Socket, Server } from "socket.io";
+import { updatePos } from "./pong.game";
 
 @WebSocketGateway({ cors: true, namespace: '/pong' })
 export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -11,16 +11,15 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 	handleConnection(client: Socket, ...args: any[]) {
 		console.log("Connect:", client.id);
+		client.emit("updatePosition", updatePos());
 	}
 	handleDisconnect(client: Socket) {
 		console.log("Disconnect:", client.id);
 	}
 
-	@SubscribeMessage('msgToServer')
-	handleMessage(client: Socket, data: string): void {
-		console.log("recv:", data);
-		console.log("send:", data);
-		this.wss.emit('msgToClient', data);
-		// return { event: 'msgToClient', data };
+	@SubscribeMessage('updatePosition')
+	updatePosition(client: Socket, data: any) {
+		console.log("Update Position:", data);
+		this.wss.emit('updatePosition', updatePos());
 	}
 }

@@ -4,4 +4,4 @@ import { PongGateway } from './pong.gateway';
 @Module({
 	providers: [PongGateway]
 })
-export class EventsModule {}
+export class PongModule {}

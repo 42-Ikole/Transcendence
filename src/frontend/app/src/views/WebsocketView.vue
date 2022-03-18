@@ -13,7 +13,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import io from 'socket.io-client';
-import { type Socket } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
 
 interface DataComponent {
 	rooms: string[];

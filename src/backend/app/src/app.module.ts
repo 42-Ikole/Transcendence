@@ -10,6 +10,7 @@ import { TwoFactorModule } from './2FA/twofactor.module';
 import { ConfigModule } from '@nestjs/config';
 import { configModuleOptions } from './config/options';
 import { EventsModule } from './gateway/events.module';
+import { PongModule } from './pong/pong.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { EventsModule } from './gateway/events.module';
     AuthModule,
     TwoFactorModule,
     EventsModule,
+    PongModule,
     PassportModule.register({ session: true }),
     ConfigModule.forRoot(configModuleOptions),
   ],
