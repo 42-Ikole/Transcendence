@@ -23,8 +23,8 @@ export default defineComponent({
 		},
 		render() {
 			this.clear();
-			this.context!.fillStyle = "cyan";
-			this.context!.fillRect(10, 50, 5, 50);
+			this.context!.fillStyle = "black";
+			this.context!.fillRect(2, 50, 3.5, 35);
 		},
 		clear() {
 			this.context!.clearRect(0, 0, this.game.width, this.game.height);
@@ -50,11 +50,17 @@ export default defineComponent({
 }
 
 .game {
-	width: 50vw;
-	height: 50vh;
+	width: 75vw;
+	height: 75vh;
 	border: 1px solid black;
-	margin: 20px;
+	display: block;
+	position: absolute;
 	background-color: white;
+	margin: auto;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
 }
 
 .bar {
