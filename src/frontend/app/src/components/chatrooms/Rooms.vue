@@ -14,8 +14,8 @@
 
 <script lang="ts">
 
-import CreateRoom from './CreateRoom.vue'
-import JoinRoom from  './JoinRoom.vue'
+import CreateRoom from './CreateRoom.vue';
+import JoinRoom from  './JoinRoom.vue';
 import { defineComponent } from 'vue';
 
 enum State {
@@ -36,6 +36,9 @@ export default defineComponent({
 		},
 		isCreating() {
 			return this.state === State.CREATING;
+		},
+		isJoining() {
+			return this.sate === State.JOINING;
 		}
 	},
 	methods: {
