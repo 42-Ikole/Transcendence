@@ -4,6 +4,7 @@ import { movePlayer, newGameState, updateGamestate } from "./pong.game";
 import { GameState } from "./pong.types";
 
 let gameState: GameState = newGameState();
+let intervalId: NodeJS.Timer;
 
 @WebSocketGateway({ cors: true, namespace: '/pong' })
 export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -12,19 +13,26 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	afterInit(server: Server) {
 		console.log("Initialized!");
 	}
+
 	handleConnection(client: Socket, ...args: any[]) {
 		console.log("Connect:", client.id);
 		gameState = newGameState();
-	}
-	handleDisconnect(client: Socket) {
-		console.log("Disconnect:", client.id);
+		intervalId = setInterval(() => {
+			gameState = updateGamestate(gameState);
+			this.wss.emit('updatePosition', gameState);
+		}, 15);
 	}
 
-	@SubscribeMessage('updatePosition')
-	updatePosition(client: Socket, data: any) {
-		gameState = updateGamestate(gameState);
-		this.wss.emit('updatePosition', gameState);
+	handleDisconnect(client: Socket) {
+		console.log("Disconnect:", client.id);
+		clearInterval(intervalId);
 	}
+
+	// @SubscribeMessage('updatePosition')
+	// updatePosition(client: Socket, data: any) {
+		// gameState = updateGamestate(gameState);
+		// this.wss.emit('updatePosition', gameState);
+	// }
 
 	@SubscribeMessage('movement')
 	movement(client: Socket, data: string) {
@@ -35,6 +43,6 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		} else if (data === "ArrowDown" || data === "ArrowUp") {
 			movePlayer(gameState.playerTwo.bar, data);
 		}
-		this.wss.emit('updatePosition', gameState);
+		// this.wss.emit('updatePosition', gameState);
 	}
 }

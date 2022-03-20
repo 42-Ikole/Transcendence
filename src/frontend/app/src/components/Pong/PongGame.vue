@@ -13,8 +13,6 @@ import io from "socket.io-client";
 import type { Socket } from "socket.io-client";
 import type { Ball, GameState, PongBar } from './PongTypes';
 
-let rendering = true;
-
 export default defineComponent({
 	data() {
 		return {
@@ -26,12 +24,6 @@ export default defineComponent({
 		};
 	},
 	methods: {
-		update() {
-			this.socket!.emit('updatePosition', "");
-			if (rendering) {
-				window.requestAnimationFrame(this.update);
-			}
-		},
 		render(data: GameState) {
 			this.clear();
 			this.drawBar(data.playerOne.bar);
@@ -69,8 +61,6 @@ export default defineComponent({
 			this.render(data);
 		});
 		window.addEventListener('keydown', this.move);
-		window.requestAnimationFrame(this.update);
-		rendering = true;
 	},
 	mounted() {
 		this.game = this.$refs.game;
@@ -80,7 +70,6 @@ export default defineComponent({
 	},
 	unmounted() {
 		window.removeEventListener('keydown', this.move);
-		rendering = false;
 		this.socket!.disconnect();
 	}
 });
