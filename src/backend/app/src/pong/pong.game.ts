@@ -1,46 +1,72 @@
 import { Ball, GameState, Player, PongBar } from "./pong.types"
 
-const BALL_SPEED = 0.25;
-const PLAYER_SPEED = 0.05;
+const BALL_SPEED = 0.005;
+const PLAYER_SPEED = 0.025;
 
 type ArrowKey = "ArrowUp" | "ArrowDown"
 
-function resetBall(ball: Ball) {
-	ball.position.x = 0.5;
-	ball.position.y = 0.5;
-	ball.direction.x = -1;
-	ball.direction.y = 0;
-	ball.radius = 0.01;
+function newBall(): Ball {
+	return {
+		position: {
+			x: 0.5,
+			y: 0.5,
+		},
+		direction: {
+			x: -1,
+			y: 0
+		},
+		radius: 0.015
+	};
 }
 
-function resetPlayer(player: Player) {
-	player.bar.position.y = 0.5;
-	player.bar.position.x = 0.1;
-	player.bar.width = 0.01; // 1% of screen width
-	player.bar.height = 0.1; // 10% of screen height
-	player.score = 0;
+function newPlayer(): Player {
+	return {
+		bar: {
+			position: {
+				x: 0.01,
+				y: 0.4, // 0.5 - bar.height / 2
+			},
+			width: 0.015,
+			height: 0.2,
+		},
+		score: 0
+	};
 }
 
-export function resetGameState(state: GameState) {
-	resetBall(state.ball);
-	resetPlayer(state.playerOne);
-	resetPlayer(state.playerTwo);
-	state.playerTwo.bar.position.x = 0.9;
+export function newGameState(): GameState {
+	let state: GameState = {
+		ball: newBall(),
+		playerOne: newPlayer(),
+		playerTwo: newPlayer(),
+	}
+	state.playerTwo.bar.position.x = 0.975; // 0.99 - bar.width
+	return state;
+}
+
+function resetGameState(state: GameState) {
+	const scoreOne = state.playerOne.score;
+	const scoreTwo = state.playerTwo.score;
+	state.playerOne = newPlayer();
+	state.playerTwo = newPlayer();
+	state.ball = newBall();
+	state.playerTwo.bar.position.x = 0.975; // 0.99 - bar.width
+	state.playerOne.score = scoreOne;
+	state.playerTwo.score = scoreTwo;
 }
 
 export function movePlayer(bar: PongBar, direction: ArrowKey) {
 	switch (direction) {
 		case "ArrowUp":
-			bar.position.y += PLAYER_SPEED;
+			bar.position.y -= PLAYER_SPEED;
 			break;
 		case "ArrowDown":
-			bar.position.y -= PLAYER_SPEED;
+			bar.position.y += PLAYER_SPEED;
 			break;
 		default:
 			throw new Error("invalid player movement direction: " + direction);
 	}
-	if (bar.position.y > 1) {
-		bar.position.y = 1;
+	if (bar.position.y > 1 - bar.height) {
+		bar.position.y = 1 - bar.height;
 	} else if (bar.position.y < 0) {
 		bar.position.y = 0;
 	}
@@ -62,9 +88,11 @@ function handleRoundEnd(state: GameState) {
 }
 
 function ballBarIntersection(ball: Ball, bar: PongBar): boolean {
-	return ball.position.x == bar.position.x
-		&& (ball.position.y >= bar.position.y
-		&& bar.position.y <= bar.position.y + bar.height);
+	// right now it's just a square intersection
+	return (ball.position.x + ball.radius >= bar.position.x
+		&& ball.position.x - ball.radius <= bar.position.x + bar.width)
+		&& (ball.position.y + ball.radius >= bar.position.y
+		&& bar.position.y - ball.radius <= bar.position.y + bar.height);
 }
 
 function updateBallPosition(state: GameState) {

@@ -1,9 +1,9 @@
 import { WebSocketServer, OnGatewayInit, WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage } from "@nestjs/websockets";
 import { Socket, Server } from "socket.io";
-import { resetGameState, updateGamestate } from "./pong.game";
+import { movePlayer, newGameState, updateGamestate } from "./pong.game";
 import { GameState } from "./pong.types";
 
-let gameState: GameState;
+let gameState: GameState = newGameState();
 
 @WebSocketGateway({ cors: true, namespace: '/pong' })
 export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -11,11 +11,10 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	afterInit(server: Server) {
 		console.log("Initialized!");
-		resetGameState(gameState);
 	}
 	handleConnection(client: Socket, ...args: any[]) {
 		console.log("Connect:", client.id);
-		// client.emit("updatePosition", updatePos());
+		gameState = newGameState();
 	}
 	handleDisconnect(client: Socket) {
 		console.log("Disconnect:", client.id);
@@ -23,8 +22,19 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('updatePosition')
 	updatePosition(client: Socket, data: any) {
-		console.log("Update Position:", data);
-		this.wss.emit('updaePosition', updateGamestate(gameState));
-		// this.wss.emit('updatePosition', updatePos());
+		gameState = updateGamestate(gameState);
+		this.wss.emit('updatePosition', gameState);
+	}
+
+	@SubscribeMessage('movement')
+	movement(client: Socket, data: string) {
+		if (data === "w") {
+			movePlayer(gameState.playerOne.bar, "ArrowUp");
+		} else if (data === "s") {
+			movePlayer(gameState.playerOne.bar, "ArrowDown");
+		} else if (data === "ArrowDown" || data === "ArrowUp") {
+			movePlayer(gameState.playerTwo.bar, data);
+		}
+		this.wss.emit('updatePosition', gameState);
 	}
 }
