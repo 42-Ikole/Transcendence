@@ -9,7 +9,11 @@ let gameState: GameState = newGameState();
 let intervalId: NodeJS.Timer;
 
 @WebSocketGateway({
-	namespace: '/pong'
+	namespace: '/pong',
+	cors: {
+		credentials: true,
+		origin: ["http://localhost:8080", "http://localhost:3000"],
+	},
 })
 export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer() wss: Server;
