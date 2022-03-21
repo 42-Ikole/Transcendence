@@ -2,20 +2,25 @@ import { WebSocketServer, OnGatewayInit, WebSocketGateway, OnGatewayConnection, 
 import { Socket, Server } from "socket.io";
 import { movePlayer, newGameState, updateGamestate } from "./pong.game";
 import { GameState } from "./pong.types";
+import { AuthenticatedGuardWebsocket, AuthenticatedGuard } from "src/auth/auth.guard";
+import { UseGuards } from "@nestjs/common";
 
 let gameState: GameState = newGameState();
 let intervalId: NodeJS.Timer;
 
-@WebSocketGateway({ cors: true, namespace: '/pong' })
+@WebSocketGateway({
+	namespace: '/pong'
+})
 export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer() wss: Server;
-
+	
 	afterInit(server: Server) {
 		console.log("Initialized!");
 	}
-
+	
 	handleConnection(client: Socket, ...args: any[]) {
 		console.log("Connect:", client.id);
+		console.log(client.handshake);
 		gameState = newGameState();
 		intervalId = setInterval(() => {
 			gameState = updateGamestate(gameState);
@@ -28,13 +33,8 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		clearInterval(intervalId);
 	}
 
-	// @SubscribeMessage('updatePosition')
-	// updatePosition(client: Socket, data: any) {
-		// gameState = updateGamestate(gameState);
-		// this.wss.emit('updatePosition', gameState);
-	// }
-
 	@SubscribeMessage('movement')
+	@UseGuards(AuthenticatedGuardWebsocket)
 	movement(client: Socket, data: string) {
 		if (data === "w") {
 			movePlayer(gameState.playerOne.bar, "ArrowUp");
@@ -43,6 +43,5 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		} else if (data === "ArrowDown" || data === "ArrowUp") {
 			movePlayer(gameState.playerTwo.bar, data);
 		}
-		// this.wss.emit('updatePosition', gameState);
 	}
 }

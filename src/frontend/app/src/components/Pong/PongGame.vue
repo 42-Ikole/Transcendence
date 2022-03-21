@@ -56,7 +56,10 @@ export default defineComponent({
 		},
 	},
 	created() {
-		this.socket = io('http://localhost:3000/pong');
+		// this.socket = io('http://localhost:3000/pong', { withCredentials: true });
+		this.socket = io('http://localhost:3000/pong', {
+			withCredentials: true,
+		});
 		this.socket.on('updatePosition', (data: any) => {
 			this.render(data);
 		});

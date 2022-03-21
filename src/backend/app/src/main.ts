@@ -28,6 +28,7 @@ async function setupSession(app: INestApplication) {
     session({
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 7,
+        httpOnly: false,
       },
       secret: 'secret_random_string', // TODO: should be secret and random
       resave: false,
@@ -40,10 +41,14 @@ async function setupSession(app: INestApplication) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    cors: {
+      origin: "",
+      credentials: true,
+    },
+  });
   await setupSwagger(app);
   await setupSession(app);
-  app.enableCors(); // For frontend API connection
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(3000);
 }
