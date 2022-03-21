@@ -17,7 +17,7 @@ import NavBar from "@/components/NavBar.vue";
 export default defineComponent({
   components: {
     NavBar,
-    RouterView
-  }
+    RouterView,
+  },
 });
 </script>

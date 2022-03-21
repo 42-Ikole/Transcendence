@@ -3,8 +3,10 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li v-for="route in routes" class="nav-item">
-            <RouterLink class="nav-link" :to="route.path"> {{ route.message }}</RouterLink>
+          <li v-for="route in routes" v-bind:key="route.path" class="nav-item">
+            <RouterLink class="nav-link" :to="route.path">
+              {{ route.message }}</RouterLink
+            >
           </li>
         </ul>
       </div>
@@ -34,10 +36,10 @@ export default defineComponent({
         { path: "/2fa", message: "Two Factor" },
         { path: "/login", message: "Login" },
       ],
-    }
+    };
   },
   components: {
     RouterLink,
-  }
+  },
 });
 </script>
