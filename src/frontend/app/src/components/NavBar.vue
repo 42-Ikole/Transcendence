@@ -3,17 +3,8 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/">Home</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/about">About</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/2fa">Two Factor</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/login">Login</RouterLink>
+          <li v-for="route in routes" class="nav-item">
+            <RouterLink class="nav-link" :to="route.path"> {{ route.message }}</RouterLink>
           </li>
         </ul>
       </div>
@@ -25,7 +16,26 @@
 import { defineComponent } from "vue";
 import { RouterLink } from "vue-router";
 
+interface Route {
+  path: string;
+  message: string;
+}
+
+interface DataObject {
+  routes: Route[];
+}
+
 export default defineComponent({
+  data(): DataObject {
+    return {
+      routes: [
+        { path: "/", message: "Home" },
+        { path: "/about", message: "About" },
+        { path: "/2fa", message: "Two Factor" },
+        { path: "/login", message: "Login" },
+      ],
+    }
+  },
   components: {
     RouterLink,
   }
