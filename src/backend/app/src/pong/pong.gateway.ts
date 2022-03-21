@@ -1,5 +1,9 @@
-import { WebSocketServer, OnGatewayInit, WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage } from "@nestjs/websockets";
+import { ConfigService } from "@nestjs/config";
+import { WebSocketServer, WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage } from "@nestjs/websockets";
 import { Socket, Server } from "socket.io";
+import { SessionUser } from "src/auth/auth.types";
+import { UserService } from "src/user/user.service";
+import { decodeCookie } from "./cookie";
 import { movePlayer, newGameState, updateGamestate } from "./pong.game";
 import { GameState } from "./pong.types";
 
@@ -13,16 +17,23 @@ let intervalId: NodeJS.Timer;
 		origin: ["http://localhost:8080", "http://localhost:3000"],
 	},
 })
-export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
+	constructor(
+		private userService: UserService,
+		private configService: ConfigService,
+	) {}
 	@WebSocketServer() wss: Server;
-	
-	afterInit(server: Server) {
-		console.log("Initialized!");
+
+	private async userFromCookie(cookie: string) {
+		const sessionUser: SessionUser = await decodeCookie(cookie, this.configService);
+		const user = await this.userService.findOne(sessionUser.id);
+		return user;
 	}
 
-	handleConnection(client: Socket, ...args: any[]) {
+	async handleConnection(client: Socket, ...args: any[]) {
 		console.log("Connect:", client.id);
-		console.log(client.handshake);
+		const user = await this.userFromCookie(client.handshake.headers.cookie);
+		console.log("connected:", user);
 		gameState = newGameState();
 		intervalId = setInterval(() => {
 			gameState = updateGamestate(gameState);

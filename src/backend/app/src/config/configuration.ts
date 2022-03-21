@@ -7,4 +7,9 @@ export default () => ({
     REDIRECT_URL: `http://${process.env.DOMAIN_NAME}`, // We redirect to this after OAuth flow
     CALLBACK_URL: `http://${process.env.DOMAIN_NAME}/api/auth/login`, // OAuth provider redirects to this to finalize authentication
   },
+  cookie: {
+    // TODO: make environment variables and random/secret
+    NAME: "CookieName",
+    SECRET: "CookieSecret",
+  },
 });
