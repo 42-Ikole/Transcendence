@@ -1,4 +1,4 @@
-name: Lint
+name: Linter Backend
 
 on:
 # Replace pull_request with pull_request_target if you
@@ -8,14 +8,9 @@ on:
       - main
   workflow_dispatch:
 
-# Down scope as necessary via https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
-permissions:
-  checks: write
-  contents: write
-
 jobs:
   lint-backend:
-    name: Lint Backend
+    name: Linter Backend
     runs-on: ubuntu-latest
 
     steps:

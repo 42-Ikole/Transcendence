@@ -50,7 +50,7 @@ services:
     container_name: postgres
     build: ./src/postgres
     env_file:
-      - "./src/postgres/env_file"
+      - "./src/postgres/postgres.env"
     volumes:
       - pgdata:/var/lib/postgresql/data/
 # PgAdmin (v4) Service
@@ -60,7 +60,7 @@ services:
     depends_on:
       - postgres
     env_file:
-      - "./src/pgadmin/config/env_file"
+      - "./src/pgadmin/config/pgadmin.env"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     ports:
