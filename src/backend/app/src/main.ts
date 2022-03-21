@@ -28,10 +28,12 @@ async function setupSession(app: INestApplication) {
     session({
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 7,
-        httpOnly: false,
+        httpOnly: false
       },
       secret: 'secret_random_string', // TODO: should be secret and random
+      name: 'cookie_name',
       resave: false,
+      rolling: true,
       saveUninitialized: false, // Only save the session if the user is logged in
       store: new TypeormStore().connect(sessionRepository), // session store
     }),
@@ -46,7 +48,7 @@ async function bootstrap() {
   await setupSession(app);
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors({
-    origin: ["http://localhost:8080", "http://localhost:3000"],
+    origin: ["http://localhost:3000",   "http://localhost:8080"],
     credentials: true,
   });
   await app.listen(3000);

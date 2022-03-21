@@ -21,7 +21,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	afterInit(server: Server) {
 		console.log("Initialized!");
 	}
-	
+
 	handleConnection(client: Socket, ...args: any[]) {
 		console.log("Connect:", client.id);
 		console.log(client.handshake);
