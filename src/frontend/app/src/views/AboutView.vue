@@ -10,7 +10,7 @@ export default defineComponent({
   methods: {
     logout() {
       logoutUser(this.$router);
-    }
-  }
-})
+    },
+  },
+});
 </script>

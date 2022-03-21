@@ -24,8 +24,8 @@ const routes = [
   {
     path: "/2fa",
     name: "2fa",
-    component: Enable2FaView
-  }
+    component: Enable2FaView,
+  },
 ];
 
 const router = createRouter({

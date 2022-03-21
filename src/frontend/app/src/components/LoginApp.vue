@@ -30,7 +30,7 @@ export default defineComponent({
       loginUser();
     },
     logout() {
-      logoutUser(this.$router)
+      logoutUser(this.$router);
     },
     async getAuthenticationState() {
       this.userData = await getUserInfo();
