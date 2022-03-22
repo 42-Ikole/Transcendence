@@ -31,4 +31,4 @@ curl -X 'POST' \
 'http://localhost:3000/user/update/'$1 \
   -H 'accept: */*' \
   -H 'Content-Type: application/json' \
-  -d '{"fullName":"'$3'"}'
+  -d '{"'$2'":'$3'}'
