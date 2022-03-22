@@ -36,4 +36,5 @@ for user in ${users[@]}; do
 	-H 'accept: */*' \
 	-H 'Content-Type: application/json' \
 	-d $user
+	echo ""
 done

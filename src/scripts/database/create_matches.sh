@@ -40,4 +40,5 @@ for match in ${matches[@]}; do
   -H 'accept: */*' \
   -H 'Content-Type: application/json' \
   -d $match
+  echo ""
 done
