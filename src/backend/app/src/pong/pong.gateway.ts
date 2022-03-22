@@ -21,7 +21,7 @@ import { decodeCookie } from '../websocket/cookie';
 import { WebsocketGuard } from '../websocket/websocket.guard';
 import { RequestMatchDto, SocketWithUser } from '../websocket/websocket.types';
 import { WsExceptionFilter } from '../websocket/websocket.exception.filter';
-import { GameRoom } from './pong.types';
+import { GameRoom, GameState } from './pong.types';
 import { movePlayer, newGameState, updateGamestate } from './pong.game';
 import { ClientRequest } from 'http';
 
@@ -93,33 +93,47 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  gameRoom: GameRoom[] = [];
+  gameRooms: Record<string, GameRoom> = {};
+  gameStates: Record<string, GameState> = {};
   // Create a new unique room for these clients to play in
   // Signal to the clients that they can play
   // Add the game to a list of games being played (memory? database?)
   startNewGame(clientOne: SocketWithUser, clientTwo: SocketWithUser) {
-    clientOne.join("room01");
-    clientTwo.join("room01");
-    this.wss.to("room01").emit('startGame');
+    let roomName = "room01";
+    if (this.gameStates[roomName]) {
+      roomName = "room02";
+    }
+    clientOne.join(roomName);
+    clientTwo.join(roomName);
+    this.wss.to(roomName).emit('startGame');
+    this.gameStates[roomName] = newGameState(clientOne.user.username, clientTwo.user.username);
+
+    const INTERVAL = 50;
     const intervalId = setInterval(() => {
-      updateGamestate(this.gameRoom[0].state);
-      this.wss.to("room01").emit('updatePosition', this.gameRoom[0].state);
-    }, 15)
-    this.gameRoom.push({
-      state: newGameState(clientOne.user.username, clientTwo.user.username),
+      updateGamestate(this.gameStates[roomName], INTERVAL);
+      this.wss.to(roomName).emit('updatePosition', this.gameStates[roomName]);
+    }, INTERVAL);
+
+    this.gameRooms[roomName] = {
       intervalId,
       clientOne,
       clientTwo,
-    });
+      name: roomName,
+    };
   }
 
   @SubscribeMessage('movement')
   movement(client: SocketWithUser, data: string) {
     if (data === "ArrowDown" || data === "ArrowUp") {
-      if (client.id === this.gameRoom[0].clientOne.id) {
-        movePlayer(this.gameRoom[0].state.playerOne.bar, data);
-      } else if (client.id === this.gameRoom[0].clientTwo.id) {
-        movePlayer(this.gameRoom[0].state.playerTwo.bar, data);
+      if (client.id === this.gameRooms['room01'].clientOne.id) {
+        movePlayer(this.gameStates['room01'].playerOne.bar, data);
+      } else if (client.id === this.gameRooms['room01'].clientTwo.id) {
+        movePlayer(this.gameStates['room01'].playerTwo.bar, data);
+      }
+      else if (client.id === this.gameRooms['room02'].clientOne.id) {
+        movePlayer(this.gameStates['room02'].playerOne.bar, data);
+      } else if (client.id === this.gameRooms['room02'].clientTwo.id) {
+        movePlayer(this.gameStates['room02'].playerTwo.bar, data);
       }
     }
   }

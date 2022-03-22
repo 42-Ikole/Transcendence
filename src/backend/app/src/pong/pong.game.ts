@@ -98,9 +98,9 @@ function ballBarIntersection(ball: Ball, bar: PongBar): boolean {
   );
 }
 
-function updateBallPosition(state: GameState) {
-  state.ball.position.x += state.ball.direction.x * BALL_SPEED;
-  state.ball.position.y += state.ball.direction.y * BALL_SPEED;
+function updateBallPosition(state: GameState, delta: number) {
+  state.ball.position.x += state.ball.direction.x * BALL_SPEED * delta;
+  state.ball.position.y += state.ball.direction.y * BALL_SPEED * delta;
   if (state.ball.position.y <= 0 || state.ball.position.y >= 1) {
     state.ball.direction.y *= -1;
   }
@@ -112,8 +112,9 @@ function updateBallPosition(state: GameState) {
   }
 }
 
-export function updateGamestate(state: GameState): GameState {
-  updateBallPosition(state);
+export function updateGamestate(state: GameState, delta: number): GameState {
+  
+  updateBallPosition(state, delta * 0.05);
   if (roundHasEnded(state)) {
     handleRoundEnd(state);
   }

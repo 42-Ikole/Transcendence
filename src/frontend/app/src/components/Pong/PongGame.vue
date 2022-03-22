@@ -58,7 +58,7 @@ export default defineComponent({
         0,
         2 * Math.PI
       );
-      this.context!.fill();
+      this.context.fill();
     },
     move(data: any) {
       this.socket.emit("movement", data.key);

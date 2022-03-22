@@ -30,8 +30,8 @@ export interface GameState {
 }
 
 export interface GameRoom {
-  state: GameState;
   clientOne: SocketWithUser;
   clientTwo: SocketWithUser;
   intervalId: NodeJS.Timer;
+  name: string;
 }
