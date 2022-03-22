@@ -62,11 +62,13 @@ export default defineComponent({
 	methods: {
 		async createChat() {
 			if (this.name === '' || (this.type === 'protected' && this.pass === '')) {
-				console.log('nie goe');
 				return ;
 			}
 			const response = await makeApiCall("/chat", {
 				method: "POST",
+				headers: {
+          			"content-type": "application/json",
+        		},
 				body: JSON.stringify({type: this.type, name: this.name, password: this.pass})
 			})
 			this.room = Room.CREATED
