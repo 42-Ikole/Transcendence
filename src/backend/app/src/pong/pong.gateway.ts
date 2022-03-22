@@ -1,4 +1,4 @@
-import { UseGuards } from "@nestjs/common";
+import { UseGuards, UsePipes, ValidationPipe, UseFilters } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { WebSocketServer, WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, ConnectedSocket, MessageBody } from "@nestjs/websockets";
 import { Socket, Server } from "socket.io";
@@ -9,6 +9,7 @@ import { movePlayer, newGameState, updateGamestate } from "./pong.game";
 import { GameState } from "./pong.types";
 import { WebsocketGuard } from './websocket.guard';
 import { RequestMatchDto, SocketWithUser } from "./websocket.types";
+import { WsExceptionFilter } from "./websocket.exception.filter";
 
 let gameState: GameState = newGameState();
 let intervalId: NodeJS.Timer;
@@ -21,6 +22,8 @@ let intervalId: NodeJS.Timer;
 	},
 })
 @UseGuards(WebsocketGuard)
+@UseFilters(WsExceptionFilter)
+@UsePipes(new ValidationPipe())
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
 		private userService: UserService,
@@ -38,12 +41,11 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		client.user = null;
 		const user = await this.userFromCookie(client.handshake.headers.cookie);
 		client.user = user;
-		console.log("Connect:", client.user.username);
+		console.log("/pong Connect:", client.user.username);
 	}
 
 	handleDisconnect(client: SocketWithUser) {
-		console.log("Disconnect:", client.user.username);
-		clearInterval(intervalId);
+		console.log("/pong Disconnect:", client.user.username);
 	}
 
 	/*

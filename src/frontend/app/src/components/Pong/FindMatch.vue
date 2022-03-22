@@ -9,7 +9,7 @@ import { defineComponent } from "vue"
 export default defineComponent({
 	methods: {
 		requestMatch() {
-			useSocketStore().pong!.emit('requestMatch');
+			useSocketStore().pong!.emit('requestMatch', { type: "matchmaking" });
 		},
 	},
 });
