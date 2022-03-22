@@ -20,7 +20,7 @@ export class TwoFactorService {
       this.configService.get('APP_NAME'),
       secret,
     );
-    await this.userService.updateUser(user.id, { twoFactorSecret: secret });
+    await this.userService.update(user.id, { twoFactorSecret: secret });
     return {
       secret,
       otpauthUrl,
@@ -46,10 +46,10 @@ export class TwoFactorService {
   }
 
   async enable(id: number) {
-    this.userService.updateUser(id, { twoFactorEnabled: true });
+    this.userService.update(id, { twoFactorEnabled: true });
   }
 
   async disable(id: number) {
-    this.userService.updateUser(id, { twoFactorEnabled: false });
+    this.userService.update(id, { twoFactorEnabled: false });
   }
 }

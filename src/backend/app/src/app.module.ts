@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { config } from './orm/ormconfig';
 import { UserModule } from './user/user.module';
 import { PassportModule } from '@nestjs/passport';
+import { MatchModule } from './match/match.module';
 import { TwoFactorModule } from './2FA/twofactor.module';
 import { ConfigModule } from '@nestjs/config';
 import { configModuleOptions } from './config/options';
@@ -14,6 +15,7 @@ import { configModuleOptions } from './config/options';
   imports: [
     TypeOrmModule.forRoot(config),
     UserModule,
+    MatchModule,
     AuthModule,
     TwoFactorModule,
     PassportModule.register({ session: true }),
