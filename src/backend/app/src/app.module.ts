@@ -9,7 +9,7 @@ import { PassportModule } from '@nestjs/passport';
 import { TwoFactorModule } from './2FA/twofactor.module';
 import { ConfigModule } from '@nestjs/config';
 import { configModuleOptions } from './config/options';
-//import { ChatroomModule } from './chatroom/chatroom.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { configModuleOptions } from './config/options';
     TwoFactorModule,
     PassportModule.register({ session: true }),
     ConfigModule.forRoot(configModuleOptions),
-    //ChatroomModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
