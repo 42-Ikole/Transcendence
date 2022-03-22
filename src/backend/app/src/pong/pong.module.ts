@@ -4,7 +4,7 @@ import { UserModule } from 'src/user/user.module';
 import { PongGateway } from './pong.gateway';
 
 @Module({
-	imports: [UserModule, ConfigModule],
-	providers: [PongGateway]
+  imports: [UserModule, ConfigModule],
+  providers: [PongGateway],
 })
 export class PongModule {}

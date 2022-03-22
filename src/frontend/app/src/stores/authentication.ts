@@ -4,8 +4,8 @@ import { useSocketStore } from "./SocketStore";
 export type AuthenticatedState = "AUTHENTICATED" | "2FA" | "OAUTH";
 
 interface AuthenticatedStore {
-  authenticatedState: AuthenticatedState,
-};
+  authenticatedState: AuthenticatedState;
+}
 
 export const useAuthenticationStore = defineStore("authentication", {
   state: (): AuthenticatedStore => {

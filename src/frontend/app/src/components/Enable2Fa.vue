@@ -79,7 +79,9 @@ export default defineComponent({
     },
     async disable() {
       const response = makeApiCall("/2fa/disable", { method: "PATCH" });
-      this.state = TwoFactorState.DISABLED;
+      if (response.ok) {
+        this.state = TwoFactorState.DISABLED;
+      }
     },
   },
 });

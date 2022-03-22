@@ -9,7 +9,7 @@ export default () => ({
   },
   cookie: {
     // TODO: make environment variables and random/secret
-    NAME: "CookieName",
-    SECRET: "CookieSecret",
+    NAME: 'CookieName',
+    SECRET: 'CookieSecret',
   },
 });
