@@ -41,6 +41,7 @@ export class IntraGuard extends AuthGuard('42') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const activate = (await super.canActivate(context)) as boolean;
     const request = context.switchToHttp().getRequest();
+    console.log('Logging in...');
     await super.logIn(request);
     return activate;
   }
