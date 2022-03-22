@@ -19,7 +19,9 @@ export default defineComponent({
   },
   methods: {
     async submit() {
-      const response = await makeApiCallJson("/2fa/authenticate", "POST", { twoFactorCode: this.code });
+      const response = await makeApiCallJson("/2fa/authenticate", "POST", {
+        twoFactorCode: this.code,
+      });
       if (response.ok) {
         useAuthenticationStore().login();
       }

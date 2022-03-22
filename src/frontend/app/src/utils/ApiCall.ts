@@ -14,13 +14,17 @@ export async function makeApiCall(uri: string, init?: RequestInit) {
 }
 
 // Change this if you need more methods with a JSON body
-type MethodWithBody = "POST" | "PATCH"
+type MethodWithBody = "POST" | "PATCH";
 
-export async function makeApiCallJson(uri: string, method: MethodWithBody, body: Object) {
+export async function makeApiCallJson(
+  uri: string,
+  method: MethodWithBody,
+  body: Record<string, unknown>
+) {
   return await makeApiCall(uri, {
     method: method,
     headers: {
-      'content-type': 'application/json',
+      "content-type": "application/json",
     },
     body: JSON.stringify(body),
   });

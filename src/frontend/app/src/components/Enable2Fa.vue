@@ -66,7 +66,9 @@ export default defineComponent({
       this.state = TwoFactorState.PENDING;
     },
     async submit() {
-      const response = await makeApiCallJson("/2fa/enable", "POST", { twoFactorCode: this.code });
+      const response = await makeApiCallJson("/2fa/enable", "POST", {
+        twoFactorCode: this.code,
+      });
       if (response.ok) {
         this.state = TwoFactorState.ENABLED;
       }
