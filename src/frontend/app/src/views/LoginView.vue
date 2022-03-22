@@ -6,7 +6,7 @@
     <TwoFactorApp />
   </div>
   <div v-else>
-    <p>You are logged in</p>
+    <LoginApp />
   </div>
 </template>
 

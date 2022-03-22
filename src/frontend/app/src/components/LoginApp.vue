@@ -1,13 +1,15 @@
 <template>
   <div>
-    <button @click="login">Login</button>
-    <button @click="logout">Logout</button>
     <div v-if="isAuthenticated">
-      <p>You are logged in.</p>
-      <button @click="getUserData">Get User Data</button>
+      <button @click="getAuthenticationState">Get Authentication State</button>
       <p>User: {{ userData }}</p>
+      <button @click="logout">Logout</button>
+      <p>You are logged in.</p>
     </div>
-    <p v-else>You are logged out.</p>
+    <div v-else>
+      <button @click="login">Login</button>
+      <p>You are logged out.</p>
+    </div>
   </div>
 </template>
 
@@ -30,13 +32,13 @@ export default defineComponent({
     logout() {
       logoutUser(this.$router);
     },
-    async getUserData() {
+    async getAuthenticationState() {
       this.userData = await getUserInfo();
     },
   },
   computed: {
     ...mapState(useAuthenticationStore, {
-      isAuthenticated: "getAuthenticationStatus",
+      isAuthenticated: "isAuthenticated",
     }),
   },
 });
