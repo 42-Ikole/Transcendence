@@ -25,8 +25,8 @@ export class AuthController {
   })
   @Get('status')
   status(@Req() req: RequestWithUser) {
-	let state: AuthenticatedState;
-	console.log("Authenticated: ", req.isAuthenticated);
+    let state: AuthenticatedState;
+    console.log('Authenticated: ', req.isAuthenticated);
     if (!req.isAuthenticated()) {
       state = 'OAUTH';
     } else if (!req.user.twoFactorPassed) {

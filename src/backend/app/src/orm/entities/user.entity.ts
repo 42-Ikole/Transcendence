@@ -17,19 +17,19 @@ export class User {
   @Column()
   username: string;
 
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   avatar: string;
 
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   fullName: string;
 
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   email: string;
 
-  @OneToMany(() => Match, match => match.winner)
+  @OneToMany(() => Match, (match) => match.winner)
   wins: Match[];
 
-  @OneToMany(() => Match, match => match.loser)
+  @OneToMany(() => Match, (match) => match.loser)
   losses: Match[];
 
   // Two Factor
@@ -40,34 +40,32 @@ export class User {
   twoFactorEnabled: boolean;
 }
 
-
 //////      //////
 // Partial User //
 //////      //////
 
 export class PartialUser {
-	@IsString()
-	@IsOptional()
-	username?: string;
+  @IsString()
+  @IsOptional()
+  username?: string;
 
-	@IsString()
-	@IsOptional()
-	avatar?: string;
+  @IsString()
+  @IsOptional()
+  avatar?: string;
 
-	@IsString()
-	@IsOptional()
-	fullName?: string;
+  @IsString()
+  @IsOptional()
+  fullName?: string;
 
-	@IsString()
-	@IsOptional()
-	email?: string;
+  @IsString()
+  @IsOptional()
+  email?: string;
 
-	@IsString()
-	@IsOptional()
-	twoFactorSecret?: string;
+  @IsString()
+  @IsOptional()
+  twoFactorSecret?: string;
 
-	@IsBoolean()
-	@IsOptional()
-	twoFactorEnabled?: boolean;
-
+  @IsBoolean()
+  @IsOptional()
+  twoFactorEnabled?: boolean;
 }

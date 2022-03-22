@@ -8,26 +8,26 @@ import { MatchService } from 'src/match/match.service';
 export class MatchController {
   constructor(private readonly matchService: MatchService) {}
 
-////////////
-// Create //
-////////////
+  ////////////
+  // Create //
+  ////////////
 
-	@Post('create')
-	async createMatch(@Body() match: Match): Promise<Match> {
-		return this.matchService.createMatch(match);
-	}
+  @Post('create')
+  async createMatch(@Body() match: Match): Promise<Match> {
+    return this.matchService.createMatch(match);
+  }
 
-/////////////
-// Getters //
-/////////////
+  /////////////
+  // Getters //
+  /////////////
 
-	@Get('all')
-	async	findALL(): Promise<Match[]> {
-		return this.matchService.findALL(); // SELECT * FROM match
-	}
+  @Get('all')
+  async findALL(): Promise<Match[]> {
+    return this.matchService.findALL(); // SELECT * FROM match
+  }
 
-	@Get('userMatches/:id')
-	async	findUserMatches(@Param('id') id): Promise<Match[]> {
-		return this.matchService.findUserMatches(id);
-	}
+  @Get('userMatches/:id')
+  async findUserMatches(@Param('id') id): Promise<Match[]> {
+    return this.matchService.findUserMatches(id);
+  }
 }

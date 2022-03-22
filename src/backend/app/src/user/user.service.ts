@@ -8,25 +8,25 @@ import { Match } from 'src/orm/entities/match.entity';
 @Injectable()
 export class UserService {
   constructor(
-	@InjectRepository(User) private userRepository: Repository<User>,
-	@InjectRepository(Match) private matchRepository: Repository<Match>
+    @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Match) private matchRepository: Repository<Match>,
   ) {}
 
-////////////
-// Create //
-////////////
+  ////////////
+  // Create //
+  ////////////
 
-	createUser(user: User): Promise<User> {
-		// creates user entity
-		const newUser = this.userRepository.create(user);
+  createUser(user: User): Promise<User> {
+    // creates user entity
+    const newUser = this.userRepository.create(user);
 
-		// inserts if not exists, otherwise its an update
-		return this.userRepository.save(newUser);
-	}
+    // inserts if not exists, otherwise its an update
+    return this.userRepository.save(newUser);
+  }
 
-/////////////
-// Getters //
-/////////////
+  /////////////
+  // Getters //
+  /////////////
 
   private createFromDto(userDTO: IUser): User {
     return this.userRepository.create(userDTO);
@@ -50,31 +50,31 @@ export class UserService {
   }
 
   async findWins(id: number) {
-	  return (await this.userRepository.findOne(id, {relations: ['wins']})).wins;
-	}
-	
-	async findLosses(id: number) {
-		return (await this.userRepository.findOne(id, {relations: ['losses']})).losses;
+    return (await this.userRepository.findOne(id, { relations: ['wins'] }))
+      .wins;
   }
 
-////////////
-// Update //
-////////////
+  async findLosses(id: number) {
+    return (await this.userRepository.findOne(id, { relations: ['losses'] }))
+      .losses;
+  }
 
-	async update(id: number, field: PartialUser) {
-		console.log("part:", field);
-		return this.userRepository.update(id, field);
-	}
+  ////////////
+  // Update //
+  ////////////
 
-////////////
-// Delete //
-////////////
+  async update(id: number, field: PartialUser) {
+    console.log('part:', field);
+    return this.userRepository.update(id, field);
+  }
 
-	async delete(id: number): Promise<User>
-	{
-		const user = await this.findById(id);
-	
-		return this.userRepository.remove(user);
-	}
+  ////////////
+  // Delete //
+  ////////////
 
+  async delete(id: number): Promise<User> {
+    const user = await this.findById(id);
+
+    return this.userRepository.remove(user);
+  }
 }

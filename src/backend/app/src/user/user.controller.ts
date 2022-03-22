@@ -1,4 +1,12 @@
-import { Controller, Delete, Get, Param, Req, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Req,
+  Post,
+  Body,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -9,18 +17,18 @@ import { userInfo } from 'os';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-////////////
-// Create //
-////////////
+  ////////////
+  // Create //
+  ////////////
 
   @Post('create')
   async createUser(@Body() user: User): Promise<User> {
     return this.userService.createUser(user);
   }
 
-/////////////
-// Getters //
-/////////////
+  /////////////
+  // Getters //
+  /////////////
 
   @Get('all')
   async findAll(): Promise<User[]> {
@@ -39,27 +47,27 @@ export class UserController {
 
   @Get('matches_won/:id')
   async findWinner(@Param('id') id) {
-	  return await this.userService.findWins(id);
+    return await this.userService.findWins(id);
   }
- 
+
   @Get('matches_lost/:id')
   async findLosses(@Param('id') id) {
-	  return await this.userService.findLosses(id);
+    return await this.userService.findLosses(id);
   }
 
-////////////
-// Update //
-////////////
+  ////////////
+  // Update //
+  ////////////
 
-	@Post('update/:id')
-	async update(@Param('id') id, @Body() user: PartialUser) {
-		console.log("id:", id, "part:", user);
-		return this.userService.update(id, user);
-	}
+  @Post('update/:id')
+  async update(@Param('id') id, @Body() user: PartialUser) {
+    console.log('id:', id, 'part:', user);
+    return this.userService.update(id, user);
+  }
 
-/////////////
-// Getters //
-/////////////
+  /////////////
+  // Getters //
+  /////////////
 
   @Delete('delete/:id')
   async delete(@Param('id') id) {

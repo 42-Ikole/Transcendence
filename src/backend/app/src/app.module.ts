@@ -14,10 +14,10 @@ import { configModuleOptions } from './config/options';
 @Module({
   imports: [
     TypeOrmModule.forRoot(config),
-	UserModule,
-	MatchModule,
-	AuthModule,
-	TwoFactorModule,
+    UserModule,
+    MatchModule,
+    AuthModule,
+    TwoFactorModule,
     PassportModule.register({ session: true }),
     ConfigModule.forRoot(configModuleOptions),
   ],

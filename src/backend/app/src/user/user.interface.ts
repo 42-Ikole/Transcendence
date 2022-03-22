@@ -1,4 +1,4 @@
 export interface IUser {
-	intraId: string;
-	username: string;
+  intraId: string;
+  username: string;
 }
