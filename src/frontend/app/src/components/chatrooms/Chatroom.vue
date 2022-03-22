@@ -12,19 +12,33 @@
 
 <script lang="ts">
 
+import { Socket } from 'socket.io';
+
 export default {
 	data() {
 		return {
 			myMessage: '',
-			messages: []
+			messages: [],
+			socket: null
 		};
 	},
 	methods: {
 		sendMessage() {
 			//socket.emit('message', this.message);
+			console.log(`send: ${this.myMessage}`); //debug
 			this.messages.push(this.myMessage);
 			this.myMessage = '';
+		},
+		receivedMessage(msg) {
+			console.log(`recv: ${msg}`); //debug
+			this.messages.push(msg);
 		}
+	},
+	created() {
+		this.socket = io('http://localhost:3000');
+		this.socket.on('msgToClient', (msg) => {
+			this.receivedMessage(msg);
+		})
 	}
 }
 
