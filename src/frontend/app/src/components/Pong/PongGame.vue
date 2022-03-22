@@ -1,5 +1,6 @@
 <template>
-  <canvas class="game" ref="game" width="2560" height="1720"> </canvas>
+  <p> {{ playerOneScore }}  : {{ playerTwoScore }} </p>
+  <canvas class="game" ref="game" width="640" height="480"> </canvas>
 </template>
 
 <script lang="ts">
@@ -7,13 +8,17 @@ import { defineComponent } from "vue";
 import io from "socket.io-client";
 import type { Socket } from "socket.io-client";
 import type { Ball, GameState, PongBar } from "./PongTypes";
+import { mapState } from "pinia";
+import { useUserStore } from "@/stores/UserStore";
+import { useSocketStore } from "@/stores/SocketStore";
 
 interface DataObject {
   context: null | CanvasRenderingContext2D;
   game: null | GameState;
-  socket: null | Socket;
   width: number;
   height: number;
+  playerOneScore: number;
+  playerTwoScore: number;
 }
 
 export default defineComponent({
@@ -21,9 +26,10 @@ export default defineComponent({
     return {
       context: null,
       game: null,
-      socket: null,
       width: 0,
       height: 0,
+      playerOneScore: 0,
+      playerTwoScore: 0,
     };
   },
   methods: {
@@ -62,9 +68,10 @@ export default defineComponent({
     },
   },
   created() {
-    this.socket = io("http://localhost:3000/pong", { withCredentials: true });
-    this.socket.on("updatePosition", (data: any) => {
+    this.socket.on("updatePosition", (data: GameState) => {
       this.render(data);
+      this.playerOneScore = data.playerOne.score
+      this.playerTwoScore = data.playerTwo.score
     });
     window.addEventListener("keydown", this.move);
   },
@@ -76,7 +83,11 @@ export default defineComponent({
   },
   unmounted() {
     window.removeEventListener("keydown", this.move);
-    this.socket!.disconnect();
+  },
+  computed: {
+    ...mapState(useSocketStore, {
+      socket: "pong",
+    }),
   },
 });
 </script>

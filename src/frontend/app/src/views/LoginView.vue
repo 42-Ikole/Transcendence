@@ -11,14 +11,11 @@
 </template>
 
 <script lang="ts">
-import {
-  useAuthenticationStore,
-  type AuthenticatedState,
-} from "@/stores/authentication";
 import { mapState } from "pinia";
 import { defineComponent } from "vue";
-import LoginApp from "@/components/LoginApp.vue";
-import TwoFactorApp from "@/components/TwoFactorApp.vue";
+import LoginApp from "@/components/Authentication/LoginApp.vue";
+import TwoFactorApp from "@/components/Authentication/TwoFactorApp.vue";
+import { useUserStore, type AuthenticatedState } from "@/stores/UserStore";
 
 export default defineComponent({
   components: {
@@ -26,7 +23,7 @@ export default defineComponent({
     TwoFactorApp,
   },
   computed: {
-    ...mapState(useAuthenticationStore, {
+    ...mapState(useUserStore, {
       state: "authenticatedState",
     }),
     isTwoFactor() {
@@ -38,5 +35,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style></style>

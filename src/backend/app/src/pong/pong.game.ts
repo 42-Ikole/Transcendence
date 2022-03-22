@@ -19,7 +19,7 @@ function newBall(): Ball {
   };
 }
 
-function newPlayer(): Player {
+function newPlayer(username: string): Player {
   return {
     bar: {
       position: {
@@ -29,15 +29,16 @@ function newPlayer(): Player {
       width: 0.015,
       height: 0.2,
     },
+    username: username,
     score: 0,
   };
 }
 
-export function newGameState(): GameState {
+export function newGameState(userOne: string, userTwo: string): GameState {
   const state: GameState = {
     ball: newBall(),
-    playerOne: newPlayer(),
-    playerTwo: newPlayer(),
+    playerOne: newPlayer(userOne),
+    playerTwo: newPlayer(userTwo),
   };
   state.playerTwo.bar.position.x = 0.975; // 0.99 - bar.width
   return state;
@@ -46,8 +47,8 @@ export function newGameState(): GameState {
 function resetGameState(state: GameState) {
   const scoreOne = state.playerOne.score;
   const scoreTwo = state.playerTwo.score;
-  state.playerOne = newPlayer();
-  state.playerTwo = newPlayer();
+  state.playerOne = newPlayer(state.playerOne.username);
+  state.playerTwo = newPlayer(state.playerTwo.username);
   state.ball = newBall();
   state.playerTwo.bar.position.x = 0.975; // 0.99 - bar.width
   state.playerOne.score = scoreOne;
@@ -93,7 +94,7 @@ function ballBarIntersection(ball: Ball, bar: PongBar): boolean {
     ball.position.x + ball.radius >= bar.position.x &&
     ball.position.x - ball.radius <= bar.position.x + bar.width &&
     ball.position.y + ball.radius >= bar.position.y &&
-    bar.position.y - ball.radius <= bar.position.y + bar.height
+    ball.position.y - ball.radius <= bar.position.y + bar.height
   );
 }
 

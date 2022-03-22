@@ -7,6 +7,7 @@
 
 <script lang="ts">
 import { useAuthenticationStore } from "@/stores/authentication";
+import { useUserStore } from "@/stores/UserStore";
 import { makeApiCallJson } from "@/utils/ApiCall";
 import { logoutUser } from "@/utils/Login";
 import { defineComponent } from "vue";
@@ -23,7 +24,7 @@ export default defineComponent({
         twoFactorCode: this.code,
       });
       if (response.ok) {
-        useAuthenticationStore().login();
+        useUserStore().login();
       }
     },
     async logout() {

@@ -4,12 +4,14 @@
 
 <script lang="ts">
 import { useSocketStore } from "@/stores/SocketStore";
+import { useUserStore } from "@/stores/UserStore";
 import { defineComponent } from "vue";
 
 export default defineComponent({
   methods: {
     requestMatch() {
-      useSocketStore().pong.emit("requestMatch", { type: "matchmaking" });
+      useUserStore().setState("SEARCHING");
+      useSocketStore().pong?.emit("requestMatch", { type: "matchmaking" });
     },
   },
 });

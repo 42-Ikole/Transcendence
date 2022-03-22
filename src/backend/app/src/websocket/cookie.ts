@@ -11,7 +11,7 @@ import * as util from 'util';
 export async function decodeCookie(
   cookie: string,
   configService: ConfigService,
-): Promise<SessionUser> {
+): Promise<SessionUser | null> {
   // `cookie.parse` to parse cookie from HTTP header field
   const parsedCookie = parse(cookie);
   // Server-side options: the name/secret we generated the cookie with
@@ -25,5 +25,8 @@ export async function decodeCookie(
   // Connect to the Session DB (typeorm) to retrieve the session usin the SID
   const store = new TypeormStore().connect(getRepository(TypeORMSession));
   const session = await util.promisify(store.get)(SID);
+  if (!session?.passport?.user) {
+    return null;
+  }
   return session.passport.user;
 }
