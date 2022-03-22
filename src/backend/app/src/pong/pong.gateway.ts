@@ -1,6 +1,6 @@
 import { UseGuards } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { WebSocketServer, WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage } from "@nestjs/websockets";
+import { WebSocketServer, WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, ConnectedSocket, MessageBody } from "@nestjs/websockets";
 import { Socket, Server } from "socket.io";
 import { SessionUser } from "src/auth/auth.types";
 import { UserService } from "src/user/user.service";
@@ -8,7 +8,7 @@ import { decodeCookie } from "./cookie";
 import { movePlayer, newGameState, updateGamestate } from "./pong.game";
 import { GameState } from "./pong.types";
 import { WebsocketGuard } from './websocket.guard';
-import { SocketWithUser } from "./websocket.types";
+import { RequestMatchDto, SocketWithUser } from "./websocket.types";
 
 let gameState: GameState = newGameState();
 let intervalId: NodeJS.Timer;
@@ -34,21 +34,26 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		return user;
 	}
 
-	async handleConnection(client: Socket, ...args: any[]) {
+	async handleConnection(client: SocketWithUser) {
+		client.user = null;
 		const user = await this.userFromCookie(client.handshake.headers.cookie);
-		(client as SocketWithUser).user = user;
-		console.log("pong WS connected:", user.username);
-
-		gameState = newGameState();
-		intervalId = setInterval(() => {
-			gameState = updateGamestate(gameState);
-			this.wss.emit('updatePosition', gameState);
-		}, 15);
+		client.user = user;
+		console.log("Connect:", client.user.username);
 	}
 
 	handleDisconnect(client: SocketWithUser) {
 		console.log("Disconnect:", client.user.username);
 		clearInterval(intervalId);
+	}
+
+	/*
+	Data:
+		TYPE: "matchmaking" | "challenge"
+		TARGET: "_user_id_" | null
+	*/
+	@SubscribeMessage('requestMatch')
+	requestMatch(@ConnectedSocket() client: SocketWithUser, @MessageBody() data: RequestMatchDto) {
+		console.log("Request Match data:", data);
 	}
 
 	@SubscribeMessage('movement')

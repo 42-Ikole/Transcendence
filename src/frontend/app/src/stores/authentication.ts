@@ -1,11 +1,16 @@
 import { defineStore } from "pinia";
+import { useSocketStore } from "./SocketStore";
 
 export type AuthenticatedState = "AUTHENTICATED" | "2FA" | "OAUTH";
 
+interface AuthenticatedStore {
+  authenticatedState: AuthenticatedState,
+};
+
 export const useAuthenticationStore = defineStore("authentication", {
-  state: () => {
+  state: (): AuthenticatedStore => {
     return {
-      authenticatedState: "OAUTH" as AuthenticatedState,
+      authenticatedState: "OAUTH",
     };
   },
   getters: {
@@ -19,9 +24,11 @@ export const useAuthenticationStore = defineStore("authentication", {
     },
     login() {
       this.setState("AUTHENTICATED");
+      useSocketStore().initPongSocket();
     },
     logout() {
       this.setState("OAUTH");
+      useSocketStore().disconnectSockets();
     },
   },
 });
