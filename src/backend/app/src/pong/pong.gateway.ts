@@ -1,3 +1,4 @@
+import { UseGuards } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { WebSocketServer, WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage } from "@nestjs/websockets";
 import { Socket, Server } from "socket.io";
@@ -6,6 +7,8 @@ import { UserService } from "src/user/user.service";
 import { decodeCookie } from "./cookie";
 import { movePlayer, newGameState, updateGamestate } from "./pong.game";
 import { GameState } from "./pong.types";
+import { WebsocketGuard } from './websocket.guard';
+import { SocketWithUser } from "./websocket.types";
 
 let gameState: GameState = newGameState();
 let intervalId: NodeJS.Timer;
@@ -17,6 +20,7 @@ let intervalId: NodeJS.Timer;
 		origin: ["http://localhost:8080", "http://localhost:3000"],
 	},
 })
+@UseGuards(WebsocketGuard)
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
 		private userService: UserService,
@@ -31,9 +35,10 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	}
 
 	async handleConnection(client: Socket, ...args: any[]) {
-		console.log("Connect:", client.id);
 		const user = await this.userFromCookie(client.handshake.headers.cookie);
-		console.log("connected:", user);
+		(client as SocketWithUser).user = user;
+		console.log("pong WS connected:", user.username);
+
 		gameState = newGameState();
 		intervalId = setInterval(() => {
 			gameState = updateGamestate(gameState);
@@ -41,13 +46,13 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}, 15);
 	}
 
-	handleDisconnect(client: Socket) {
-		console.log("Disconnect:", client.id);
+	handleDisconnect(client: SocketWithUser) {
+		console.log("Disconnect:", client.user.username);
 		clearInterval(intervalId);
 	}
 
 	@SubscribeMessage('movement')
-	movement(client: Socket, data: string) {
+	movement(client: SocketWithUser, data: string) {
 		if (data === "w") {
 			movePlayer(gameState.playerOne.bar, "ArrowUp");
 		} else if (data === "s") {

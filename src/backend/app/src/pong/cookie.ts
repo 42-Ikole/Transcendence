@@ -9,17 +9,17 @@ import * as util from 'util';
 
 // TODO: more error checks
 export async function decodeCookie(cookie: string, configService: ConfigService): Promise<SessionUser> {
-	// Split the cookie into tokens
+	// `cookie.parse` to parse cookie from HTTP header field
 	const parsedCookie = parse(cookie);
-	// Server-side options
+	// Server-side options: the name/secret we generated the cookie with
 	const name = configService.get('cookie.NAME');
 	const secret = configService.get('cookie.SECRET');
-	// Parse the Session ID from the Cookie Data
+	// We now have an Express-Session generated cookie, so we can use the Express parser to retrieve the SID
 	const SID = cookieParser.signedCookie(parsedCookie[name], secret);
 	if (!SID) {
 		throw new Error("invalid cookie");
 	}
-	// Connect to the Session DB to retrieve the session usin the SID
+	// Connect to the Session DB (typeorm) to retrieve the session usin the SID
 	const store = new TypeormStore().connect(getRepository(TypeORMSession));
 	const session = await util.promisify(store.get)(SID);
 	return session.passport.user;

@@ -1,10 +1,12 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Socket } from "socket.io";
+import { SocketWithUser } from './websocket.types';
 
 @Injectable()
-export class AuthenticatedGuard implements CanActivate {
+export class WebsocketGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const client: Socket = context.switchToWs().getClient();
-	return true;
+    const client: SocketWithUser = context.switchToWs().getClient();
+    // return authenticated if the user object is defined
+    console.log("Guard:", client.user);
+    return !!client.user;
   }
 }
