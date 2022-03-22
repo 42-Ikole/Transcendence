@@ -62,6 +62,7 @@ export class UserService {
 ////////////
 
 	async update(id: number, field: PartialUser) {
+		console.log("part:", field);
 		return this.userRepository.update(id, field);
 	}
 

@@ -1,9 +1,10 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Match } from './match.entity';
+import { IsString, IsOptional, IsBoolean } from 'class-validator';
 
-interface MatchTest {
-  id: string,
-};
+//////     //////
+// User Entity //
+//////     //////
 
 @Entity()
 export class User {
@@ -15,6 +16,9 @@ export class User {
 
   @Column()
   username: string;
+
+  @Column({ nullable: true})
+  avatar: string;
 
   @Column({ nullable: true})
   fullName: string;
@@ -36,8 +40,34 @@ export class User {
   twoFactorEnabled: boolean;
 }
 
-// creates a partial user where each field is optional
-type Partial<T> = {
-	[P in keyof T]?: T[P];
-};
-export type PartialUser = Partial<User>;
+
+//////      //////
+// Partial User //
+//////      //////
+
+export class PartialUser {
+	@IsString()
+	@IsOptional()
+	username?: string;
+
+	@IsString()
+	@IsOptional()
+	avatar?: string;
+
+	@IsString()
+	@IsOptional()
+	fullName?: string;
+
+	@IsString()
+	@IsOptional()
+	email?: string;
+
+	@IsString()
+	@IsOptional()
+	twoFactorSecret?: string;
+
+	@IsBoolean()
+	@IsOptional()
+	twoFactorEnabled?: boolean;
+
+}
