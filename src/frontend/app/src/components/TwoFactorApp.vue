@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import { useAuthenticationStore } from "@/stores/authentication";
-import makeApiCall from "@/utils/ApiCall";
+import { makeApiCallJson } from "@/utils/ApiCall";
 import { logoutUser } from "@/utils/Login";
 import { defineComponent } from "vue";
 
@@ -19,13 +19,7 @@ export default defineComponent({
   },
   methods: {
     async submit() {
-      const response = await makeApiCall("/2fa/authenticate", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ twoFactorCode: this.code }),
-      });
+      const response = await makeApiCallJson("/2fa/authenticate", "POST", { twoFactorCode: this.code });
       if (response.ok) {
         useAuthenticationStore().login();
       }

@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import makeApiCall from "@/utils/ApiCall";
+import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
 import { defineComponent } from "vue";
 
 enum TwoFactorState {
@@ -66,13 +66,7 @@ export default defineComponent({
       this.state = TwoFactorState.PENDING;
     },
     async submit() {
-      const response = await makeApiCall("/2fa/enable", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ twoFactorCode: this.code }),
-      });
+      const response = await makeApiCallJson("/2fa/enable", "POST", { twoFactorCode: this.code });
       if (response.ok) {
         this.state = TwoFactorState.ENABLED;
       }
