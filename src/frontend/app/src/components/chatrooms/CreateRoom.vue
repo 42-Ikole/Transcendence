@@ -42,6 +42,7 @@
 
 import Chatroom from './Chatroom.vue';
 import { defineComponent } from 'vue';
+import makeApiCall from '../../utils/ApiCall.ts';
 
 enum Room {
 	NOTCREATED,
@@ -64,10 +65,10 @@ export default defineComponent({
 				console.log('nie goe');
 				return ;
 			}
-			//const response = await makeApiCall("/chatroom", {
-			//	method: "POST",
-			//	body: JSON.stringify({type: this.type, name: this.name, password: this.pass})
-			//})
+			const response = await makeApiCall("/chat", {
+				method: "POST",
+				body: JSON.stringify({type: this.type, name: this.name, password: this.pass})
+			})
 			this.room = Room.CREATED
 		},
 		toggleShowPassword() {
