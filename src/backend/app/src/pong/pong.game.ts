@@ -1,5 +1,11 @@
 import { Ball, GameState, Player, PongBar } from './pong.types';
 
+/*
+Concept: all coordinates are in range [0, 1] and used in the frontend as a percentage relative to the screen size.
+So position `x = 0.5` is half of the screen/game width in the frontend.
+*/
+
+// TODO: add BALL acceleration and key input (like space) for some special move
 const BALL_SPEED = 0.005;
 const PLAYER_SPEED = 0.01;
 
@@ -10,6 +16,7 @@ function newBall(): Ball {
       y: 0.5,
     },
     direction: {
+      // TODO: randomize start direction
       x: -1,
       y: 0,
     },
@@ -53,6 +60,8 @@ function resetGameState(state: GameState) {
   state.playerTwo.score = scoreTwo;
 }
 
+// directions[0] === ArrowUpDown, directions[1] === ArrowDownDown
+// TODO: change to two-tuple (typescript)
 export function movePlayer(bar: PongBar, directions: Boolean[]) {
   if (directions[0]) {
     bar.position.y -= PLAYER_SPEED;
@@ -60,6 +69,7 @@ export function movePlayer(bar: PongBar, directions: Boolean[]) {
   if (directions[1]) {
     bar.position.y += PLAYER_SPEED;
   }
+  // so that the bar doesn't go beyond the edge (top/bottom)
   if (bar.position.y > 1 - bar.height) {
     bar.position.y = 1 - bar.height;
   } else if (bar.position.y < 0) {
@@ -83,7 +93,7 @@ function handleRoundEnd(state: GameState) {
 }
 
 function ballBarIntersection(ball: Ball, bar: PongBar): boolean {
-  // right now it's just a square intersection
+  // TODO: proper intersection, right now it's just a square intersection
   return (
     ball.position.x + ball.radius >= bar.position.x &&
     ball.position.x - ball.radius <= bar.position.x + bar.width &&
@@ -92,9 +102,9 @@ function ballBarIntersection(ball: Ball, bar: PongBar): boolean {
   );
 }
 
-function updateBallPosition(state: GameState, delta: number) {
-  state.ball.position.x += state.ball.direction.x * BALL_SPEED * delta;
-  state.ball.position.y += state.ball.direction.y * BALL_SPEED * delta;
+function updateBallPosition(state: GameState) {
+  state.ball.position.x += state.ball.direction.x * BALL_SPEED;
+  state.ball.position.y += state.ball.direction.y * BALL_SPEED;
   if (state.ball.position.y <= 0 || state.ball.position.y >= 1) {
     state.ball.direction.y *= -1;
   }
@@ -102,13 +112,17 @@ function updateBallPosition(state: GameState, delta: number) {
     ballBarIntersection(state.ball, state.playerOne.bar) ||
     ballBarIntersection(state.ball, state.playerTwo.bar)
   ) {
+    // TODO: get the correct new direction
     state.ball.direction.x *= -1;
   }
 }
 
-// delta is the interval in miliseconds
-export function updateGamestate(state: GameState, delta: number): GameState {
-  updateBallPosition(state, delta * 0.1);
+export function gameHasEnded(state: GameState) {
+  return state.playerOne.score === 10 || state.playerTwo.score === 10;
+}
+
+export function updateGamestate(state: GameState): GameState {
+  updateBallPosition(state);
   if (roundHasEnded(state)) {
     handleRoundEnd(state);
   }

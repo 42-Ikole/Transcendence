@@ -29,9 +29,15 @@ export interface GameState {
   ball: Ball;
 }
 
+interface PongUser {
+  socketId: string;
+  userId: number;
+  disconnected: boolean;
+}
+
 export interface GameRoom {
-  clientOne: SocketWithUser;
-  clientTwo: SocketWithUser;
   intervalId: NodeJS.Timer;
-  name: string;
+  playerOne: PongUser;
+  playerTwo: PongUser;
+  gameState: GameState;
 }
