@@ -30,11 +30,11 @@ async function setupSession(app: INestApplication) {
     session({
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 7,
-        sameSite: 'none',
       },
       name: configService.get('cookie.NAME'),
       secret: configService.get('cookie.SECRET'),
       resave: false,
+      rolling: true,
       saveUninitialized: false, // Only save the session if the user is logged in
       store: new TypeormStore().connect(sessionRepository), // session store
     }),
