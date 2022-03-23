@@ -32,16 +32,17 @@ import { ClientRequest } from 'http';
     origin: ['http://localhost:8080', 'http://localhost:3000'],
   },
 })
-// @UseGuards(WebsocketGuard)
-// @UseFilters(WsExceptionFilter)
-// @UsePipes(new ValidationPipe())
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private userService: UserService,
     private configService: ConfigService,
   ) {}
+
   @WebSocketServer() wss: Server;
   waitingUser: SocketWithUser | null;
+  gameRooms: Record<string, GameRoom> = {}; // roomName -> extra room Data
+  gameStates: Record<string, GameState> = {}; // roomName -> GameState
+  disconnectedUsers: Record<string, string> = {}; // userName -> roomName
 
   private async userFromCookie(cookie: string) {
     const sessionUser: SessionUser = await decodeCookie(
@@ -62,11 +63,11 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.disconnect();
     } else {
       console.log('/pong connect:', client.user.username);
-      this.checkIfDisconnected(client);
+      this.handleReconnect(client);
     }
   }
 
-  checkIfDisconnected(client: SocketWithUser) {
+  handleReconnect(client: SocketWithUser) {
     const roomName = this.disconnectedUsers[client.user.username];
     if (roomName && this.gameRooms[roomName]) {
       console.log("reconnecting", client.user.username, "to", roomName);
@@ -85,7 +86,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.waitingUser = null;
     } else if (client.gameRoom) {
       console.log(client.user.username, "disconnected from game:", client.gameRoom);
-      this.disconnectedUsers[client.user.username] = client.gameRoom;
       this.handleGameDisconnect(client);
     }
     console.log('/pong Disconnect:', client.user.username);
@@ -95,17 +95,18 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!this.gameStates[client.gameRoom]) {
       return;
     }
+    this.disconnectedUsers[client.user.username] = client.gameRoom;
     const userOne = this.gameStates[client.gameRoom].playerOne.username;
     const userTwo = this.gameStates[client.gameRoom].playerTwo.username;
     if (this.disconnectedUsers[userOne] && this.disconnectedUsers[userTwo]) {
       delete this.disconnectedUsers[userOne];
       delete this.disconnectedUsers[userTwo];
-      this.endGame(client.gameRoom);
+      this.deleteGame(client.gameRoom);
       console.log("both players disconnected, removing gameRoom:", client.gameRoom);
     }
   }
 
-  endGame(roomName: string) {
+  deleteGame(roomName: string) {
     clearInterval(this.gameRooms[roomName].intervalId);
     delete this.gameRooms[roomName];
     delete this.gameStates[roomName];
@@ -141,17 +142,16 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  gameRooms: Record<string, GameRoom> = {}; // roomName -> extra room Data
-  gameStates: Record<string, GameState> = {}; // roomName -> GameState
-  disconnectedUsers: Record<string, string> = {}; // userName -> roomName
+  generateRoomName() {
+    return '_' + Math.random().toString(36).slice(2, 9);
+  }
+
   // Create a new unique room for these clients to play in
   // Signal to the clients that they can play
   // Add the game to a list of games being played (memory? database?)
   startNewGame(clientOne: SocketWithUser, clientTwo: SocketWithUser) {
-    let roomName = "room01";
-    if (this.gameStates[roomName]) {
-      roomName = "room02";
-    }
+    const roomName = this.generateRoomName();
+    console.log(clientOne.user.username, "vs", clientTwo.user.username, "in", roomName);
     clientOne.join(roomName);
     clientTwo.join(roomName);
     clientOne.gameRoom = roomName;
@@ -162,7 +162,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const INTERVAL = 1000 / 60;
     const intervalId = setInterval(() => {
       updateGamestate(this.gameStates[roomName], INTERVAL);
-      // this.wss.to(roomName).emit('updatePosition', this.gameStates[roomName]);
+      this.wss.to(roomName).emit('updatePosition', this.gameStates[roomName]);
     }, INTERVAL);
 
     this.gameRooms[roomName] = {
@@ -179,7 +179,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('updatePosition', this.gameStates[client.gameRoom]);
     }
   }
-  
+
   @SubscribeMessage('movement')
   movement(client: SocketWithUser, data: Boolean[]) {
     if (!this.gameRooms[client.gameRoom]) {
@@ -190,6 +190,5 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } else if (client.id === this.gameRooms[client.gameRoom].clientTwo.id) {
       movePlayer(this.gameStates[client.gameRoom].playerTwo.bar, data);
     }
-    client.emit('updatePosition', this.gameStates[client.gameRoom]);
   }
 }

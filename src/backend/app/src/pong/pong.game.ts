@@ -106,6 +106,7 @@ function updateBallPosition(state: GameState, delta: number) {
   }
 }
 
+// delta is the interval in miliseconds
 export function updateGamestate(state: GameState, delta: number): GameState {
   updateBallPosition(state, delta * 0.1);
   if (roundHasEnded(state)) {

@@ -13,36 +13,42 @@ import { useUserStore } from "@/stores/UserStore";
 import { useSocketStore } from "@/stores/SocketStore";
 
 interface DataObject {
-  context: null | CanvasRenderingContext2D;
-  game: null | GameState;
-  width: number;
-  height: number;
+  context: CanvasRenderingContext2D | null;
   playerOneScore: number;
   playerTwoScore: number;
+  PressedKeys: Boolean[];
 }
-
-let rendering = false;
-
-const PressedKeys = [false, false];
 
 export default defineComponent({
   data(): DataObject {
     return {
       context: null,
-      game: null,
-      width: 0,
-      height: 0,
       playerOneScore: 0,
       playerTwoScore: 0,
+      PressedKeys: [false, false],
     };
   },
+  computed: {
+    width() {
+      return (this.$refs as any).game.width;
+    },
+    height() {
+      return (this.$refs as any).game.height;
+    },
+    ...mapState(useSocketStore, {
+      socket: "pong",
+    }),
+  },
   methods: {
-    update() {
-      // this.socket.emit('requestUpdate');
-      this.socket.emit('movement', PressedKeys);
-      if (rendering) {
-        window.requestAnimationFrame(this.update);
+    update(data: GameState) {
+      if (!data) {
+        console.log("gamestate data is NULL");
+        return;
       }
+      this.socket!.emit('movement', this.PressedKeys);
+      this.render(data);
+      this.playerOneScore = data.playerOne.score;
+      this.playerTwoScore = data.playerTwo.score;
     },
     render(data: GameState) {
       this.clear();
@@ -51,8 +57,8 @@ export default defineComponent({
       this.drawBall(data.ball);
     },
     drawBar(bar: PongBar) {
-      this.context.fillStyle = "#000";
-      this.context.fillRect(
+      this.context!.fillStyle = "#000";
+      this.context!.fillRect(
         bar.position.x * this.width,
         bar.position.y * this.height,
         bar.width * this.width,
@@ -60,64 +66,44 @@ export default defineComponent({
       );
     },
     drawBall(ball: Ball) {
-      this.context.beginPath();
-      this.context.fillStyle = "#000";
-      this.context.arc(
+      this.context!.beginPath();
+      this.context!.fillStyle = "#000";
+      this.context!.arc(
         ball.position.x * this.width,
         ball.position.y * this.height,
         ball.radius * this.width,
         0,
         2 * Math.PI
       );
-      this.context.fill();
+      this.context!.fill();
     },
     keyDown(data: any) {
       if (data.key === "ArrowUp") {
-        PressedKeys[0] = true;
+        this.PressedKeys[0] = true;
       } else if (data.key === "ArrowDown") {
-        PressedKeys[1] = true;
+        this.PressedKeys[1] = true;
       }
     },
     keyUp(data: any) {
       if (data.key === "ArrowUp") {
-        PressedKeys[0] = false;
+        this.PressedKeys[0] = false;
       } else if (data.key === "ArrowDown") {
-        PressedKeys[1] = false;
+        this.PressedKeys[1] = false;
       }
     },
     clear() {
-      this.context.clearRect(0, 0, this.game.width, this.game.height);
+      this.context!.clearRect(0, 0, this.width, this.height);
     },
   },
-  created() {
-    this.socket.on("updatePosition", (data: GameState) => {
-      if (!data) {
-        console.log("data is NULL");
-        return;
-      }
-      this.render(data);
-      this.playerOneScore = data.playerOne.score
-      this.playerTwoScore = data.playerTwo.score
-    });
+  mounted() {
+    this.context = (this.$refs as any).game.getContext("2d");
+    this.socket!.on("updatePosition", this.update);
     window.addEventListener("keydown", this.keyDown);
     window.addEventListener("keyup", this.keyUp);
   },
-  mounted() {
-    this.game = this.$refs.game;
-    this.width = this.game.width;
-    this.height = this.game.height;
-    this.context = this.game.getContext("2d");
-    window.requestAnimationFrame(this.update);
-    rendering = true;
-  },
   unmounted() {
-    window.removeEventListener("keydown", this.move);
-    rendering = false;
-  },
-  computed: {
-    ...mapState(useSocketStore, {
-      socket: "pong",
-    }),
+    window.removeEventListener("keydown", this.keyDown);
+    window.removeEventListener("keyup", this.keyUp);
   },
 });
 </script>
