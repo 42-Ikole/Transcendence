@@ -7,8 +7,7 @@
       <p>You are logged in.</p>
     </div>
     <div v-else>
-      <button @click="login">Login</button>
-      <p>You are logged out.</p>
+      <LoggedOut/>
     </div>
   </div>
 </template>
@@ -18,12 +17,16 @@ import { defineComponent } from "vue";
 import { loginUser, logoutUser, getUserInfo } from "@/utils/Login";
 import { mapState } from "pinia";
 import { useAuthenticationStore } from "@/stores/authentication";
+import  LoggedOut  from "@/components/login/LoggedOut.vue";
 
 export default defineComponent({
   data() {
     return {
       userData: "",
     };
+  },
+  components: {
+	  LoggedOut,
   },
   methods: {
     login() {

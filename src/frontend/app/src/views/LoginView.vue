@@ -17,7 +17,7 @@ import {
 } from "@/stores/authentication";
 import { mapState } from "pinia";
 import { defineComponent } from "vue";
-import LoginApp from "@/components/LoginApp.vue";
+import LoginApp from "@/components/login/LoginApp.vue";
 import TwoFactorApp from "@/components/TwoFactorApp.vue";
 
 export default defineComponent({
