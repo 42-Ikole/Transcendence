@@ -1,9 +1,7 @@
 import { Ball, GameState, Player, PongBar } from './pong.types';
 
 const BALL_SPEED = 0.005;
-const PLAYER_SPEED = 0.025;
-
-type ArrowKey = 'ArrowUp' | 'ArrowDown';
+const PLAYER_SPEED = 0.01;
 
 function newBall(): Ball {
   return {
@@ -55,16 +53,12 @@ function resetGameState(state: GameState) {
   state.playerTwo.score = scoreTwo;
 }
 
-export function movePlayer(bar: PongBar, direction: ArrowKey) {
-  switch (direction) {
-    case 'ArrowUp':
-      bar.position.y -= PLAYER_SPEED;
-      break;
-    case 'ArrowDown':
-      bar.position.y += PLAYER_SPEED;
-      break;
-    default:
-      throw new Error('invalid player movement direction: ' + direction);
+export function movePlayer(bar: PongBar, directions: Boolean[]) {
+  if (directions[0]) {
+    bar.position.y -= PLAYER_SPEED;
+  }
+  if (directions[1]) {
+    bar.position.y += PLAYER_SPEED;
   }
   if (bar.position.y > 1 - bar.height) {
     bar.position.y = 1 - bar.height;
@@ -113,8 +107,7 @@ function updateBallPosition(state: GameState, delta: number) {
 }
 
 export function updateGamestate(state: GameState, delta: number): GameState {
-  
-  updateBallPosition(state, delta * 0.05);
+  updateBallPosition(state, delta * 0.1);
   if (roundHasEnded(state)) {
     handleRoundEnd(state);
   }

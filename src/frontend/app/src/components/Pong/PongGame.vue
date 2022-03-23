@@ -1,6 +1,6 @@
 <template>
   <p> {{ playerOneScore }}  : {{ playerTwoScore }} </p>
-  <canvas class="game" ref="game" width="640" height="480"> </canvas>
+  <canvas class="game" ref="game" width="480" height="600"> </canvas>
 </template>
 
 <script lang="ts">
@@ -21,6 +21,10 @@ interface DataObject {
   playerTwoScore: number;
 }
 
+let rendering = false;
+
+const PressedKeys = [false, false];
+
 export default defineComponent({
   data(): DataObject {
     return {
@@ -33,6 +37,13 @@ export default defineComponent({
     };
   },
   methods: {
+    update() {
+      // this.socket.emit('requestUpdate');
+      this.socket.emit('movement', PressedKeys);
+      if (rendering) {
+        window.requestAnimationFrame(this.update);
+      }
+    },
     render(data: GameState) {
       this.clear();
       this.drawBar(data.playerOne.bar);
@@ -60,8 +71,19 @@ export default defineComponent({
       );
       this.context.fill();
     },
-    move(data: any) {
-      this.socket.emit("movement", data.key);
+    keyDown(data: any) {
+      if (data.key === "ArrowUp") {
+        PressedKeys[0] = true;
+      } else if (data.key === "ArrowDown") {
+        PressedKeys[1] = true;
+      }
+    },
+    keyUp(data: any) {
+      if (data.key === "ArrowUp") {
+        PressedKeys[0] = false;
+      } else if (data.key === "ArrowDown") {
+        PressedKeys[1] = false;
+      }
     },
     clear() {
       this.context.clearRect(0, 0, this.game.width, this.game.height);
@@ -69,20 +91,28 @@ export default defineComponent({
   },
   created() {
     this.socket.on("updatePosition", (data: GameState) => {
+      if (!data) {
+        console.log("data is NULL");
+        return;
+      }
       this.render(data);
       this.playerOneScore = data.playerOne.score
       this.playerTwoScore = data.playerTwo.score
     });
-    window.addEventListener("keydown", this.move);
+    window.addEventListener("keydown", this.keyDown);
+    window.addEventListener("keyup", this.keyUp);
   },
   mounted() {
     this.game = this.$refs.game;
     this.width = this.game.width;
     this.height = this.game.height;
     this.context = this.game.getContext("2d");
+    window.requestAnimationFrame(this.update);
+    rendering = true;
   },
   unmounted() {
     window.removeEventListener("keydown", this.move);
+    rendering = false;
   },
   computed: {
     ...mapState(useSocketStore, {
@@ -94,8 +124,8 @@ export default defineComponent({
 
 <style>
 .game {
-  width: 50vw;
-  height: 80vh;
+  width: 600px;
+  height: 480px;
   border: 1px solid black;
   display: block;
   position: absolute;

@@ -32,9 +32,9 @@ import { ClientRequest } from 'http';
     origin: ['http://localhost:8080', 'http://localhost:3000'],
   },
 })
-@UseGuards(WebsocketGuard)
-@UseFilters(WsExceptionFilter)
-@UsePipes(new ValidationPipe())
+// @UseGuards(WebsocketGuard)
+// @UseFilters(WsExceptionFilter)
+// @UsePipes(new ValidationPipe())
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private userService: UserService,
@@ -67,7 +67,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   checkIfDisconnected(client: SocketWithUser) {
-    console.log("DISCONNECTED USERS:", this.disconnectedUsers);
     const roomName = this.disconnectedUsers[client.user.username];
     if (roomName && this.gameRooms[roomName]) {
       console.log("reconnecting", client.user.username, "to", roomName);
@@ -77,7 +76,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     if (roomName) {
       delete this.disconnectedUsers[client.user.username];
-      console.log("DISCONNECTED USERS:", this.disconnectedUsers);
     }
   }
 
@@ -91,20 +89,20 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.handleGameDisconnect(client);
     }
     console.log('/pong Disconnect:', client.user.username);
-    console.log("DISCONNECTED USERS:", this.disconnectedUsers);
   }
-  
+
   handleGameDisconnect(client: SocketWithUser) {
     const userOne = this.gameStates[client.gameRoom].playerOne.username;
     const userTwo = this.gameStates[client.gameRoom].playerTwo.username;
     if (this.disconnectedUsers[userOne] && this.disconnectedUsers[userTwo]) {
-      // delete this.disconnectedUsers[userOne];
-      // delete this.disconnectedUsers[userTwo];
+      delete this.disconnectedUsers[userOne];
+      delete this.disconnectedUsers[userTwo];
+      this.endGame(client.gameRoom);
       console.log("both players disconnected, removing gameRoom:", client.gameRoom);
     }
   }
-  
-  endGame(roomName: string, winner: string) {
+
+  endGame(roomName: string) {
     clearInterval(this.gameRooms[roomName].intervalId);
     delete this.gameRooms[roomName];
     delete this.gameStates[roomName];
@@ -158,10 +156,10 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.wss.to(roomName).emit('startGame');
     this.gameStates[roomName] = newGameState(clientOne.user.username, clientTwo.user.username);
 
-    const INTERVAL = 15;
+    const INTERVAL = 1000 / 60;
     const intervalId = setInterval(() => {
       updateGamestate(this.gameStates[roomName], INTERVAL);
-      this.wss.to(roomName).emit('updatePosition', this.gameStates[roomName]);
+      // this.wss.to(roomName).emit('updatePosition', this.gameStates[roomName]);
     }, INTERVAL);
 
     this.gameRooms[roomName] = {
@@ -172,19 +170,23 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     };
   }
 
-  @SubscribeMessage('movement')
-  movement(client: SocketWithUser, data: string) {
-    if (data === "ArrowDown" || data === "ArrowUp") {
-      if (client.id === this.gameRooms['room01'].clientOne.id) {
-        movePlayer(this.gameStates['room01'].playerOne.bar, data);
-      } else if (client.id === this.gameRooms['room01'].clientTwo.id) {
-        movePlayer(this.gameStates['room01'].playerTwo.bar, data);
-      }
-      else if (client.id === this.gameRooms['room02'].clientOne.id) {
-        movePlayer(this.gameStates['room02'].playerOne.bar, data);
-      } else if (client.id === this.gameRooms['room02'].clientTwo.id) {
-        movePlayer(this.gameStates['room02'].playerTwo.bar, data);
-      }
+  @SubscribeMessage('requestUpdate')
+  requestUpdate(client: SocketWithUser) {
+    if (client.gameRoom) {
+      client.emit('updatePosition', this.gameStates[client.gameRoom]);
     }
+  }
+  
+  @SubscribeMessage('movement')
+  movement(client: SocketWithUser, data: Boolean[]) {
+    if (!this.gameRooms[client.gameRoom]) {
+      return;
+    }
+    if (client.id === this.gameRooms[client.gameRoom].clientOne.id) {
+      movePlayer(this.gameStates[client.gameRoom].playerOne.bar, data);
+    } else if (client.id === this.gameRooms[client.gameRoom].clientTwo.id) {
+      movePlayer(this.gameStates[client.gameRoom].playerTwo.bar, data);
+    }
+    client.emit('updatePosition', this.gameStates[client.gameRoom]);
   }
 }
