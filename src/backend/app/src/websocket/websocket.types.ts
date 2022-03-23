@@ -4,6 +4,7 @@ import { User } from 'src/orm/entities/user.entity';
 
 export interface SocketWithUser extends Socket {
   user: User | null;
+  gameRoom?: string;
 }
 
 const MATCH_TYPES = ['matchmaking', 'challenge'];
