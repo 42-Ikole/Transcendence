@@ -1,6 +1,6 @@
 <template>
   <p> {{ playerOneScore }}  : {{ playerTwoScore }} </p>
-  <canvas class="game" ref="game" width="480" height="600"> </canvas>
+  <canvas class="game" ref="game" width="600" height="480"> </canvas>
 </template>
 
 <script lang="ts">
@@ -124,8 +124,8 @@ export default defineComponent({
 
 <style>
 .game {
-  width: 600px;
-  height: 480px;
+  width: 50vw;
+  height: 80vh;
   border: 1px solid black;
   display: block;
   position: absolute;

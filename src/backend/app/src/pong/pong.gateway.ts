@@ -92,6 +92,9 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleGameDisconnect(client: SocketWithUser) {
+    if (!this.gameStates[client.gameRoom]) {
+      return;
+    }
     const userOne = this.gameStates[client.gameRoom].playerOne.username;
     const userTwo = this.gameStates[client.gameRoom].playerTwo.username;
     if (this.disconnectedUsers[userOne] && this.disconnectedUsers[userTwo]) {
