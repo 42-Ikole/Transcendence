@@ -71,6 +71,8 @@ export default defineComponent({
       });
       if (response.ok) {
         this.state = TwoFactorState.ENABLED;
+      } else {
+        console.error("invalid code, rescan QR");
       }
     },
     async disable() {

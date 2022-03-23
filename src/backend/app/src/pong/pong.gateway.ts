@@ -97,17 +97,17 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleGameDisconnect(client: SocketWithUser) {
     const userOne = this.gameStates[client.gameRoom].playerOne.username;
     const userTwo = this.gameStates[client.gameRoom].playerTwo.username;
-    delete this.disconnectedUsers[userOne];
-    delete this.disconnectedUsers[userTwo];
     if (this.disconnectedUsers[userOne] && this.disconnectedUsers[userTwo]) {
+      // delete this.disconnectedUsers[userOne];
+      // delete this.disconnectedUsers[userTwo];
       console.log("both players disconnected, removing gameRoom:", client.gameRoom);
     }
   }
   
   endGame(roomName: string, winner: string) {
-    clearInterval(this.gameRooms[client.gameRoom].intervalId);
-    delete this.gameRooms[client.gameRoom];
-    delete this.gameStates[client.gameRoom];
+    clearInterval(this.gameRooms[roomName].intervalId);
+    delete this.gameRooms[roomName];
+    delete this.gameStates[roomName];
   }
 
   /*
@@ -158,7 +158,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.wss.to(roomName).emit('startGame');
     this.gameStates[roomName] = newGameState(clientOne.user.username, clientTwo.user.username);
 
-    const INTERVAL = 50;
+    const INTERVAL = 15;
     const intervalId = setInterval(() => {
       updateGamestate(this.gameStates[roomName], INTERVAL);
       this.wss.to(roomName).emit('updatePosition', this.gameStates[roomName]);
