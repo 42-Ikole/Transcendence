@@ -21,11 +21,14 @@ export const useSocketStore = defineStore("socket", {
         withCredentials: true,
       });
       this.pong.on('exception', (error: string) => {
-        console.error(error);
+        console.error("Received Exception:", error);
       });
       this.pong.on('startGame', () => {
         useUserStore().setState("PLAYING");
       });
+      this.pong.on('endGame', () => {
+        useUserStore().setState("ONLINE");
+      })
     },
     disconnectSockets() {
       if (this.pong) {

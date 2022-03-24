@@ -96,12 +96,14 @@ export default defineComponent({
     },
   },
   mounted() {
+    console.log("FE: Setting up PongGame");
     this.context = (this.$refs as any).game.getContext("2d");
     this.socket!.on("updatePosition", this.update);
     window.addEventListener("keydown", this.keyDown);
     window.addEventListener("keyup", this.keyUp);
   },
   unmounted() {
+    console.log("FE: Unmounting PongGame");
     window.removeEventListener("keydown", this.keyDown);
     window.removeEventListener("keyup", this.keyUp);
   },

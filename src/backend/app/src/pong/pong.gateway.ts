@@ -24,6 +24,13 @@ import { WsExceptionFilter } from '../websocket/websocket.exception.filter';
 import { GameRoom, GameState } from './pong.types';
 import { gameHasEnded, movePlayer, newGameState, updateGamestate } from './pong.game';
 import { ClientRequest } from 'http';
+import { PongService } from './pong.service';
+
+/*
+Endpoints:
+  `requestMatch`
+  `movement`
+*/
 
 @WebSocketGateway({
   namespace: '/pong',
@@ -36,11 +43,14 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private userService: UserService,
     private configService: ConfigService,
+    private pongService: PongService,
   ) {}
 
   @WebSocketServer() wss: Server;
   waitingUser: SocketWithUser | null;
   gameRooms: Record<string, GameRoom> = {}; // roomName -> extra room Data
+  sockets: Record<string, SocketWithUser> = {}; // socketId -> User Socket, TODO: should be userId and multiple logins by same user should be denied
+  socketIds: Record<number, string> = {}; // userId -> socketId
   disconnectedUsers: Record<number, string> = {}; // userId -> roomName
 
   private async userFromCookie(cookie: string) {
@@ -62,6 +72,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.disconnect();
     } else {
       console.log('/pong connect:', client.user.username);
+      this.sockets[client.id] = client;
       this.handleReconnect(client);
     }
   }
@@ -82,7 +93,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('startGame');
     }
     if (roomName) {
-      delete this.disconnectedUsers[client.user.username];
+      this.deleteDisconnectedUser(client.user.id);
     }
   }
 
@@ -94,6 +105,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.log(client.user.username, "disconnected from game:", client.gameRoom);
       this.handleGameDisconnect(client);
     }
+    delete this.sockets[client.id];
     console.log('/pong Disconnect:', client.user.username);
   }
 
@@ -103,22 +115,45 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     this.disconnectedUsers[client.user.id] = client.gameRoom;
     const gameRoom = this.gameRooms[client.gameRoom];
-    if (gameRoom.playerOne.socketId === client.id) {
-      gameRoom.playerOne.disconnected = true;
-    } else {
-      gameRoom.playerTwo.disconnected = true;
-    }
+    this.setDisconnectedFlag(client.gameRoom, client.id);
     if (gameRoom.playerOne.disconnected && gameRoom.playerTwo.disconnected) {
-      delete this.disconnectedUsers[gameRoom.playerOne.userId];
-      delete this.disconnectedUsers[gameRoom.playerTwo.userId];
       console.log("both players disconnected, removing gameRoom:", client.gameRoom);
       this.deleteGame(client.gameRoom);
     }
   }
 
+  setDisconnectedFlag(roomName: string, socketId: string) {
+    const gameRoom = this.gameRooms[roomName];
+    if (gameRoom.playerOne.socketId === socketId) {
+      gameRoom.playerOne.disconnected = true;
+    } else if (gameRoom.playerTwo.socketId === socketId) {
+      gameRoom.playerTwo.disconnected = true;
+    } else {
+      console.error("cannot find disconnected game for:", socketId, "in room", roomName);
+    }
+  }
+
+  deleteDisconnectedUser(id: number) {
+    if (this.disconnectedUsers[id]) {
+      console.log("deleting disconnected user:", id);
+      delete this.disconnectedUsers[id];
+    }
+  }
+
   deleteGame(roomName: string) {
-    this.wss.to(roomName).emit("gameOver");
+    this.deleteDisconnectedUser(this.gameRooms[roomName].playerOne.userId);
+    this.deleteDisconnectedUser(this.gameRooms[roomName].playerTwo.userId);
+    this.wss.to(roomName).emit("endGame", this.gameRooms[roomName].gameState);
     clearInterval(this.gameRooms[roomName].intervalId);
+    this.deleteRoom(roomName);
+  }
+
+  // For each client in said room
+  deleteRoom(roomName: string) {
+    this.wss.socketsLeave(roomName);
+    const gameRoom = this.gameRooms[roomName];
+    this.sockets[gameRoom.playerOne.socketId].gameRoom = null;
+    this.sockets[gameRoom.playerTwo.socketId].gameRoom = null;
     delete this.gameRooms[roomName];
   }
 
@@ -151,6 +186,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		  this.waitingUser = client;
 	  } else if (this.waitingUser.id != client.id) {
       // TODO: disallow a user to play against themselves, for now it is useful for testing
+      // User shouldn't be able to search while they are already searching on a different machine
       console.log("found match");
       this.startNewGame(this.waitingUser, client);
       this.waitingUser = null;
@@ -166,7 +202,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // Add the game to a record (map) of games being played
   startNewGame(clientOne: SocketWithUser, clientTwo: SocketWithUser) {
     if (clientOne.user.id === clientTwo.user.id) {
-      console.error("WARNING:", clientOne.user.username, "is playing with themself.");
+      clientOne.emit("exception", "WARNING: you are playing with yourself");
+      clientTwo.emit("exception", "WARNING: you are playing with yourself");
     }
     const roomName = this.generateRoomName();
     console.log(clientOne.user.username, "vs", clientTwo.user.username, "in", roomName);
@@ -180,6 +217,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       intervalId,
       playerOne: { socketId: clientOne.id, userId: clientOne.user.id, disconnected: false },
       playerTwo: { socketId: clientTwo.id, userId: clientTwo.user.id, disconnected: false },
+      observers: [],
       gameState,
     };
   }

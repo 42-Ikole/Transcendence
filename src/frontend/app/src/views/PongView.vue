@@ -3,7 +3,12 @@
     <PongGame />
   </div>
   <div v-else-if="isSearching">
-    Searching...
+  <!-- TODO: some kind of searching/loading component -->
+    <p>Searching...</p>
+  </div>
+  <div v-else-if="showScoreScreen">
+    <ScoreScreen :game-state="gameState" />
+    <button @click="showScoreScreen = false;">Continue</button>
   </div>
   <div v-else>
     <FindMatch />
@@ -16,12 +21,22 @@ import PongGame from "@/components/Pong/PongGame.vue";
 import FindMatch from "@/components/Pong/FindMatch.vue";
 import { mapState } from "pinia";
 import { useUserStore } from "@/stores/UserStore";
+import { useSocketStore } from "@/stores/SocketStore";
+import ScoreScreen from "../components/Pong/ScoreScreen.vue";
+import type { GameState } from "@/components/Pong/PongTypes";
 
 export default defineComponent({
+  data() {
+    return {
+      showScoreScreen: false,
+      gameState: undefined as GameState | undefined,
+    };
+  },
   components: {
     PongGame,
     FindMatch,
-  },
+    ScoreScreen
+},
   computed: {
     isPlaying() {
       const userStore = useUserStore();
@@ -30,6 +45,18 @@ export default defineComponent({
     isSearching() {
       return useUserStore().state === "SEARCHING";
     }
+  },
+  methods: {
+    endGame(data: GameState) {
+      this.gameState = data;
+      this.showScoreScreen = true;
+    },
+  },
+  mounted() {
+    useSocketStore().pong!.on("endGame", this.endGame);
+  },
+  unmounted() {
+    useSocketStore().pong!.removeListener("endGame", this.endGame);
   },
 });
 </script>

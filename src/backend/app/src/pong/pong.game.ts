@@ -6,7 +6,7 @@ So position `x = 0.5` is half of the screen/game width in the frontend.
 */
 
 // TODO: add BALL acceleration and key input (like space) for some special move
-const BALL_SPEED = 0.005;
+const BALL_SPEED = 0.01;
 const PLAYER_SPEED = 0.01;
 
 function newBall(): Ball {
@@ -118,7 +118,7 @@ function updateBallPosition(state: GameState) {
 }
 
 export function gameHasEnded(state: GameState) {
-  return state.playerOne.score === 10 || state.playerTwo.score === 10;
+  return state.playerOne.score === 3 || state.playerTwo.score === 3;
 }
 
 export function updateGamestate(state: GameState): GameState {

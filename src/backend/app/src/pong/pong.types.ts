@@ -39,5 +39,6 @@ export interface GameRoom {
   intervalId: NodeJS.Timer;
   playerOne: PongUser;
   playerTwo: PongUser;
+  observers: PongUser[];
   gameState: GameState;
 }
