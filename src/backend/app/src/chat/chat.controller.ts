@@ -1,6 +1,7 @@
 import { ApiTags } from "@nestjs/swagger";
-import { Controller, Get, Post, Param } from "@nestjs/common";
+import { Controller, Get, Post, Body } from "@nestjs/common";
 import { ChatService } from "./chat.service";
+import { CreateChatDto } from "./chat.types";
 
 @ApiTags('chat')
 @Controller('chat')
@@ -13,7 +14,7 @@ export class ChatController {
 	}
 
 	@Post()
-	async makeOne(@Param() params): Promise<any> {
-		return await this.chatService.makeOne(params);
+	async makeOne(@Body() body: CreateChatDto): Promise<any> {
+		return await this.chatService.makeOne(body);
 	}
 }
