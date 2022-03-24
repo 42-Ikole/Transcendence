@@ -1,18 +1,21 @@
 <template>
 	<div id="chatbox">
-		<form id="sendmsg" @submit.prevent="sendMessage">
-			<input class="typedmsg" type="text" placeholder="Type message" v-model="myMessage" />
-			<input class="submitbutton" type="submit" value="Send" />
-		</form>
-		<div class="messages">
-			<div v-for="msg in messages"> {{ msg }} </div>
+		<div id="msgbox">
+			<div class="messages">
+				<div v-for="msg in messages"> {{ msg }} </div>
+			</div>
 		</div>
+			<form id="sendmsgbox" @submit.prevent="sendMessage">
+				<input class="typedmsg" type="text" placeholder="Type message" v-model="myMessage" />
+				<input class="submitbutton" type="submit" value="Send" />
+			</form>
 	</div>
 </template>
 
 <script lang="ts">
 
-import { Socket } from 'socket.io';
+import io from 'socket.io-client';
+import makeApiCall from '../../utils/ApiCall.ts'
 
 export default {
 	data() {
@@ -24,22 +27,22 @@ export default {
 	},
 	methods: {
 		sendMessage() {
-			//socket.emit('message', this.message);
-			//console.log(`send: ${this.myMessage}`); //debug
+			console.log(`send: ${this.myMessage}`); //debug
+			this.socket.emit('msgToServer', this.myMessage);
 			this.messages.push(this.myMessage);
 			this.myMessage = '';
 		},
 		receivedMessage(msg) {
-			//console.log(`recv: ${msg}`); //debug
+			console.log(`recv: ${msg}`); //debug
 			this.messages.push(msg);
 		}
 	},
-	// created() {
-	// 	this.socket = io('http://localhost:3000');
-	// 	this.socket.on('msgToClient', (msg) => {
-	// 		this.receivedMessage(msg);
-	// 	})
-	// }
+	created() {
+		this.socket = io('http://localhost:3000/chatrooms');
+		this.socket.on('msgToClient', (msg) => {
+			this.receivedMessage(msg);
+		});
+	}
 }
 
 </script>
@@ -47,20 +50,20 @@ export default {
 <style scoped>
 
 	#chatbox {
-		margin: auto;
+		margin-left: 25%;
+	}
+
+	#msgbox {
 		height: 400px;
 		width: 600px;
-		border: solid 2.5px grey;
+		border: solid 0.5px grey;
 		align-items: left;
         overflow-y: scroll;
-        overflow-x: scroll;
         scroll-snap-type: y proximity;
 		position: relative;
 	}
 
-	#sendmsg {
-		position: absolute;
-		bottom: 0px;
+	#sendmsgbox {
 	}
 
 	.typedmsg {

@@ -71,6 +71,7 @@ export default defineComponent({
         		},
 				body: JSON.stringify({type: this.type, name: this.name, password: this.pass})
 			})
+			//const response = await makeApiCall("/chat", "POST", { type: this.type, name: this.name, password: this.pass })
 			this.room = Room.CREATED
 		},
 		toggleShowPassword() {

@@ -38,7 +38,7 @@ export default defineComponent({
 			return this.state === State.CREATING;
 		},
 		isJoining() {
-			return this.sate === State.JOINING;
+			return this.state === State.JOINING;
 		}
 	},
 	methods: {
