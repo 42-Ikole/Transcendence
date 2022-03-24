@@ -2,13 +2,16 @@
 	<div id="chatbox">
 		<div id="msgbox">
 			<div class="messages">
-				<div v-for="msg in messages"> {{ msg }} </div>
+				<div v-for="message in messages"> {{ message }} </div>
 			</div>
 		</div>
 			<form id="sendmsgbox" @submit.prevent="sendMessage">
 				<input class="typedmsg" type="text" placeholder="Type message" v-model="myMessage" />
 				<input class="submitbutton" type="submit" value="Send" />
 			</form>
+		<div>
+			<div v-for="user in users"> {{ user }} </div>
+		</div>
 	</div>
 </template>
 
@@ -22,26 +25,41 @@ export default {
 		return {
 			myMessage: '',
 			messages: [],
-			socket: null
+			socket: null,
+			users: [],
 		};
 	},
 	methods: {
 		sendMessage() {
 			console.log(`send: ${this.myMessage}`); //debug
-			this.socket.emit('messageToServer', this.myMessage);
+			this.socket.emit('messageToChat', this.myMessage);
 			this.myMessage = '';
 		},
-		receivedMessage(msg) {
-			console.log(`recv: ${msg}`); //debug
-			this.messages.push(msg);
-		}
+		receivedMessage(message) {
+			console.log(`recv: ${message}`); //debug
+			this.messages.push(message);
+		},
+		addUserToList(user) {
+			console.log(`user joined: ${user}`); //debug
+			this.users.push(user);
+		},
+		removeUserFromList(user) {
+			console.log(`user left: ${newUser}`); //debug
+			this.users = this.users.filter((t) => t !== user);
+		},
 	},
 	created() {
-		this.socket = io('http://localhost:3000/chat');
-		this.socket.on('messageToClient', (msg) => {
-			this.receivedMessage(msg);
+		this.socket = io('http://localhost:3000/chat', {withCredentials: true});
+		this.socket.on('messageToClient', (message) => {
+			this.receivedMessage(message);
 		});
-	}
+		this.socket.on('userJoinedChat', (user) => {
+			this.addUserToList(user);
+		});
+		this.socket.on('userLeftChat', (user) => {
+			this.removeUserFromList(user);
+		})
+	},
 }
 
 </script>
