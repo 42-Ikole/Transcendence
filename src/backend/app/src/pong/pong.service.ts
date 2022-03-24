@@ -119,9 +119,9 @@ export class PongService {
   }
 
   clearObservers(gameRoom: GameRoom) {
-    for (let key in gameRoom.observers) {
-      this.sockets[key].gameRoom = null;
-    }
+    gameRoom.observers.forEach((id) => {
+      this.sockets[id].gameRoom = null;
+    });
   }
 
   // Should only call IF isDisconnected returns TRUE
