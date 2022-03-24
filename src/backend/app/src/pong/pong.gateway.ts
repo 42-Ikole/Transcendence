@@ -12,6 +12,7 @@ import { RequestMatchDto, SocketWithUser } from '../websocket/websocket.types';
 import { GameRoom, GameState } from './pong.types';
 import { gameHasEnded, movePlayer, newGameState, updateGamestate } from './pong.game';
 import { PongService } from './pong.service';
+import { UserService } from 'src/user/user.service';
 
 /*
 Endpoints:
@@ -29,6 +30,7 @@ Endpoints:
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private pongService: PongService,
+    private userService: UserService,
   ) {}
 
   @WebSocketServer() wss: Server;
@@ -114,7 +116,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // Create a new unique room for these clients to play in
   // Signal to the clients that they can play
   // Add the game to a record (map) of games being played
-  startNewGame(clientOne: SocketWithUser, clientTwo: SocketWithUser) {
+  async startNewGame(clientOne: SocketWithUser, clientTwo: SocketWithUser) {
     if (clientOne.user.id === clientTwo.user.id) {
       clientOne.emit("exception", "WARNING: you are playing with yourself");
       clientTwo.emit("exception", "WARNING: you are playing with yourself");
@@ -124,15 +126,21 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.joinRoom(clientOne, roomName);
     this.joinRoom(clientTwo, roomName);
     this.wss.to(roomName).emit('startGame');
-    const gameState = newGameState(clientOne.user.username, clientTwo.user.username);
+    const gameState = await this.createNewGame(clientOne.user.id, clientTwo.user.id);
     const intervalId = this.startGameLoop(roomName, gameState);
     this.pongService.addGameRoom(roomName, {
       intervalId,
       playerOne: { socketId: clientOne.id, userId: clientOne.user.id, disconnected: false },
       playerTwo: { socketId: clientTwo.id, userId: clientTwo.user.id, disconnected: false },
-      observers: [],
+      observers: new Set<string>(),
       gameState,
     });
+  }
+  
+  async createNewGame(p1: number, p2: number) {
+    const userOne = await this.userService.findById(p1);
+    const userTwo = await this.userService.findById(p2);
+    return newGameState(userOne.username, userTwo.username);
   }
 
   joinRoom(client: SocketWithUser, roomName: string) {
@@ -154,15 +162,28 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('movement')
   movement(client: SocketWithUser, data: Boolean[]) {
-    const room = client.gameRoom;
-    if (!room) {
-      return;
-    }
-    const gameRoom = this.pongService.getGameRoom(room);
+    const gameRoom = this.pongService.getGameRoom(client.gameRoom);
     if (client.id === gameRoom.playerOne.socketId) {
       movePlayer(gameRoom.gameState.playerOne.bar, data);
     } else if (client.id === gameRoom.playerTwo.socketId) {
       movePlayer(gameRoom.gameState.playerTwo.bar, data);
     }
+  }
+
+  @SubscribeMessage('requestObserve')
+  observe(client: SocketWithUser, roomName: string) {
+    if (!roomName || !this.pongService.gameExists(roomName)) {
+      client.emit("exception", "observe failed");
+      return;
+    }
+    this.pongService.observe(client, roomName);
+    client.join(roomName);
+    client.emit('observeGame');
+  }
+
+  @SubscribeMessage('cancelObserve')
+  cancelObserve(client: SocketWithUser) {
+    this.pongService.cancelObserve(client);
+    client.leave(client.gameRoom);
   }
 }

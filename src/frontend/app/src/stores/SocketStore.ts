@@ -29,6 +29,9 @@ export const useSocketStore = defineStore("socket", {
       this.pong.on('endGame', () => {
         useUserStore().setState("ONLINE");
       })
+      this.pong.on('observeGame', () => {
+        useUserStore().setState("OBSERVING");
+      })
     },
     disconnectSockets() {
       if (this.pong) {

@@ -20,6 +20,9 @@ interface DataObject {
 }
 
 export default defineComponent({
+  props: {
+    observing: Boolean,
+  },
   data(): DataObject {
     return {
       context: null,
@@ -40,22 +43,24 @@ export default defineComponent({
     }),
   },
   methods: {
-    update(data: GameState) {
-      if (!data) {
-        console.log("gamestate data is NULL");
-        return;
-      }
+    updatePlayer(data: GameState) {
       this.socket!.emit('movement', this.PressedKeys);
+      this.updateObserver(data);
+    },
+
+    updateObserver(data: GameState) {
       this.render(data);
       this.playerOneScore = data.playerOne.score;
       this.playerTwoScore = data.playerTwo.score;
     },
+
     render(data: GameState) {
       this.clear();
       this.drawBar(data.playerOne.bar);
       this.drawBar(data.playerTwo.bar);
       this.drawBall(data.ball);
     },
+
     drawBar(bar: PongBar) {
       this.context!.fillStyle = "#000";
       this.context!.fillRect(
@@ -65,6 +70,7 @@ export default defineComponent({
         bar.height * this.height
       );
     },
+
     drawBall(ball: Ball) {
       this.context!.beginPath();
       this.context!.fillStyle = "#000";
@@ -77,6 +83,7 @@ export default defineComponent({
       );
       this.context!.fill();
     },
+
     keyDown(data: any) {
       if (data.key === "ArrowUp") {
         this.PressedKeys[0] = true;
@@ -84,6 +91,7 @@ export default defineComponent({
         this.PressedKeys[1] = true;
       }
     },
+
     keyUp(data: any) {
       if (data.key === "ArrowUp") {
         this.PressedKeys[0] = false;
@@ -91,29 +99,41 @@ export default defineComponent({
         this.PressedKeys[1] = false;
       }
     },
+  
     clear() {
       this.context!.clearRect(0, 0, this.width, this.height);
     },
   },
+
   mounted() {
-    console.log("FE: Setting up PongGame");
+    console.log("FrontEnd: Setting up PongGame");
     this.context = (this.$refs as any).game.getContext("2d");
-    this.socket!.on("updatePosition", this.update);
-    window.addEventListener("keydown", this.keyDown);
-    window.addEventListener("keyup", this.keyUp);
+    if (!this.observing) {
+      window.addEventListener("keydown", this.keyDown);
+      window.addEventListener("keyup", this.keyUp);
+      this.socket!.on("updatePosition", this.updatePlayer);
+    } else {
+      this.socket!.on("updatePosition", this.updateObserver);
+    }
   },
+
   unmounted() {
-    console.log("FE: Unmounting PongGame");
-    window.removeEventListener("keydown", this.keyDown);
-    window.removeEventListener("keyup", this.keyUp);
+    console.log("FrontEnd: Unmounting PongGame");
+    if (!this.observing) {
+      window.removeEventListener("keydown", this.keyDown);
+      window.removeEventListener("keyup", this.keyUp);
+      this.socket!.removeListener("updatePosition", this.updatePlayer);
+    } else {
+      this.socket!.removeListener("updatePosition", this.updateObserver);
+    }
   },
 });
 </script>
 
 <style>
 .game {
-  width: 50vw;
-  height: 80vh;
+  width: 600px;
+  height: 480px;
   border: 1px solid black;
   display: block;
   position: absolute;

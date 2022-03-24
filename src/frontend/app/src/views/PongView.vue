@@ -1,6 +1,9 @@
 <template>
   <div v-if="isPlaying">
-    <PongGame />
+    <PongGame :observing="isObserving" />
+  </div>
+  <div v-else-if="isObserving">
+    <PongGame :observing="isObserving" />
   </div>
   <div v-else-if="isSearching">
   <!-- TODO: some kind of searching/loading component -->
@@ -12,6 +15,7 @@
   </div>
   <div v-else>
     <FindMatch />
+    <ActiveGames />
   </div>
 </template>
 
@@ -24,6 +28,7 @@ import { useUserStore } from "@/stores/UserStore";
 import { useSocketStore } from "@/stores/SocketStore";
 import ScoreScreen from "../components/Pong/ScoreScreen.vue";
 import type { GameState } from "@/components/Pong/PongTypes";
+import ActiveGames from "../components/Pong/ActiveGames.vue";
 
 export default defineComponent({
   data() {
@@ -35,7 +40,8 @@ export default defineComponent({
   components: {
     PongGame,
     FindMatch,
-    ScoreScreen
+    ScoreScreen,
+    ActiveGames
 },
   computed: {
     isPlaying() {
@@ -44,7 +50,10 @@ export default defineComponent({
     },
     isSearching() {
       return useUserStore().state === "SEARCHING";
-    }
+    },
+    isObserving() {
+      return useUserStore().state === "OBSERVING";
+    },
   },
   methods: {
     endGame(data: GameState) {
