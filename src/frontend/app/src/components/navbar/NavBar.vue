@@ -10,13 +10,15 @@
 			</ul>
 		</div>
 		<div class="mx-auto order-0">
-			<a class="navbar-brand mx-auto" href="#">PongHub</a>
+			<a class="navbar-brand mx-auto" href="#"><img src="/src/assets/pongHub.png" alt="ponghub" id="navbarLogo" /></a>
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 		</div>
 		<div class="navbar-collapse collapse w-100 order-3 dual-collapse2 me-5">
-			
+			<div class="ms-auto">
+				<UserProfile/>
+			</div>
 		</div>
 	</nav>
 </template>
@@ -24,6 +26,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { RouterLink } from "vue-router";
+import UserProfile from "@/components/navbar/UserProfile.vue";
 
 interface Route {
   path: string;
@@ -46,6 +49,7 @@ export default defineComponent({
     };
   },
   components: {
+	UserProfile,
 	RouterLink,
   },
 });
