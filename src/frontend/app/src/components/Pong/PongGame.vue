@@ -132,8 +132,8 @@ export default defineComponent({
 
 <style>
 .game {
-  width: 600px;
-  height: 480px;
+  width: 60vw;
+  height: 80vh;
   border: 1px solid black;
   display: block;
   position: absolute;
