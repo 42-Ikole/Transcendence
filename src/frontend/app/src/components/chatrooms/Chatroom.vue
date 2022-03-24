@@ -28,8 +28,7 @@ export default {
 	methods: {
 		sendMessage() {
 			console.log(`send: ${this.myMessage}`); //debug
-			this.socket.emit('msgToServer', this.myMessage);
-			this.messages.push(this.myMessage);
+			this.socket.emit('messageToServer', this.myMessage);
 			this.myMessage = '';
 		},
 		receivedMessage(msg) {
@@ -38,8 +37,8 @@ export default {
 		}
 	},
 	created() {
-		this.socket = io('http://localhost:3000/chatrooms');
-		this.socket.on('msgToClient', (msg) => {
+		this.socket = io('http://localhost:3000/chat');
+		this.socket.on('messageToClient', (msg) => {
 			this.receivedMessage(msg);
 		});
 	}
