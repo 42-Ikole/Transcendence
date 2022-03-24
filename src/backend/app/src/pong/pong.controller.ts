@@ -16,7 +16,6 @@ export class PongController {
 
   @Get('status/:roomName')
   getGameStatus(@Param('roomName') roomName: string) {
-    console.log("GET STATUS RoomName:", roomName);
     if (roomName && this.pongService.gameExists(roomName)) {
       return "OK";
     } else {

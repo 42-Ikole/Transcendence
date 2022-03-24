@@ -22,6 +22,7 @@ export class PongService {
 
   addClient(client: SocketWithUser) {
     this.sockets[client.id] = client;
+    this.socketIds[client.user.id] = client.id;
   }
 
   async userFromCookie(cookie: string) {
@@ -41,7 +42,8 @@ export class PongService {
       console.log(client.user.username, "stopped searching");
       this.waitingUser = null;
     }
-    delete this.socketIds[client.id];
+    delete this.sockets[client.id];
+    delete this.socketIds[client.user.id];
   }
 
   isPlaying(client: SocketWithUser) {

@@ -13,6 +13,7 @@ import { GameRoom, GameState } from './pong.types';
 import { gameHasEnded, movePlayer, newGameState, updateGamestate } from './pong.game';
 import { PongService } from './pong.service';
 import { UserService } from 'src/user/user.service';
+import { MatchService } from 'src/match/match.service';
 
 /*
 Endpoints:
@@ -31,6 +32,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private pongService: PongService,
     private userService: UserService,
+    private matchService: MatchService,
   ) {}
 
   @WebSocketServer() wss: Server;
@@ -76,7 +78,31 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   endGame(roomName: string) {
     console.log("game ended:", roomName);
+    this.addMatchHistory(roomName);
     this.deleteGame(roomName);
+  }
+  
+  addMatchHistory(roomName: string) {
+    const gameRoom = this.pongService.getGameRoom(roomName);
+    type PlayerIndex = "playerOne" | "playerTwo";
+    let winner: PlayerIndex = "playerTwo";
+    let loser: PlayerIndex = "playerOne";
+    if (gameRoom.gameState.playerOne.score > gameRoom.gameState.playerTwo.score) {
+      winner = "playerOne";
+      loser = "playerTwo";
+    }
+    this.createMatchHistory(
+      gameRoom[winner].userId, gameRoom.gameState[winner].score,
+      gameRoom[loser].userId, gameRoom.gameState[loser].score
+    );
+  }
+
+  async createMatchHistory(winnerId: number, winnerScore: number, loserId: number, loserScore: number) {
+    const winner = await this.userService.findById(winnerId);
+    const loser = await this.userService.findById(loserId);
+    this.matchService.createMatch({
+      winner, winnerScore, loser, loserScore
+    });
   }
 
   /*
