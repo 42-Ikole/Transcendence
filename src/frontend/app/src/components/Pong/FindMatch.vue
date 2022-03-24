@@ -11,7 +11,7 @@ export default defineComponent({
   methods: {
     requestMatch() {
       useUserStore().setState("SEARCHING");
-      useSocketStore().pong?.emit("requestMatch", { type: "matchmaking" });
+      useSocketStore().pong?.emit("requestMatch", { type: "matchmaking", targetId: null });
     },
   },
 });

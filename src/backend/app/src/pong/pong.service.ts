@@ -6,6 +6,7 @@ import { SessionUser } from 'src/auth/auth.types';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from 'src/user/user.service';
 import { decodeCookie } from 'src/websocket/cookie';
+import { User } from 'src/orm/entities/user.entity';
 
 @Injectable()
 export class PongService {
@@ -19,6 +20,7 @@ export class PongService {
   private sockets: Record<string, SocketWithUser> = {}; // socketId -> User Socket, TODO: should be userId and multiple logins by same user should be denied
   private socketIds: Record<number, string> = {}; // userId -> socketId
   private disconnectedUsers: Record<number, string> = {}; // userId -> roomName
+  private challengers: Record<string, string> = {}; // challengedSocketId -> challengerSocketId
 
   addClient(client: SocketWithUser) {
     this.sockets[client.id] = client;
@@ -42,6 +44,7 @@ export class PongService {
       console.log(client.user.username, "stopped searching");
       this.waitingUser = null;
     }
+    delete this.challengers[client.id];
     delete this.sockets[client.id];
     delete this.socketIds[client.user.id];
   }
@@ -105,8 +108,12 @@ export class PongService {
     this.deleteDisconnectedUser(this.gameRooms[roomName].playerOne.userId);
     this.deleteDisconnectedUser(this.gameRooms[roomName].playerTwo.userId);
     const gameRoom = this.gameRooms[roomName];
-    this.sockets[gameRoom.playerOne.socketId].gameRoom = null;
-    this.sockets[gameRoom.playerTwo.socketId].gameRoom = null;
+    if (this.sockets[gameRoom.playerOne.socketId]) {
+      this.sockets[gameRoom.playerOne.socketId].gameRoom = null;
+    }
+    if (this.sockets[gameRoom.playerTwo.socketId]) {
+      this.sockets[gameRoom.playerTwo.socketId].gameRoom = null;
+    }
     this.clearObservers(gameRoom);
     delete this.gameRooms[roomName];
   }
@@ -147,6 +154,10 @@ export class PongService {
     return this.gameRooms[roomName].gameState;
   }
 
+  getClientFromId(id: number) {
+    return this.sockets[this.socketIds[id]];
+  }
+
   getActiveGames(): GameDto[] {
     const result: GameDto[] = [];
     for (let roomName in this.gameRooms) {
@@ -169,5 +180,31 @@ export class PongService {
 
   cancelObserve(client: SocketWithUser) {
     this.gameRooms[client.gameRoom].observers.delete(client.id);
+  }
+
+  async getAvailableUsers(): Promise<User[]> {
+    const users: User[] = [];
+    for (let id in this.sockets) {
+      if (!this.sockets[id].gameRoom) {
+        users.push(this.sockets[id].user);
+      }
+    }
+    return users;
+  }
+
+  isChallenged(client: SocketWithUser) {
+    return !!this.challengers[client.id];
+  }
+
+  addChallenger(client: SocketWithUser, target: SocketWithUser) {
+    this.challengers[target.id] = client.id;
+  }
+
+  hasChallenger(client: SocketWithUser): Boolean {
+    return !!this.challengers[client.id] && !!this.sockets[this.challengers[client.id]];
+  }
+
+  getChallenger(client: SocketWithUser) {
+    return this.sockets[this.challengers[client.id]];
   }
 }

@@ -17,9 +17,7 @@ export const useSocketStore = defineStore("socket", {
   },
   actions: {
     initPongSocket() {
-      this.pong = io(PONG_WS_ADDR, {
-        withCredentials: true,
-      });
+      this.pong = io(PONG_WS_ADDR, { withCredentials: true });
       this.pong.on('exception', (error: string) => {
         console.error("Received Exception:", error);
       });
@@ -28,10 +26,18 @@ export const useSocketStore = defineStore("socket", {
       });
       this.pong.on('endGame', () => {
         useUserStore().setState("ONLINE");
-      })
+      });
       this.pong.on('observeGame', () => {
         useUserStore().setState("OBSERVING");
-      })
+      });
+      this.pong.on('requestChallenge', (user: any) => {
+        console.log("challenge received from:", user.username);
+        useUserStore().setState("CHALLENGED");
+      });
+      this.pong.on('rejectChallenge', () => {
+        console.log("challenge got rejected");
+        useUserStore().setState("ONLINE");
+      });
     },
     disconnectSockets() {
       if (this.pong) {

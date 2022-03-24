@@ -13,9 +13,13 @@
     <ScoreScreen :game-state="gameState" />
     <button @click="showScoreScreen = false;">Continue</button>
   </div>
+  <div v-else-if="isChallenged">
+    <ChallengedRequest />
+  </div>
   <div v-else>
     <FindMatch />
     <ActiveGames />
+    <ChallengeUsers />
   </div>
 </template>
 
@@ -29,6 +33,8 @@ import { useSocketStore } from "@/stores/SocketStore";
 import ScoreScreen from "../components/Pong/ScoreScreen.vue";
 import type { GameState } from "@/components/Pong/PongTypes";
 import ActiveGames from "../components/Pong/ActiveGames.vue";
+import ChallengeUsers from "../components/Pong/ChallengeUsers.vue";
+import ChallengedRequest from "../components/Pong/ChallengedRequest.vue";
 
 export default defineComponent({
   data() {
@@ -41,7 +47,9 @@ export default defineComponent({
     PongGame,
     FindMatch,
     ScoreScreen,
-    ActiveGames
+    ActiveGames,
+    ChallengeUsers,
+    ChallengedRequest
 },
   computed: {
     isPlaying() {
@@ -53,6 +61,9 @@ export default defineComponent({
     },
     isObserving() {
       return useUserStore().state === "OBSERVING";
+    },
+    isChallenged() {
+      return useUserStore().state === "CHALLENGED";
     },
   },
   methods: {

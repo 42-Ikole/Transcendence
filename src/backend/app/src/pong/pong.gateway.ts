@@ -14,6 +14,8 @@ import { gameHasEnded, movePlayer, newGameState, updateGamestate } from './pong.
 import { PongService } from './pong.service';
 import { UserService } from 'src/user/user.service';
 import { MatchService } from 'src/match/match.service';
+import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
+import { WsExceptionFilter } from 'src/websocket/websocket.exception.filter';
 
 /*
 Endpoints:
@@ -28,6 +30,7 @@ Endpoints:
     origin: ['http://localhost:8080', 'http://localhost:3000'],
   },
 })
+@UseFilters(WsExceptionFilter)
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private pongService: PongService,
@@ -58,6 +61,9 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: SocketWithUser) {
+    if (this.pongService.isChallenged(client) && this.pongService.hasChallenger(client)) {
+      this.sendChallengeRejection(this.pongService.getChallenger(client));
+    }
     if (this.pongService.isPlaying(client)) {
       this.pongService.disconnectUser(client);
       if (this.pongService.bothPlayersDisconnected(client.gameRoom)) {
@@ -107,10 +113,11 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   /*
 	Data:
-		TYPE: "matchmaking" | "challenge"
-		TARGET: "_user_id_" | null
+		type: "matchmaking" | "challenge"
+		target: "_user_id_" | null
 	*/
   @SubscribeMessage('requestMatch')
+  @UsePipes(new ValidationPipe())
   requestMatch(
     @ConnectedSocket() client: SocketWithUser,
     @MessageBody() data: RequestMatchDto,
@@ -119,7 +126,28 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.matchMaking(client);
     } else {
       console.log("Challenge:", data);
+      this.challenge(client, data.targetId);
     }
+  }
+
+  @SubscribeMessage('acceptChallenge')
+  acceptChallenge(@ConnectedSocket() client: SocketWithUser) {
+    if (!this.pongService.hasChallenger(client)) {
+      this.sendChallengeRejection(client);
+      return;
+    }
+    this.startNewGame(this.pongService.getChallenger(client), client);
+  }
+
+  @SubscribeMessage('rejectChallenge')
+  rejectChallenge(@ConnectedSocket() client: SocketWithUser) {
+    if (this.pongService.hasChallenger(client)) {
+      this.sendChallengeRejection(this.pongService.getChallenger(client));
+    }
+  }
+
+  sendChallengeRejection(challenger: SocketWithUser) {
+    challenger.emit('rejectChallenge');
   }
 
   // Check if there is another client ready to play, otherwise set client as waiting/searching
@@ -137,6 +165,24 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // TODO: disallow a user to play against themselves, for now it is useful for testing
     // User shouldn't be able to search while they are already searching on a different machine
     this.startNewGame(matchedUser, client);
+  }
+
+  challenge(client: SocketWithUser, targetId: number) {
+    const target = this.pongService.getClientFromId(targetId);
+    if (!target) {
+      client.emit("exception", "could not find target with id:", targetId);
+      return;
+    }
+    if (client.id === target.id) {
+      client.emit("exception", "you challenged yourself");
+      return;
+    }
+    if (target.gameRoom) {
+      client.emit("exception", "target is already playing or observing");
+      return;
+    }
+    this.pongService.addChallenger(client, target);
+    target.emit("requestChallenge", { source: client.user });
   }
 
   // Create a new unique room for these clients to play in
@@ -189,6 +235,9 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('movement')
   movement(client: SocketWithUser, data: Boolean[]) {
     const gameRoom = this.pongService.getGameRoom(client.gameRoom);
+    if (!gameRoom) {
+      return;
+    }
     if (client.id === gameRoom.playerOne.socketId) {
       movePlayer(gameRoom.gameState.playerOne.bar, data);
     } else if (client.id === gameRoom.playerTwo.socketId) {
@@ -196,6 +245,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  // TODO: validation pipe
   @SubscribeMessage('requestObserve')
   observe(client: SocketWithUser, roomName: string) {
     if (!roomName || !this.pongService.gameExists(roomName)) {

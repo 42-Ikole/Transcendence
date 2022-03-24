@@ -22,4 +22,9 @@ export class PongController {
       return "NOT FOUND";
     }
   }
+
+  @Get('users')
+  async getAvailableUsers() {
+    return await this.pongService.getAvailableUsers();
+  }
 }

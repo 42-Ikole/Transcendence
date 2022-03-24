@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { useSocketStore } from "./SocketStore";
 
-export type UserState = "OFFLINE" | "ONLINE" | "SEARCHING" | "PLAYING" | "OBSERVING";
+export type UserState = "OFFLINE" | "ONLINE" | "SEARCHING" | "PLAYING" | "OBSERVING" | "CHALLENGED";
 export type AuthenticatedState = "AUTHENTICATED" | "2FA" | "OAUTH";
 
 interface UserStore {
