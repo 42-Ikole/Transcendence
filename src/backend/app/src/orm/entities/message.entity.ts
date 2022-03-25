@@ -6,7 +6,6 @@ export class Message {
   @PrimaryColumn()
   id: number;
 
-  @Column()
   @ManyToOne(() => User, (user) => user.id)
   author: User;
 

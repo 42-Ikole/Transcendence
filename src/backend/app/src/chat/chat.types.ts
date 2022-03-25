@@ -1,5 +1,7 @@
 import { IsString, IsNotEmpty, IsDefined, IsOptional, IsIn } from "class-validator";
 
+const CHATROOM_TYPES = ["private", "protected", "public"];
+
 export class CreateChatDto {
 	@IsString()
 	@IsNotEmpty()
@@ -10,6 +12,6 @@ export class CreateChatDto {
 	password: string;
 
 	@IsString()
-	@IsIn(["private", "protected", "public"])
+	@IsIn(CHATROOM_TYPES)
 	type: string;
 }
