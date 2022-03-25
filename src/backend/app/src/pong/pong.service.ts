@@ -201,7 +201,8 @@ export class PongService {
   }
 
   hasChallenger(client: SocketWithUser): Boolean {
-    return !!this.challengers[client.id] && !!this.sockets[this.challengers[client.id]];
+    return !!this.challengers[client.id] && !!this.sockets[this.challengers[client.id]]
+      && !this.sockets[this.challengers[client.id]].gameRoom;
   }
 
   getChallenger(client: SocketWithUser) {

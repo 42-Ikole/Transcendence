@@ -10,6 +10,7 @@
 
 <script lang="ts">
 import { useSocketStore } from "@/stores/SocketStore";
+import { useUserStore } from "@/stores/UserStore";
 import makeApiCall from "@/utils/ApiCall";
 import { defineComponent } from "vue";
 
@@ -36,6 +37,7 @@ export default defineComponent({
 		challenge(user: any) {
 			console.log("challenge:", user);
 			useSocketStore().pong!.emit('requestMatch', { type: "challenge", targetId: user.id });
+			useUserStore().setState("SEARCHING");
 		},
 	},
 	mounted() {

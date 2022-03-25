@@ -10,7 +10,7 @@ import type { Socket } from "socket.io-client";
 import type { Ball, GameState, PongBar } from "./PongTypes";
 import { mapState } from "pinia";
 import { useUserStore } from "@/stores/UserStore";
-import { useSocketStore } from "@/stores/SocketStore";
+import { useSocketStore } from "@/stores/SocketStore"
 
 interface DataObject {
   context: CanvasRenderingContext2D | null;
