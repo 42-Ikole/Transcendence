@@ -6,12 +6,12 @@
     <PongGame :observing="isObserving" />
   </div>
   <div v-else-if="isSearching">
-  <!-- TODO: some kind of searching/loading component -->
+    <!-- TODO: some kind of searching/loading component -->
     <p>Searching...</p>
   </div>
   <div v-else-if="showScoreScreen">
     <ScoreScreen :game-state="gameState" />
-    <button @click="showScoreScreen = false;">Continue</button>
+    <button @click="showScoreScreen = false">Continue</button>
   </div>
   <div v-else-if="isChallenged">
     <ChallengedRequest />
@@ -49,8 +49,8 @@ export default defineComponent({
     ScoreScreen,
     ActiveGames,
     ChallengeUsers,
-    ChallengedRequest
-},
+    ChallengedRequest,
+  },
   computed: {
     isPlaying() {
       const userStore = useUserStore();

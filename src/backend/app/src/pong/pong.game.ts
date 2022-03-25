@@ -62,7 +62,7 @@ function resetGameState(state: GameState) {
 
 // directions[0] === ArrowUpDown, directions[1] === ArrowDownDown
 // TODO: change to two-tuple (typescript)
-export function movePlayer(bar: PongBar, directions: Boolean[]) {
+export function movePlayer(bar: PongBar, directions: boolean[]) {
   if (directions[0]) {
     bar.position.y -= PLAYER_SPEED;
   }

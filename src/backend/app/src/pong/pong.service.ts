@@ -41,7 +41,7 @@ export class PongService {
 
   removeClient(client: SocketWithUser) {
     if (this.waitingUser && this.waitingUser.id === client.id) {
-      console.log(client.user.username, "stopped searching");
+      console.log(client.user.username, 'stopped searching');
       this.waitingUser = null;
     }
     delete this.challengers[client.id];
@@ -56,18 +56,26 @@ export class PongService {
   disconnectUser(client: SocketWithUser) {
     const gameRoom = this.gameRooms[client.gameRoom];
     if (gameRoom && gameRoom.observers.has(client.id)) {
-      console.log("disconnected from observing:", client.user.username);
+      console.log('disconnected from observing:', client.user.username);
       gameRoom.observers.delete(client.id);
       return;
     }
-    console.log(client.user.username, "disconnected from game:", client.gameRoom);
+    console.log(
+      client.user.username,
+      'disconnected from game:',
+      client.gameRoom,
+    );
     this.disconnectedUsers[client.user.id] = client.gameRoom;
     this.setDisconnectedFlag(client.gameRoom, client.id);
   }
 
   bothPlayersDisconnected(roomName: string) {
     const gameRoom = this.gameRooms[roomName];
-    return gameRoom && gameRoom.playerOne.disconnected && gameRoom.playerTwo.disconnected;
+    return (
+      gameRoom &&
+      gameRoom.playerOne.disconnected &&
+      gameRoom.playerTwo.disconnected
+    );
   }
 
   setDisconnectedFlag(roomName: string, socketId: string) {
@@ -77,7 +85,12 @@ export class PongService {
     } else if (gameRoom.playerTwo.socketId === socketId) {
       gameRoom.playerTwo.disconnected = true;
     } else {
-      console.error("cannot find disconnected game for:", socketId, "in room", roomName);
+      console.error(
+        'cannot find disconnected game for:',
+        socketId,
+        'in room',
+        roomName,
+      );
     }
   }
 
@@ -160,7 +173,7 @@ export class PongService {
 
   getActiveGames(): GameDto[] {
     const result: GameDto[] = [];
-    for (let roomName in this.gameRooms) {
+    for (const roomName in this.gameRooms) {
       result.push({
         state: this.gameRooms[roomName].gameState,
         name: roomName,
@@ -184,7 +197,7 @@ export class PongService {
 
   async getAvailableUsers(): Promise<User[]> {
     const users: User[] = [];
-    for (let id in this.sockets) {
+    for (const id in this.sockets) {
       if (!this.sockets[id].gameRoom) {
         users.push(this.sockets[id].user);
       }
@@ -200,9 +213,12 @@ export class PongService {
     this.challengers[target.id] = client.id;
   }
 
-  hasChallenger(client: SocketWithUser): Boolean {
-    return !!this.challengers[client.id] && !!this.sockets[this.challengers[client.id]]
-      && !this.sockets[this.challengers[client.id]].gameRoom;
+  hasChallenger(client: SocketWithUser): boolean {
+    return (
+      !!this.challengers[client.id] &&
+      !!this.sockets[this.challengers[client.id]] &&
+      !this.sockets[this.challengers[client.id]].gameRoom
+    );
   }
 
   getChallenger(client: SocketWithUser) {

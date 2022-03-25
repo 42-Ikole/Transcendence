@@ -1,4 +1,4 @@
-import { SocketWithUser } from "src/websocket/websocket.types";
+import { SocketWithUser } from 'src/websocket/websocket.types';
 
 export interface Point {
   x: number;

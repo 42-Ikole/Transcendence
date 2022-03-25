@@ -1,5 +1,5 @@
 <template>
-  <p> {{ playerOneScore }}  : {{ playerTwoScore }} </p>
+  <p>{{ playerOneScore }} : {{ playerTwoScore }}</p>
   <canvas class="game" ref="game" width="600" height="480"> </canvas>
 </template>
 
@@ -10,13 +10,13 @@ import type { Socket } from "socket.io-client";
 import type { Ball, GameState, PongBar } from "./PongTypes";
 import { mapState } from "pinia";
 import { useUserStore } from "@/stores/UserStore";
-import { useSocketStore } from "@/stores/SocketStore"
+import { useSocketStore } from "@/stores/SocketStore";
 
 interface DataObject {
   context: CanvasRenderingContext2D | null;
   playerOneScore: number;
   playerTwoScore: number;
-  PressedKeys: Boolean[];
+  PressedKeys: boolean[];
 }
 
 export default defineComponent({
@@ -44,7 +44,7 @@ export default defineComponent({
   },
   methods: {
     updatePlayer(data: GameState) {
-      this.socket!.emit('movement', this.PressedKeys);
+      this.socket!.emit("movement", this.PressedKeys);
       this.updateObserver(data);
     },
 
@@ -99,7 +99,7 @@ export default defineComponent({
         this.PressedKeys[1] = false;
       }
     },
-  
+
     clear() {
       this.context!.clearRect(0, 0, this.width, this.height);
     },

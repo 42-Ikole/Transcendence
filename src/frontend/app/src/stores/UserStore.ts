@@ -1,12 +1,18 @@
 import { defineStore } from "pinia";
 import { useSocketStore } from "./SocketStore";
 
-export type UserState = "OFFLINE" | "ONLINE" | "SEARCHING" | "PLAYING" | "OBSERVING" | "CHALLENGED";
+export type UserState =
+  | "OFFLINE"
+  | "ONLINE"
+  | "SEARCHING"
+  | "PLAYING"
+  | "OBSERVING"
+  | "CHALLENGED";
 export type AuthenticatedState = "AUTHENTICATED" | "2FA" | "OAUTH";
 
 interface UserStore {
-	state: UserState;
-	authenticatedState: AuthenticatedState;
+  state: UserState;
+  authenticatedState: AuthenticatedState;
 }
 
 export const useUserStore = defineStore("user", {
