@@ -2,6 +2,7 @@ import {
   useAuthenticationStore,
   type AuthenticatedState,
 } from "@/stores/authentication";
+import { useSocketStore } from "@/stores/SocketStore";
 import type { Router } from "vue-router";
 import makeApiCall from "./ApiCall";
 
@@ -33,6 +34,9 @@ export async function checkUserSession() {
   const authStore = useAuthenticationStore();
   authStore.setState(state);
   console.log("Frontend State:", state);
+  if (state === "AUTHENTICATED") {
+    authStore.login();
+  }
 }
 
 export function isLoggedIn() {

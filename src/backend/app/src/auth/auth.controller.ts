@@ -26,7 +26,6 @@ export class AuthController {
   @Get('status')
   status(@Req() req: RequestWithUser) {
     let state: AuthenticatedState;
-    console.log('Authenticated: ', req.isAuthenticated);
     if (!req.isAuthenticated()) {
       state = 'OAUTH';
     } else if (!req.user.twoFactorPassed) {
@@ -43,7 +42,9 @@ export class AuthController {
   logout(@Req() req: Request) {
     req.logout();
     req.session.destroy((error) => {
-      console.error(error);
+      if (error) {
+        console.error(error);
+      }
     });
   }
 

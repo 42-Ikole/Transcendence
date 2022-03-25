@@ -4,6 +4,7 @@ import AboutView from "@/views/AboutView.vue";
 import LoginView from "@/views/LoginView.vue";
 import { isLoggedIn } from "@/utils/Login";
 import Enable2FaView from "@/views/Enable2FaView.vue";
+import PongView from "@/views/PongView.vue";
 
 const routes = [
   {
@@ -25,6 +26,11 @@ const routes = [
     path: "/2fa",
     name: "2fa",
     component: Enable2FaView,
+  },
+  {
+    path: "/pong",
+    name: "pong",
+    component: PongView,
   },
 ];
 

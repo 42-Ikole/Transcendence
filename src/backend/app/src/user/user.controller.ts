@@ -1,16 +1,7 @@
-import {
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Req,
-  Post,
-  Body,
-} from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post, Body } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
-import { userInfo } from 'os';
 
 @ApiTags('user')
 @Controller('user')

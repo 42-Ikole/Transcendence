@@ -8,6 +8,7 @@ import { TypeORMSession } from './orm/entities/session.entity';
 import { getRepository } from 'typeorm';
 import { TypeormStore } from 'connect-typeorm';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 // Swagger = automatic API documentation
 async function setupSwagger(app: INestApplication) {
@@ -24,13 +25,16 @@ async function setupSwagger(app: INestApplication) {
 // Session for authorization, staying logged in
 async function setupSession(app: INestApplication) {
   const sessionRepository = getRepository(TypeORMSession);
+  const configService = app.get(ConfigService);
   app.use(
     session({
       cookie: {
-        maxAge: 1000 * 60 * 60 * 24,
+        maxAge: 1000 * 60 * 60 * 24 * 7,
       },
-      secret: 'secret_random_string', // TODO: should be secret and random
+      name: configService.get('cookie.NAME'),
+      secret: configService.get('cookie.SECRET'),
       resave: false,
+      rolling: true,
       saveUninitialized: false, // Only save the session if the user is logged in
       store: new TypeormStore().connect(sessionRepository), // session store
     }),
