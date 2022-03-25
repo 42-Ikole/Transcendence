@@ -24,7 +24,7 @@ export const useAuthenticationStore = defineStore("authentication", {
     },
     login() {
       this.setState("AUTHENTICATED");
-      useSocketStore().initPongSocket();
+      useSocketStore().init();
     },
     logout() {
       this.setState("OAUTH");

@@ -28,7 +28,7 @@
 					<i class="fas" :class="{ 'fa-eye-slash': showPassword, 'fa-eye': !showPassword }"></i>
 				</button>
 			</div>
-
+			
 			<button v-bind:disabled="invalidRoomInput === true" @click="createChat" >Create</button>
 		</div>
 	</div>
@@ -42,21 +42,29 @@
 
 import Chatroom from './Chatroom.vue';
 import { defineComponent } from 'vue';
-import makeApiCall from '../../utils/ApiCall.ts';
+import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
 
 enum Room {
 	NOTCREATED,
 	CREATED
 }
 
+interface DataObject {
+	type: string;
+	name: string;
+	pass: string;
+	showPassword: boolean;
+	room: Room;
+}
+
 export default defineComponent({
-	data() {
+	data(): DataObject {
 		return {
 			type: '',
 			name: '',
 			pass: '',
 			showPassword: false,
-			room: Room.NOTCREATED as Room,
+			room: Room.NOTCREATED,
 		};
 	},
 	methods: {
@@ -64,26 +72,19 @@ export default defineComponent({
 			if (this.name === '' || (this.type === 'protected' && this.pass === '')) {
 				return ;
 			}
-			const response = await makeApiCall("/chat", {
-				method: "POST",
-				headers: {
-          			"content-type": "application/json",
-        		},
-				body: JSON.stringify({type: this.type, name: this.name, password: this.pass})
-			})
-			//const response = await makeApiCall("/chat", "POST", { type: this.type, name: this.name, password: this.pass })
-			this.room = Room.CREATED
+			const response = await makeApiCallJson("/chat", "POST", { type: this.type, name: this.name, password: this.pass });
+			this.room = Room.CREATED;
 		},
 		toggleShowPassword() {
-			this.showPassword = !this.showPassword
-		}
+			this.showPassword = !this.showPassword;
+		},
 	},
 	watch: {
 		type(newType, oldType) {
 			if (oldType !== 'protected') {
 				this.pass = '';
 			}
-		}
+		},
 	},
 	computed: {
 		isNotCreated() {
@@ -97,11 +98,11 @@ export default defineComponent({
 				return true;
 			}
 			return false;
-		}
+		},
 	},
 	components: {
-		Chatroom
-	}
+		Chatroom,
+	},
 })
 
 </script>

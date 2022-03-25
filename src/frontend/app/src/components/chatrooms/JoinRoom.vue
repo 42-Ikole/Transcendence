@@ -41,17 +41,25 @@ import { defineComponent } from 'vue';
 
 enum Room {
 	NOTJOINED,
-	JOINED
+	JOINED,
+}
+
+interface DataObject {
+	type: string;
+	name: string;
+	pass: string;
+	showPassword: boolean;
+	room: Room;
 }
 
 export default defineComponent({
-	data() {
+	data(): DataObject {
 		return {
 			type: '',
 			name: '',
 			pass: '',
 			showPassword: false,
-			room: Room.NOTJOINED as Room,
+			room: Room.NOTJOINED,
 		};
 	},
 	methods: {
@@ -60,18 +68,18 @@ export default defineComponent({
 				return ;
 			}
 			// checken of de room bestaat.
-			this.room = Room.JOINED
+			this.room = Room.JOINED;
 		},
 		toggleShowPassword() {
 			this.showPassword = !this.showPassword
-		}
+		},
 	},
 	watch: {
 		type(newType, oldType) {
 			if (oldType !== 'protected') {
 				this.pass = '';
 			}
-		}
+		},
 	},
 	computed: {
 		isNotJoined() {
@@ -85,10 +93,10 @@ export default defineComponent({
 				return true;
 			}
 			return false;
-		}
+		},
 	},
 	components: {
-		Chatroom
+		Chatroom,
 	}
 })
 

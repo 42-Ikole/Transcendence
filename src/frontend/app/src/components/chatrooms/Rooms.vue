@@ -24,10 +24,14 @@ enum State {
 	JOINING
 }
 
+interface DataObject {
+	state: State;
+}
+
 export default defineComponent({
-	data() {
+	data(): DataObject {
 		return {
-			state: State.WAITING as State,
+			state: State.WAITING,
 		};
 	},
 	computed: {

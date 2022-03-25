@@ -18,14 +18,20 @@
 <script lang="ts">
 
 import io from 'socket.io-client';
-import makeApiCall from '../../utils/ApiCall.ts'
+import { useSocketStore } from '@/stores/SocketStore';
+import { mapState } from 'pinia';
+
+interface DataObject {
+	myMessage: string;
+	messages: string[];
+	users: any[];
+}
 
 export default {
-	data() {
+	data(): DataObject {
 		return {
 			myMessage: '',
 			messages: [],
-			socket: null,
 			users: [],
 		};
 	},
@@ -49,7 +55,6 @@ export default {
 		},
 	},
 	created() {
-		this.socket = io('http://localhost:3000/chat', {withCredentials: true});
 		this.socket.on('messageToClient', (message) => {
 			this.receivedMessage(message);
 		});
@@ -58,8 +63,13 @@ export default {
 		});
 		this.socket.on('userLeftChat', (user) => {
 			this.removeUserFromList(user);
-		})
+		});
 	},
+	computed: {
+		...mapState(useSocketStore, {
+			socket: 'chat',
+		}),
+	}
 }
 
 </script>
