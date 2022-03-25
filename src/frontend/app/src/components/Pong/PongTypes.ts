@@ -11,6 +11,7 @@ export interface PongBar {
 
 export interface Player {
   bar: PongBar;
+  username: string;
   score: number;
 }
 

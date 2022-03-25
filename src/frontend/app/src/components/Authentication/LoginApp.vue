@@ -17,12 +17,12 @@
 import { defineComponent } from "vue";
 import { loginUser, logoutUser, getUserInfo } from "@/utils/Login";
 import { mapState } from "pinia";
-import { useAuthenticationStore } from "@/stores/authentication";
+import { useUserStore } from "@/stores/UserStore";
 
 export default defineComponent({
   data() {
     return {
-      userData: "",
+      userData: "" as any,
     };
   },
   methods: {
@@ -37,7 +37,7 @@ export default defineComponent({
     },
   },
   computed: {
-    ...mapState(useAuthenticationStore, {
+    ...mapState(useUserStore, {
       isAuthenticated: "isAuthenticated",
     }),
   },

@@ -1,9 +1,13 @@
 import { Ball, GameState, Player, PongBar } from './pong.types';
 
-const BALL_SPEED = 0.005;
-const PLAYER_SPEED = 0.025;
+/*
+Concept: all coordinates are in range [0, 1] and used in the frontend as a percentage relative to the screen size.
+So position `x = 0.5` is half of the screen/game width in the frontend.
+*/
 
-type ArrowKey = 'ArrowUp' | 'ArrowDown';
+// TODO: add BALL acceleration and key input (like space) for some special move
+const BALL_SPEED = 0.01;
+const PLAYER_SPEED = 0.01;
 
 function newBall(): Ball {
   return {
@@ -12,6 +16,7 @@ function newBall(): Ball {
       y: 0.5,
     },
     direction: {
+      // TODO: randomize start direction
       x: -1,
       y: 0,
     },
@@ -19,7 +24,7 @@ function newBall(): Ball {
   };
 }
 
-function newPlayer(): Player {
+function newPlayer(username: string): Player {
   return {
     bar: {
       position: {
@@ -29,15 +34,16 @@ function newPlayer(): Player {
       width: 0.015,
       height: 0.2,
     },
+    username: username,
     score: 0,
   };
 }
 
-export function newGameState(): GameState {
+export function newGameState(userOne: string, userTwo: string): GameState {
   const state: GameState = {
     ball: newBall(),
-    playerOne: newPlayer(),
-    playerTwo: newPlayer(),
+    playerOne: newPlayer(userOne),
+    playerTwo: newPlayer(userTwo),
   };
   state.playerTwo.bar.position.x = 0.975; // 0.99 - bar.width
   return state;
@@ -46,25 +52,24 @@ export function newGameState(): GameState {
 function resetGameState(state: GameState) {
   const scoreOne = state.playerOne.score;
   const scoreTwo = state.playerTwo.score;
-  state.playerOne = newPlayer();
-  state.playerTwo = newPlayer();
+  state.playerOne = newPlayer(state.playerOne.username);
+  state.playerTwo = newPlayer(state.playerTwo.username);
   state.ball = newBall();
   state.playerTwo.bar.position.x = 0.975; // 0.99 - bar.width
   state.playerOne.score = scoreOne;
   state.playerTwo.score = scoreTwo;
 }
 
-export function movePlayer(bar: PongBar, direction: ArrowKey) {
-  switch (direction) {
-    case 'ArrowUp':
-      bar.position.y -= PLAYER_SPEED;
-      break;
-    case 'ArrowDown':
-      bar.position.y += PLAYER_SPEED;
-      break;
-    default:
-      throw new Error('invalid player movement direction: ' + direction);
+// directions[0] === ArrowUpDown, directions[1] === ArrowDownDown
+// TODO: change to two-tuple (typescript)
+export function movePlayer(bar: PongBar, directions: boolean[]) {
+  if (directions[0]) {
+    bar.position.y -= PLAYER_SPEED;
   }
+  if (directions[1]) {
+    bar.position.y += PLAYER_SPEED;
+  }
+  // so that the bar doesn't go beyond the edge (top/bottom)
   if (bar.position.y > 1 - bar.height) {
     bar.position.y = 1 - bar.height;
   } else if (bar.position.y < 0) {
@@ -88,12 +93,12 @@ function handleRoundEnd(state: GameState) {
 }
 
 function ballBarIntersection(ball: Ball, bar: PongBar): boolean {
-  // right now it's just a square intersection
+  // TODO: proper intersection, right now it's just a square intersection
   return (
     ball.position.x + ball.radius >= bar.position.x &&
     ball.position.x - ball.radius <= bar.position.x + bar.width &&
     ball.position.y + ball.radius >= bar.position.y &&
-    bar.position.y - ball.radius <= bar.position.y + bar.height
+    ball.position.y - ball.radius <= bar.position.y + bar.height
   );
 }
 
@@ -107,8 +112,13 @@ function updateBallPosition(state: GameState) {
     ballBarIntersection(state.ball, state.playerOne.bar) ||
     ballBarIntersection(state.ball, state.playerTwo.bar)
   ) {
+    // TODO: get the correct new direction
     state.ball.direction.x *= -1;
   }
+}
+
+export function gameHasEnded(state: GameState) {
+  return state.playerOne.score === 3 || state.playerTwo.score === 3;
 }
 
 export function updateGamestate(state: GameState): GameState {
