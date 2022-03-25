@@ -11,6 +11,7 @@ import { TwoFactorModule } from './2FA/twofactor.module';
 import { ConfigModule } from '@nestjs/config';
 import { configModuleOptions } from './config/options';
 import { ChatModule } from './chat/chat.module';
+import { PongModule } from './pong/pong.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ChatModule } from './chat/chat.module';
     MatchModule,
     AuthModule,
     TwoFactorModule,
+    PongModule,
     PassportModule.register({ session: true }),
     ConfigModule.forRoot(configModuleOptions),
     ChatModule,

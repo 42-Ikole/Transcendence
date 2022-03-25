@@ -35,7 +35,8 @@ export default defineComponent({
         { path: "/about", message: "About" },
         { path: "/2fa", message: "Two Factor" },
         { path: "/login", message: "Login" },
-        { path: "/chatrooms", message: "Chatrooms"}
+        { path: "/chatrooms", message: "Chatrooms"},
+        { path: "/pong", message: "Pong" },
       ],
     };
   },

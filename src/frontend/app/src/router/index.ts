@@ -5,6 +5,7 @@ import LoginView from "@/views/LoginView.vue";
 import { isLoggedIn } from "@/utils/Login";
 import Enable2FaView from "@/views/Enable2FaView.vue";
 import RoomsView from "@/components/chatrooms/Rooms.vue";
+import PongView from "@/views/PongView.vue";
 
 const routes = [
   {
@@ -31,7 +32,12 @@ const routes = [
     path: "/chatrooms",
     name: "chatrooms",
     component: RoomsView,
-  }
+	},
+	{
+    path: "/pong",
+    name: "pong",
+    component: PongView,
+  },
 ];
 
 const router = createRouter({

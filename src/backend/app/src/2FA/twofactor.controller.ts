@@ -71,7 +71,9 @@ export class TwoFactorController {
     const user = request.user;
     await this.validateCode(user, twoFactorCode);
     request.login({ id: user.id, twoFactorPassed: true }, (error) => {
-      console.error(error);
+      if (error) {
+        console.error(error);
+      }
     });
   }
 }
