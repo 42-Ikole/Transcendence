@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, ManyToMany, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinTable } from 'typeorm';
 import { User } from './user.entity';
 import { Message } from './message.entity';
 
@@ -13,7 +13,8 @@ export class Chat {
   @ManyToOne(() => User, (user) => user.id)
   owner: User;
 
-  @ManyToMany(() => User, (user) => user.id)
+	@ManyToMany(() => User, (user) => user.id)
+	@JoinTable()
   admins: User[];
 
   @Column({ default: null })
