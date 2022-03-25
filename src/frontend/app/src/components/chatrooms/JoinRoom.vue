@@ -1,7 +1,7 @@
 <template>
 	<div v-if="isNotJoined">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
-		<div class="conv_joining">
+		<form class="conv_joining" @submit.prevent="joinChat">
 			<h3>Joining a chat room.</h3>
 			<div id="chosing_type">
 				<div class="one_elem">
@@ -14,24 +14,22 @@
 				</div>
 			</div>
 			<div>
-				Room name: <input class="input_name" placeholder="Type here" type="text" v-model="name"/>
+				Room name: <input class="input_name" placeholder="Type here" type="text" v-model="name" />
 			</div>
 			<div v-if="type === 'protected'">
 				Room password:
 					<input v-if="showPassword" class="input_pass" placeholder="Password" type="text" v-model="pass" />
 					<input v-else class="input_pass" placeholder="Password" type="password" v-model="pass" />
-				<button class="button" @click="toggleShowPassword">
+				<button class="button" type="button" @click="toggleShowPassword">
 					<i class="fas" :class="{ 'fa-eye-slash': showPassword, 'fa-eye': !showPassword }"></i>
 				</button>
 			</div>
-
-			<button v-bind:disabled="invalidRoomInput === true" @click="joinChat" >Join</button>
-		</div>
+			<input v-bind:disabled="invalidRoomInput === true" type="submit" value="Join" />
+		</form>
 	</div>
 	<div v-else-if="isJoined">
 		<Chatroom />
 	</div>
-
 </template>
 
 <script lang="ts">

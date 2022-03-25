@@ -1,7 +1,7 @@
 <template>
 	<div v-if="isNotCreated">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
-		<div class="conv_creation">
+		<form class="conv_creation" @submit.prevent="createChat">
 			<h3>Creating a new chat room.</h3>
 			<div id="chosing_type">
 				<div class="one_elem">
@@ -18,24 +18,22 @@
 				</div>
 			</div>
 			<div>
-				Room name: <input class="input_name" placeholder="Type here" type="text" v-model="name"/>
+				Room name: <input class="input_name" placeholder="Type here" type="text" v-model="name" />
 			</div>
 			<div v-if="type === 'protected'">
 				Room password:
 					<input v-if="showPassword" class="input_pass" placeholder="Password" type="text" v-model="pass" />
-					<input v-else class="input_pass" placeholder="Password" type="password" v-model="pass" />
-				<button class="button" @click="toggleShowPassword">
+					<input v-else class="input_pass" placeholder="Password" type="password" v-model="pass" />	
+				<button class="button" type="button" @click="toggleShowPassword" >
 					<i class="fas" :class="{ 'fa-eye-slash': showPassword, 'fa-eye': !showPassword }"></i>
 				</button>
 			</div>
-			
-			<button v-bind:disabled="invalidRoomInput === true" @click="createChat" >Create</button>
-		</div>
+			<input v-bind:disabled="invalidRoomInput === true" type="submit" value="Create" />
+		</form>
 	</div>
 	<div v-else-if="isCreated">
 		<Chatroom />
 	</div>
-
 </template>
 
 <script lang="ts">

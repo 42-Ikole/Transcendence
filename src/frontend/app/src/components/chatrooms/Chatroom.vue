@@ -6,7 +6,7 @@
 			</div>
 		</div>
 			<form id="sendmsgbox" @submit.prevent="sendMessage">
-				<input class="typedmsg" type="text" placeholder="Type message" v-model="myMessage" />
+				<input class="typedmsg" type="text" placeholder="Type message" v-model="myMessage" ref="messageBox" />
 				<input class="submitbutton" type="submit" value="Send" />
 			</form>
 		<div>
@@ -69,7 +69,10 @@ export default {
 		...mapState(useSocketStore, {
 			socket: 'chat',
 		}),
-	}
+	},
+	mounted() {
+		this.$refs.messageBox.focus();
+	},
 }
 
 </script>
