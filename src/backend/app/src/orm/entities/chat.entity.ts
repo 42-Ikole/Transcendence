@@ -13,14 +13,14 @@ export class Chat {
   @ManyToOne(() => User, (user) => user.id)
   owner: User;
 
-	@ManyToMany(() => User, (user) => user.id)
+	@ManyToMany(() => User)
 	@JoinTable()
   admins: User[];
 
   @Column({ default: null })
   password: string;
 
-  @OneToMany(() => Message, (msg) => msg.id, {
+  @OneToMany(() => Message, (msg) => msg.chatRoom, {
     cascade: true,
     eager: true,
   })

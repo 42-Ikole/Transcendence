@@ -1,5 +1,6 @@
 import { PrimaryColumn, Column, Entity, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
+import { Chat } from './chat.entity';
 
 @Entity()
 export class Message {
@@ -7,7 +8,10 @@ export class Message {
   id: number;
 
   @ManyToOne(() => User, (user) => user.id)
-  author: User;
+	author: User;
+
+	@ManyToOne(() => Chat, (chat) => chat.id)
+	chatRoom: Chat;
 
   @Column()
   message: string;
