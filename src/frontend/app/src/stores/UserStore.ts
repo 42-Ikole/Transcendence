@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { useSocketStore } from "./SocketStore";
+import type { UserProfileData } from "@/types/UserType";
 
 export type UserState =
   | "OFFLINE"
@@ -13,6 +14,7 @@ export type AuthenticatedState = "AUTHENTICATED" | "2FA" | "OAUTH";
 interface UserStore {
   state: UserState;
   authenticatedState: AuthenticatedState;
+  profileData: UserProfileData | null;
 }
 
 export const useUserStore = defineStore("user", {
@@ -20,6 +22,7 @@ export const useUserStore = defineStore("user", {
     return {
       state: "OFFLINE",
       authenticatedState: "OAUTH",
+      profileData: null,
     };
   },
   getters: {
