@@ -6,9 +6,6 @@
       <button @click="logout">Logout</button>
       <p>You are logged in.</p>
     </div>
-    <div v-else>
-      <LoggedOut/>
-    </div>
   </div>
 </template>
 

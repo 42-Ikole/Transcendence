@@ -1,8 +1,10 @@
 <template>
-  <p>Two Factor Authentication State</p>
-  <input v-model="code" placeholder="enter code" />
-  <button @click="submit">Submit</button>
-  <button @click="logout">Logout</button>
+
+  <div class="input-group">
+    <input v-model="code" type="text" class="form-control" placeholder="2FA code" aria-label="2FA code">
+    <button class="btn btn-outline-light" @click="submit">Submit</button>
+    <button class="btn btn-outline-light" @click="logout">Logout</button>
+  </div>
 </template>
 
 <script lang="ts">
