@@ -23,6 +23,7 @@ import { MatchService } from 'src/match/match.service';
 import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { WsExceptionFilter } from 'src/websocket/websocket.exception.filter';
 import { SocketService } from "../websocket/socket.service";
+import { StatusService } from 'src/status/status.service';
 
 /*
 Endpoints:
@@ -51,6 +52,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     private userService: UserService,
     private matchService: MatchService,
     private socketService: SocketService,
+    private statusService: StatusService,
   ) {}
 
   @WebSocketServer() wss: Server;
@@ -107,9 +109,9 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   deleteGame(roomName: string) {
     const gameState = this.pongService.getGameState(roomName);
-    this.wss.to(roomName).emit('endGame', gameState);
+    this.socketService.pongServer.to(roomName).emit('endGame', gameState);
     this.pongService.deleteGameRoom(roomName);
-    this.wss.socketsLeave(roomName);
+    this.socketService.pongServer.socketsLeave(roomName);
   }
 
   endGame(roomName: string) {
@@ -236,6 +238,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       clientTwo.emit('exception', 'WARNING: you are playing with yourself');
     }
     const roomName = this.pongService.generateRoomName();
+  
     console.log(
       clientOne.user.username,
       'vs',
@@ -243,9 +246,12 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       'in',
       roomName,
     );
+
     this.joinRoom(clientOne, roomName);
     this.joinRoom(clientTwo, roomName);
-    this.wss.to(roomName).emit('startGame');
+    this.statusService.updateUserState(clientOne.user.id, "PLAYING");
+    this.statusService.updateUserState(clientTwo.user.id, "PLAYING");
+    this.socketService.pongServer.to(roomName).emit('startGame');
     const gameState = await this.createNewGame(
       clientOne.user.id,
       clientTwo.user.id,
@@ -285,7 +291,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       if (gameHasEnded(gameState)) {
         this.endGame(roomName);
       } else {
-        this.wss.to(roomName).emit('updatePosition', gameState);
+        this.socketService.pongServer.to(roomName).emit('updatePosition', gameState);
       }
     }, 1000 / 60);
     return intervalId;

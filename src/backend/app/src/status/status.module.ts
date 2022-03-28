@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { StatusGateway } from "./status.gateway";
-import { SocketService } from 'src/websocket/socket.service';
 import { CookieModule } from 'src/websocket/cookie.module';
+import { StatusService } from './status.service';
+import { SocketModule } from 'src/websocket/socket.module';
 
 @Module({
-  imports: [SocketService, CookieModule],
-  providers: [StatusGateway],
+  imports: [SocketModule, CookieModule],
+  providers: [StatusGateway, StatusService],
+  exports: [StatusService],
 })
 export class StatusModule {}
