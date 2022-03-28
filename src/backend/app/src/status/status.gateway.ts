@@ -1,17 +1,24 @@
-import { WebSocketGateway, OnGatewayInit, OnGatewayConnection } from "@nestjs/websockets";
+import { WebSocketGateway, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect } from "@nestjs/websockets";
 import { Server } from "socket.io";
 import { SocketService } from "src/websocket/socket.service";
 import { SocketWithUser } from "src/websocket/websocket.types";
 import { CookieService } from "src/websocket/cookie.service";
 
+/*
+Responsibilities:
+  - Friend requests
+  - User status change
+  - Blocked users (can be chatromo)
+*/
+
 @WebSocketGateway({
-  namespace: '/pong',
+  namespace: '/status',
   cors: {
     credentials: true,
     origin: ['http://localhost:8080', 'http://localhost:3000'],
   },
 })
-export class StatusGateway implements OnGatewayInit, OnGatewayConnection {
+export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private socketService: SocketService,
     private cookieService: CookieService,
@@ -30,5 +37,13 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection {
       client.disconnect();
       return;
     }
+    this.socketService.addSocket(client.user.id, "status", client);
+  }
+
+  handleDisconnect(client: SocketWithUser) {
+    if (!client.user) {
+      return;
+    }
+    this.socketService.deleteSocket(client.user.id);
   }
 }

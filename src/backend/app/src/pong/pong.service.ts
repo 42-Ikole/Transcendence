@@ -7,13 +7,13 @@ import { ConfigService } from '@nestjs/config';
 import { UserService } from 'src/user/user.service';
 import { CookieService } from 'src/websocket/cookie.service';
 import { User } from 'src/orm/entities/user.entity';
+import { SocketService } from 'src/websocket/socket.service';
 
 @Injectable()
 export class PongService {
   constructor(
-    private configService: ConfigService,
-    private userService: UserService,
     private cookieService: CookieService,
+    private socketService: SocketService,
   ) {}
 
   private waitingUser: SocketWithUser | null = null;
@@ -26,6 +26,7 @@ export class PongService {
   addClient(client: SocketWithUser) {
     this.sockets[client.id] = client;
     this.socketIds[client.user.id] = client.id;
+    this.socketService.addSocket(client.user.id, "pong", client);
   }
 
   async userFromCookie(cookie: string) {

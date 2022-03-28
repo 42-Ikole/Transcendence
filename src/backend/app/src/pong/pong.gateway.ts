@@ -82,6 +82,9 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   handleDisconnect(client: SocketWithUser) {
+    if (!client.user) {
+      return;
+    }
     if (
       this.pongService.isChallenged(client) &&
       this.pongService.hasChallenger(client)

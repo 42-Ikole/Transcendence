@@ -50,16 +50,18 @@ export const useUserStore = defineStore("user", {
     setTwoFactor() {
       this.authenticatedState = "2FA";
     },
-    login() {
+    async login() {
       this.authenticatedState = "AUTHENTICATED";
       this.state = "ONLINE";
-      useSocketStore().initPongSocket();
+      useSocketStore().init();
+      await this.refreshUserData();
     },
-    async loadUserData() {
+    async refreshUserData() {
       this.profileData = await initUserData();
     },
     logout() {
       this.authenticatedState = "OAUTH";
+      this.profileData = null;
       useSocketStore().disconnectSockets();
     },
   },

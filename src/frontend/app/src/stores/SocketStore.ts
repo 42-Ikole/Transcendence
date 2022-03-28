@@ -16,6 +16,9 @@ export const useSocketStore = defineStore("socket", {
     };
   },
   actions: {
+    init() {
+      this.initPongSocket();
+    },
     initPongSocket() {
       this.pong = io(PONG_WS_ADDR, { withCredentials: true });
       this.pong.on("exception", (error: string) => {

@@ -24,7 +24,7 @@ export default defineComponent({
         twoFactorCode: this.code,
       });
       if (response.ok) {
-        useUserStore().login();
+        await useUserStore().login();
       }
     },
     async logout() {
