@@ -28,7 +28,6 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
     profile: any,
     callback: (error: any, user: SessionUser) => void,
   ) {
-    console.log("Profile:", profile);
     const { username, nodeId } = profile;
     const details = { username, intraId: nodeId };
     console.log('Validate user:', details);
@@ -40,6 +39,7 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
 @Injectable()
 export class GithubGuard extends AuthGuard('github') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    console.log("logging in...");
     const activate = (await super.canActivate(context)) as boolean;
     const request = context.switchToHttp().getRequest();
     await super.logIn(request);
