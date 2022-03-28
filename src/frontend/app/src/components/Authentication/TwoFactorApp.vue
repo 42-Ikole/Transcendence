@@ -8,7 +8,6 @@
 </template>
 
 <script lang="ts">
-import { useAuthenticationStore } from "@/stores/authentication";
 import { useUserStore } from "@/stores/UserStore";
 import { makeApiCallJson } from "@/utils/ApiCall";
 import { logoutUser } from "@/utils/Login";

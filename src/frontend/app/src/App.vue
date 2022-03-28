@@ -11,9 +11,9 @@
 
 <script lang="ts">
 import {
-  useAuthenticationStore,
+  useUserStore,
   type AuthenticatedState,
-} from "@/stores/authentication";
+} from "@/stores/UserStore";
 import { defineComponent } from "vue";
 import { RouterView } from "vue-router";
 import NavBar from "@/components/navbar/NavBar.vue";
@@ -25,7 +25,7 @@ export default defineComponent({
     RouterView,
   },
   computed: {
-    ...mapState(useAuthenticationStore, {
+    ...mapState(useUserStore, {
       state: "authenticatedState",
     }),
     isLoggedIn() {

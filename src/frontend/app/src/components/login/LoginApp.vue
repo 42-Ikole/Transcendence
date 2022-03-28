@@ -13,12 +13,8 @@
 import { defineComponent } from "vue";
 import { loginUser, logoutUser, getUserInfo } from "@/utils/Login";
 import { mapState } from "pinia";
-<<<<<<< HEAD:src/frontend/app/src/components/login/LoginApp.vue
-import { useAuthenticationStore } from "@/stores/authentication";
 import  LoggedOut  from "@/components/login/LoggedOut.vue";
-=======
 import { useUserStore } from "@/stores/UserStore";
->>>>>>> e3eddae04ac3dbcbdfec37986660b43582ded043:src/frontend/app/src/components/Authentication/LoginApp.vue
 
 export default defineComponent({
   data() {

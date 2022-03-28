@@ -4,11 +4,8 @@ import AboutView from "@/views/AboutView.vue";
 import LoginView from "@/views/LoginView.vue";
 import { isLoggedIn } from "@/utils/Login";
 import Enable2FaView from "@/views/Enable2FaView.vue";
-<<<<<<< HEAD
 import ProfileView from "@/views/ProfileView.vue";
-=======
 import PongView from "@/views/PongView.vue";
->>>>>>> e3eddae04ac3dbcbdfec37986660b43582ded043
 
 const routes = [
   {
@@ -32,15 +29,14 @@ const routes = [
     component: Enable2FaView,
   },
   {
-<<<<<<< HEAD
     path: "/profile",
     name: "profile",
-    component: ProfileView,
-=======
+	component: ProfileView,
+  },
+  {
     path: "/pong",
     name: "pong",
     component: PongView,
->>>>>>> e3eddae04ac3dbcbdfec37986660b43582ded043
   },
 ];
 
