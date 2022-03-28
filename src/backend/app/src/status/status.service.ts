@@ -35,10 +35,14 @@ export class StatusService {
         } else {
             this.userStatus[id] = state;
         }
-        this.socketService.statusServer.emit("statusUpdate", {
+        const updatedState = {
             id: id,
             newState: state,
-        });
+        };
+        if (this.socketService.userExistsType(id, "status")) {
+            this.socketService.sockets[id].status.emit("statusUpdate", updatedState);
+        }
+        this.socketService.statusServer.emit("friendUpdate", updatedState);
     }
 
     getStates(): UserStatusMap {

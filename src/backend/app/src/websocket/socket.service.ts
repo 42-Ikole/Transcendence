@@ -30,10 +30,20 @@ export class SocketService {
         if (!this.sockets[userId]) {
             this.sockets[userId] = { pong: null, status: null, chatroom: null};
         }
+        console.log("adding socket:", userId, type);
         this.sockets[userId][type] = socket;
     }
 
     deleteSocket(userId: number) {
+        console.log("Deleting socket:", userId);
         delete this.sockets[userId];
+    }
+
+    userExists(userId: number): boolean {
+        return !!this.sockets[userId];
+    }
+
+    userExistsType(userId: number, type: SocketTypes): boolean {
+        return !!this.sockets[userId] && !!this.sockets[userId][type];
     }
 }

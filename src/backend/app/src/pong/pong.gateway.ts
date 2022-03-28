@@ -65,8 +65,8 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     client.user = await this.pongService.userFromCookie(
       client.handshake.headers.cookie,
     );
-    if (!client.user) {
-      console.log('/pong connection denied: NO USER FOUND:', client.id);
+    if (!client.user || this.socketService.userExistsType(client.user.id, "pong")) {
+      console.log('/pong connection denied::', client.id);
       client.disconnect();
       return;
     }

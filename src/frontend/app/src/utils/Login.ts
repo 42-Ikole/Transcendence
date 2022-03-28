@@ -21,6 +21,14 @@ export async function getUserInfo() {
   return useUserStore().$state;
 }
 
+export async function canMakeConnection(): boolean {
+  const response = await makeApiCall("/status/can-connect");
+  if (!response.ok || (await response.text()) !== "OK") {
+    return false;
+  }
+  return true;
+}
+
 export async function checkUserSession() {
   if (isLoggedIn()) {
     return;

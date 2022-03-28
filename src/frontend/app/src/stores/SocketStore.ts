@@ -11,6 +11,11 @@ interface SocketStore {
   pong: Socket | null;
 }
 
+interface StatusUpdate {
+  userId: number;
+  newState: UserState;
+}
+
 export const useSocketStore = defineStore("socket", {
   state: (): SocketStore => {
     return {
@@ -19,11 +24,22 @@ export const useSocketStore = defineStore("socket", {
     };
   },
   actions: {
+    // !! IMPORTANT !! ORDER: STATUS -> PONG -> CHATROOM
     init() {
-      this.initPongSocket();
       this.initStatusSocket();
+      this.initPongSocket();
+    },
+    initStatusSocket() {
+      this.status = io(STATUS_WS_ADDR, {withCredentials: true});
+      this.status.on("statusUpdate", (update: StatusUpdate) => {
+        useUserStore().setState(update.newState);
+      });
+      this.status.on("friendUpdate", (update: StatusUpdate) => {
+        console.log("other user:", update);
+      });
     },
     initPongSocket() {
+      console.log("init pong...");
       this.pong = io(PONG_WS_ADDR, { withCredentials: true });
       this.pong.on("exception", (error: string) => {
         console.error("Received Exception:", error);
@@ -46,15 +62,12 @@ export const useSocketStore = defineStore("socket", {
         useUserStore().setState("ONLINE");
       });
     },
-    initStatusSocket() {
-      this.status = io(STATUS_WS_ADDR, {withCredentials: true});
-      this.status.on("statusUpdate", (newState: UserState) => {
-        console.log("NEW STATE:", newState);
-      });
-    },
     disconnectSockets() {
       if (this.pong) {
         this.pong.disconnect();
+      }
+      if (this.status) {
+        this.status.disconnect();
       }
     },
   },

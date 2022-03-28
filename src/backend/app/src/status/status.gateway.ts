@@ -1,4 +1,4 @@
-import { WebSocketGateway, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect } from "@nestjs/websockets";
+import { WebSocketGateway, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, WsException } from "@nestjs/websockets";
 import { Server } from "socket.io";
 import { SocketService } from "src/websocket/socket.service";
 import { SocketWithUser } from "src/websocket/websocket.types";
@@ -34,8 +34,8 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     client.user = await this.cookieService.userFromCookie(
       client.handshake.headers.cookie,
     );
-    if (!client.user) {
-      console.log('/pong connection denied: NO USER FOUND:', client.id);
+    if (!client.user || this.socketService.userExistsType(client.user.id, "status")) {
+      console.log('/status: connection denied:', client.id);
       client.disconnect();
       return;
     }
@@ -47,7 +47,7 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     if (!client.user) {
       return;
     }
-    this.socketService.deleteSocket(client.user.id);
     this.statusService.updateUserState(client.user.id, "OFFLINE");
+    this.socketService.deleteSocket(client.user.id);
   }
 }

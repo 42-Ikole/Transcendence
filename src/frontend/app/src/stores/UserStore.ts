@@ -2,10 +2,12 @@ import { defineStore } from "pinia";
 import { useSocketStore } from "./SocketStore";
 import type { UserProfileData } from "@/types/UserType";
 import makeApiCall from "@/utils/ApiCall";
+import { canMakeConnection } from "@/utils/Login";
 
 export type UserState =
   | "OFFLINE"
   | "ONLINE"
+  | "CONNECTION_DENIED"
   | "SEARCHING"
   | "PLAYING"
   | "OBSERVING"
@@ -52,6 +54,11 @@ export const useUserStore = defineStore("user", {
     },
     async login() {
       this.authenticatedState = "AUTHENTICATED";
+      const canConnect = await canMakeConnection();
+      if (!canConnect) {
+        this.setState("CONNECTION_DENIED");
+        return;
+      }
       this.state = "ONLINE";
       useSocketStore().init();
       await this.refreshUserData();
