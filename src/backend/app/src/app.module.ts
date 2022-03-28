@@ -10,6 +10,7 @@ import { MatchModule } from './match/match.module';
 import { TwoFactorModule } from './2FA/twofactor.module';
 import { ConfigModule } from '@nestjs/config';
 import { configModuleOptions } from './config/options';
+import { PongModule } from './pong/pong.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { configModuleOptions } from './config/options';
     MatchModule,
     AuthModule,
     TwoFactorModule,
+    PongModule,
     PassportModule.register({ session: true }),
     ConfigModule.forRoot(configModuleOptions),
   ],

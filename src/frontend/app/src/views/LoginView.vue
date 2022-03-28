@@ -27,10 +27,7 @@
 
 <script lang="ts">
 
-import {
-  useAuthenticationStore,
-  type AuthenticatedState,
-} from "@/stores/authentication";
+import { useUserStore, type AuthenticatedState } from "@/stores/UserStore";
 import { mapState } from "pinia";
 import { defineComponent } from "vue";
 import LoginApp from "@/components/login/LoginApp.vue";
@@ -44,7 +41,7 @@ export default defineComponent({
     TwoFactorApp,
   },
   computed: {
-    ...mapState(useAuthenticationStore, {
+    ...mapState(useUserStore, {
       state: "authenticatedState",
     }),
     isTwoFactor() {

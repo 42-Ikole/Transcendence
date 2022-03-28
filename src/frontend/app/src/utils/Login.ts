@@ -1,7 +1,4 @@
-import {
-  useAuthenticationStore,
-  type AuthenticatedState,
-} from "@/stores/authentication";
+import { useUserStore, type AuthenticatedState } from "@/stores/UserStore";
 import type { Router } from "vue-router";
 import makeApiCall from "./ApiCall";
 
@@ -14,14 +11,13 @@ export async function logoutUser(router: Router) {
   const response = await makeApiCall("/auth/logout", {
     method: "DELETE",
   });
-  const authStore = useAuthenticationStore();
+  const userStore = useUserStore();
   router.push("/login");
-  authStore.logout();
+  userStore.logout();
 }
 
 export async function getUserInfo() {
-  const response = await makeApiCall("/auth/status");
-  return response.json();
+  return useUserStore().$state;
 }
 
 export async function checkUserSession() {
@@ -30,12 +26,14 @@ export async function checkUserSession() {
   }
   const response = await makeApiCall("/auth/status");
   const state: AuthenticatedState = (await response.json()).state;
-  const authStore = useAuthenticationStore();
-  authStore.setState(state);
+  const userStore = useUserStore();
+  userStore.setAuthState(state);
   console.log("Frontend State:", state);
+  if (state === "AUTHENTICATED") {
+    userStore.login();
+  }
 }
 
 export function isLoggedIn() {
-  const authentication = useAuthenticationStore();
-  return authentication.isAuthenticated;
+  return useUserStore().isAuthenticated;
 }
