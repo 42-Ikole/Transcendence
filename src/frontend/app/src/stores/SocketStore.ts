@@ -24,7 +24,6 @@ export const useSocketStore = defineStore("socket", {
     };
   },
   actions: {
-    // !! IMPORTANT !! ORDER: STATUS -> PONG -> CHATROOM
     init() {
       this.initStatusSocket();
       this.initPongSocket();

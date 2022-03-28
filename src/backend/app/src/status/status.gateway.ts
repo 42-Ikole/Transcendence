@@ -7,8 +7,8 @@ import { StatusService } from "./status.service";
 
 /*
 Responsibilities:
-  - Friend requests
   - User status change
+  - Friend requests
   - Blocked users (can be chatroom)
 */
 
