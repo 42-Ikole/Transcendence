@@ -6,9 +6,11 @@ import { getRepository } from 'typeorm';
 import { TypeORMSession } from 'src/orm/entities/session.entity';
 import { TypeormStore } from 'connect-typeorm/out';
 import * as util from 'util';
+import { Injectable } from '@nestjs/common';
+import { UserService } from 'src/user/user.service';
 
 // TODO: more error checks
-export async function decodeCookie(
+async function decodeCookie(
   cookie: string,
   configService: ConfigService,
 ): Promise<SessionUser | null> {
@@ -29,4 +31,24 @@ export async function decodeCookie(
     return null;
   }
   return session.passport.user;
+}
+
+@Injectable()
+export class CookieService {
+  constructor(
+    private configService: ConfigService,
+    private userService: UserService,
+  ) {}
+
+    async userFromCookie(cookie: string) {
+      const sessionUser: SessionUser = await decodeCookie(
+        cookie,
+        this.configService,
+      );
+      if (!sessionUser) {
+        return null;
+      }
+      const user = await this.userService.findById(sessionUser.id);
+      return user;  
+    }
 }

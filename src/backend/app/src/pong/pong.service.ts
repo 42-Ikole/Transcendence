@@ -5,7 +5,7 @@ import { Server } from 'socket.io';
 import { SessionUser } from 'src/auth/auth.types';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from 'src/user/user.service';
-import { decodeCookie } from 'src/websocket/cookie';
+import { CookieService } from 'src/websocket/cookie.service';
 import { User } from 'src/orm/entities/user.entity';
 
 @Injectable()
@@ -13,6 +13,7 @@ export class PongService {
   constructor(
     private configService: ConfigService,
     private userService: UserService,
+    private cookieService: CookieService,
   ) {}
 
   private waitingUser: SocketWithUser | null = null;
@@ -28,15 +29,7 @@ export class PongService {
   }
 
   async userFromCookie(cookie: string) {
-    const sessionUser: SessionUser = await decodeCookie(
-      cookie,
-      this.configService,
-    );
-    if (!sessionUser) {
-      return null;
-    }
-    const user = await this.userService.findById(sessionUser.id);
-    return user;
+    return await this.cookieService.userFromCookie(cookie);
   }
 
   removeClient(client: SocketWithUser) {

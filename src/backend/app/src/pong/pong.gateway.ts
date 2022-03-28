@@ -6,6 +6,7 @@ import {
   SubscribeMessage,
   ConnectedSocket,
   MessageBody,
+  OnGatewayInit,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { RequestMatchDto, SocketWithUser } from '../websocket/websocket.types';
@@ -21,11 +22,19 @@ import { UserService } from 'src/user/user.service';
 import { MatchService } from 'src/match/match.service';
 import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { WsExceptionFilter } from 'src/websocket/websocket.exception.filter';
+import { SocketService } from "../websocket/socket.service";
 
 /*
 Endpoints:
   `requestMatch`
   `movement`
+  `requestObserve`
+  `cancelObserve`
+Emits:
+  `startGame`
+  `endGame`
+  `observeGame`
+  `exception`
 */
 
 @WebSocketGateway({
@@ -36,14 +45,19 @@ Endpoints:
   },
 })
 @UseFilters(WsExceptionFilter)
-export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private pongService: PongService,
     private userService: UserService,
     private matchService: MatchService,
+    private socketService: SocketService,
   ) {}
 
   @WebSocketServer() wss: Server;
+
+  afterInit(server: Server) {
+    this.socketService.pongServer = server;
+  }
 
   async handleConnection(client: SocketWithUser) {
     client.user = await this.pongService.userFromCookie(
