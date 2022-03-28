@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { useSocketStore } from "./SocketStore";
 import type { UserProfileData } from "@/types/UserType";
+import makeApiCall from "@/utils/ApiCall";
 
 export type UserState =
   | "OFFLINE"
@@ -15,6 +16,14 @@ interface UserStore {
   state: UserState;
   authenticatedState: AuthenticatedState;
   profileData: UserProfileData | null;
+}
+
+async function initUserData(): Promise<UserProfileData> {
+  const response = await makeApiCall("/user");
+  if (!response.ok) {
+    throw new Error("could not fetch user data");
+  }
+  return await response.json();
 }
 
 export const useUserStore = defineStore("user", {
@@ -45,6 +54,10 @@ export const useUserStore = defineStore("user", {
       this.authenticatedState = "AUTHENTICATED";
       this.state = "ONLINE";
       useSocketStore().initPongSocket();
+    },
+    async loadUserData() {
+      this.profileData = await initUserData();
+      console.log(this.profileData);
     },
     logout() {
       this.authenticatedState = "OAUTH";

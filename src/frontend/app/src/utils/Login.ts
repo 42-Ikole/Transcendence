@@ -31,6 +31,7 @@ export async function checkUserSession() {
   console.log("Frontend State:", state);
   if (state === "AUTHENTICATED") {
     userStore.login();
+    await userStore.loadUserData();
   }
 }
 

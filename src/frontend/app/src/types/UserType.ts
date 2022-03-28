@@ -1,17 +1,11 @@
-// for own user
-export interface UserProfileData {
-  id: number;
-  intraId: string;
-  username: string;
-  avatar: string | null;
-  fullName: string | null;
-  email: string | null;
-  twoFactorEnabled: boolean;
-}
-
-// for other users
-export interface UserData {
+// When requesting information about other users
+export interface PublicUser {
 	id: number;
 	username: string;
-	avatar: string | null;
+	avatar: string;
+}
+
+// For your own profile
+export interface UserProfileData extends PublicUser {
+	twoFactorEnabled: boolean;
 }

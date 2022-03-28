@@ -21,12 +21,6 @@ export class User {
   @Column({ nullable: true })
   avatar: string;
 
-  @Column({ nullable: true })
-  fullName: string;
-
-  @Column({ nullable: true })
-  email: string;
-
   @OneToMany(() => Match, (match) => match.winner)
   wins: Match[];
 
@@ -54,14 +48,6 @@ export class PartialUser {
   @IsString()
   @IsOptional()
   avatar?: string;
-
-  @IsString()
-  @IsOptional()
-  fullName?: string;
-
-  @IsString()
-  @IsOptional()
-  email?: string;
 
   @IsString()
   @IsOptional()
