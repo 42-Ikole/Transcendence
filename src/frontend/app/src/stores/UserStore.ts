@@ -57,7 +57,6 @@ export const useUserStore = defineStore("user", {
     },
     async loadUserData() {
       this.profileData = await initUserData();
-      console.log(this.profileData);
     },
     logout() {
       this.authenticatedState = "OAUTH";
