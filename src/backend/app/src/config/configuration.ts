@@ -15,7 +15,7 @@ export default () => ({
     discord: {
       CLIENT_ID: process.env.DISCORD_CLIENT_ID,
       CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
-      CALLBACK_URL: `http://${process.env.DOMAIN_NAME}/api/auth/login/github`, // OAuth provider redirects to this to finalize authentication
+      CALLBACK_URL: `http://${process.env.DOMAIN_NAME}/api/auth/login/discord`, // OAuth provider redirects to this to finalize authentication
     },
     REDIRECT_URL: `http://${process.env.DOMAIN_NAME}`, // We redirect to this after OAuth flow
   },
