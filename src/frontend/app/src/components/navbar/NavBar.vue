@@ -10,7 +10,7 @@
 			</ul>
 		</div>
 		<div class="mx-auto order-0">
-			<a class="navbar-brand mx-auto" href="#"><img src="/src/assets/pongHub.png" alt="ponghub" id="navbarLogo" /></a>
+			<a class="navbar-brand mx-auto" href=""><img src="/src/assets/pongHub.png" alt="ponghub" id="navbarLogo" /></a>
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2">
 				<span class="navbar-toggler-icon"></span>
 			</button>
