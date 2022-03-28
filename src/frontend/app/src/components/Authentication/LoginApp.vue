@@ -7,7 +7,9 @@
       <p>You are logged in.</p>
     </div>
     <div v-else>
-      <button @click="login">Login</button>
+      <button @click="login('intra')">Login with Intra</button>
+      <button @click="login('github')">Login with Github</button>
+      <button @click="login('discord')">Login with Discord</button>
       <p>You are logged out.</p>
     </div>
   </div>
@@ -26,8 +28,8 @@ export default defineComponent({
     };
   },
   methods: {
-    login() {
-      loginUser();
+    login(type: string) {
+      loginUser(type);
     },
     logout() {
       logoutUser(this.$router);

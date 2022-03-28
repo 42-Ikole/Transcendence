@@ -3,8 +3,9 @@ import type { Router } from "vue-router";
 import makeApiCall from "./ApiCall";
 
 // Warning: hard redirects the user to the API
-export function loginUser() {
-  window.location.href = "http://localhost:8080/api/auth/login";
+type OAuthProvider = "github" | "discord" | "intra";
+export function loginUser(provider: OAuthProvider) {
+  window.location.href = `http://localhost:8080/api/auth/login/${provider}`;
 }
 
 export async function logoutUser(router: Router) {
