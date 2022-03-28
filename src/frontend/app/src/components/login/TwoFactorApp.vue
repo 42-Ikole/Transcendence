@@ -1,11 +1,19 @@
 <template>
 
   <div class="input-group">
-    <input v-model="code" type="text" class="form-control" placeholder="2FA code" aria-label="2FA code">
-    <button class="btn btn-outline-light" @click="submit">Submit</button>
-    <button class="btn btn-outline-light" @click="logout">Logout</button>
+    <input v-bind:class="errorStyling" v-model="code" type="text" class="form-control" placeholder="2FA code" aria-label="2FA code">
+    <button v-bind:class="errorStyling" class="btn btn-outline-light"  @click="submit">Submit</button>
+    <button v-bind:class="errorStyling" class="btn btn-outline-light" @click="logout">Logout</button>
   </div>
 </template>
+
+<style>
+
+.errorStyling {
+	border-color: red !important;
+}
+
+</style>
 
 <script lang="ts">
 import { useUserStore } from "@/stores/UserStore";
@@ -17,7 +25,17 @@ export default defineComponent({
   data() {
     return {
       code: "",
+	  error: false
     };
+  },
+  computed: {
+	  errorStyling() {
+		  console.log("error");
+		  if (this.error === true) {
+		  	this.error = false;
+		  	return 'errorStyling';
+		  }
+	  }
   },
   methods: {
     async submit() {
@@ -27,6 +45,10 @@ export default defineComponent({
       if (response.ok) {
         useUserStore().login();
       }
+	  else {
+		this.code = "";
+		this.error = true;
+	  }
     },
     async logout() {
       await logoutUser(this.$router);
