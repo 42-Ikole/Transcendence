@@ -1,20 +1,20 @@
 import { Injectable, ExecutionContext } from '@nestjs/common';
-import { Strategy } from 'passport-42';
+import { Strategy } from 'passport-github2';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { SessionUser } from './auth.types';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class IntraStrategy extends PassportStrategy(Strategy) {
+export class GithubStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {
     super({
-      clientID: configService.get('oauth.INTRA_CLIENT_ID'),
-      clientSecret: configService.get('oauth.INTRA_CLIENT_SECRET'),
-      callbackURL: configService.get('oauth.INTRA_CALLBACK_URL'),
+      clientID: configService.get('oauth.GITHUB_CLIENT_ID'),
+      clientSecret: configService.get('oauth.GITHUB_CLIENT_SECRET'),
+      callbackURL: configService.get('oauth.GITHUB_CALLBACK_URL'),
     });
   }
 
@@ -28,8 +28,9 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
     profile: any,
     callback: (error: any, user: SessionUser) => void,
   ) {
-    const { username, id: intraId } = profile;
-    const details = { username, intraId };
+    console.log("Profile:", profile);
+    const { username, nodeId } = profile;
+    const details = { username, intraId: nodeId };
     console.log('Validate user:', details);
     const user = await this.authService.validateUser(details);
     callback(null, { id: user.id, twoFactorPassed: !user.twoFactorEnabled });
@@ -37,7 +38,7 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
 }
 
 @Injectable()
-export class IntraGuard extends AuthGuard('42') {
+export class GithubGuard extends AuthGuard('github') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const activate = (await super.canActivate(context)) as boolean;
     const request = context.switchToHttp().getRequest();

@@ -3,12 +3,13 @@ import { Server } from "socket.io";
 import { SocketService } from "src/websocket/socket.service";
 import { SocketWithUser } from "src/websocket/websocket.types";
 import { CookieService } from "src/websocket/cookie.service";
+import { StatusService } from "./status.service";
 
 /*
 Responsibilities:
   - Friend requests
   - User status change
-  - Blocked users (can be chatromo)
+  - Blocked users (can be chatroom)
 */
 
 @WebSocketGateway({
@@ -22,6 +23,7 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   constructor(
     private socketService: SocketService,
     private cookieService: CookieService,
+    private statusService: StatusService,
   ) {}
 
   afterInit(server: Server) {
@@ -38,6 +40,7 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
       return;
     }
     this.socketService.addSocket(client.user.id, "status", client);
+    this.statusService.updateUserState(client.user.id, "ONLINE");
   }
 
   handleDisconnect(client: SocketWithUser) {
@@ -45,5 +48,6 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
       return;
     }
     this.socketService.deleteSocket(client.user.id);
+    this.statusService.updateUserState(client.user.id, "OFFLINE");
   }
 }

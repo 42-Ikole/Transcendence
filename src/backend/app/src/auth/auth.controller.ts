@@ -6,6 +6,7 @@ import { RequestWithUser, AuthenticatedState } from './auth.types';
 import { OAuthGuard } from 'src/2FA/oauth.guard';
 import { AuthenticatedGuard } from './auth.guard';
 import { ConfigService } from '@nestjs/config';
+import { GithubGuard } from "./github.guard";
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -18,6 +19,22 @@ export class AuthController {
   async login(@Res() res: Response) {
     res.redirect(this.configService.get('oauth.REDIRECT_URL'));
   }
+
+  @ApiOperation({ summary: "This endpoint redirects the user to github to login.'"})
+  @Get('loginx/github')
+  @UseGuards(GithubGuard)
+  async loginGithub(@Res() res: Response) {
+    console.log("redirecting...");
+    res.redirect(this.configService.get('oath.REDIRECT_URL'));
+  }
+  
+  @Get('login/github')
+  @UseGuards(GithubGuard)
+  async loginGithub2(@Res() res: Response) {
+    console.log("redirecting...");
+    res.redirect(this.configService.get('oath.REDIRECT_URL'));
+  }
+  
 
   @ApiOperation({
     summary:

@@ -81,6 +81,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.pongService.reconnectUser(client);
     client.join(client.gameRoom);
     client.emit('startGame');
+    this.statusService.updateUserState(client.user.id, "PLAYING");
   }
 
   handleDisconnect(client: SocketWithUser) {
@@ -116,6 +117,9 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   endGame(roomName: string) {
     console.log('game ended:', roomName);
+    const gameRoom = this.pongService.getGameRoom(roomName);
+    this.statusService.updateUserState(gameRoom.playerOne.userId, "ONLINE");
+    this.statusService.updateUserState(gameRoom.playerTwo.userId, "ONLINE");
     this.addMatchHistory(roomName);
     this.deleteGame(roomName);
   }
@@ -185,6 +189,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   @SubscribeMessage('rejectChallenge')
   rejectChallenge(@ConnectedSocket() client: SocketWithUser) {
+    this.statusService.updateUserState(client.user.id, "ONLINE");
     if (this.pongService.hasChallenger(client)) {
       this.sendChallengeRejection(this.pongService.getChallenger(client));
     }
@@ -192,6 +197,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   sendChallengeRejection(challenger: SocketWithUser) {
     challenger.emit('rejectChallenge');
+    this.statusService.updateUserState(challenger.user.id, "ONLINE");
   }
 
   // Check if there is another client ready to play, otherwise set client as waiting/searching
@@ -199,6 +205,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     if (!this.pongService.canMatch(client)) {
       console.log(client.user.username, 'is searching');
       this.pongService.enterMatchmakingQueue(client);
+      this.statusService.updateUserState(client.user.id, "SEARCHING");
       return;
     }
     const matchedUser = this.pongService.getMatch(client);
@@ -226,6 +233,8 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       return;
     }
     this.pongService.addChallenger(client, target);
+    this.statusService.updateUserState(client.user.id, "SEARCHING");
+    this.statusService.updateUserState(target.user.id, "CHALLENGED");
     target.emit('requestChallenge', { source: client.user });
   }
 
@@ -319,6 +328,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     }
     this.pongService.observe(client, roomName);
     client.join(roomName);
+    this.statusService.updateUserState(client.user.id, "OBSERVING");
     client.emit('observeGame');
   }
 
@@ -326,5 +336,6 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   cancelObserve(client: SocketWithUser) {
     this.pongService.cancelObserve(client);
     client.leave(client.gameRoom);
+    this.statusService.updateUserState(client.user.id, "ONLINE");
   }
 }

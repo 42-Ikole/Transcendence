@@ -4,8 +4,11 @@ export default () => ({
   oauth: {
     INTRA_CLIENT_ID: process.env.INTRA_CLIENT_ID,
     INTRA_CLIENT_SECRET: process.env.INTRA_CLIENT_SECRET,
+    GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+    GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
     REDIRECT_URL: `http://${process.env.DOMAIN_NAME}`, // We redirect to this after OAuth flow
-    CALLBACK_URL: `http://${process.env.DOMAIN_NAME}/api/auth/login`, // OAuth provider redirects to this to finalize authentication
+    INTRA_CALLBACK_URL: `http://${process.env.DOMAIN_NAME}/api/auth/login`, // OAuth provider redirects to this to finalize authentication
+    GITHUB_CALLBACK_URL: `http://${process.env.DOMAIN_NAME}/api/auth/login/github`, // OAuth provider redirects to this to finalize authentication
   },
   cookie: {
     // TODO: make environment variables and random/secret

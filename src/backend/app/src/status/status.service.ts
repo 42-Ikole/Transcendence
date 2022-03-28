@@ -40,4 +40,8 @@ export class StatusService {
             newState: state,
         });
     }
+
+    getStates(): UserStatusMap {
+        return this.userStatus;
+    }
 }
