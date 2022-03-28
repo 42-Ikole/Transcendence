@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Match } from './match.entity';
 import { IsString, IsOptional, IsBoolean } from 'class-validator';
+import { Exclude } from "class-transformer";
 
 //////     //////
 // User Entity //
@@ -34,6 +35,7 @@ export class User {
 
   // Two Factor
   @Column({ nullable: true })
+  @Exclude()
   twoFactorSecret: string;
 
   @Column({ default: false })
