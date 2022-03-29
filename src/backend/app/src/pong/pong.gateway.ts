@@ -23,7 +23,7 @@ import { MatchService } from 'src/match/match.service';
 import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { WsExceptionFilter } from 'src/websocket/websocket.exception.filter';
 import { SocketService } from "../websocket/socket.service";
-import { StatusService } from 'src/status/status.service';
+import { StatusService, UserState } from 'src/status/status.service';
 
 /*
 Endpoints:
@@ -78,7 +78,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   handleReconnect(client: SocketWithUser) {
     this.pongService.reconnectUser(client);
     client.join(client.gameRoom);
-    this.statusService.updateUserState(client.user.id, "PLAYING");
+    this.setStateIfOnline(client.user.id, "PLAYING");
   }
 
   handleDisconnect(client: SocketWithUser) {
@@ -115,8 +115,8 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   endGame(roomName: string) {
     console.log('game ended:', roomName);
     const gameRoom = this.pongService.getGameRoom(roomName);
-    this.statusService.updateUserState(gameRoom.playerOne.userId, "ONLINE");
-    this.statusService.updateUserState(gameRoom.playerTwo.userId, "ONLINE");
+    this.setStateIfOnline(gameRoom.playerOne.userId, "ONLINE");
+    this.setStateIfOnline(gameRoom.playerTwo.userId, "ONLINE");
     this.addMatchHistory(roomName);
     this.deleteGame(roomName);
   }
@@ -179,7 +179,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   acceptChallenge(@ConnectedSocket() client: SocketWithUser) {
     if (!this.pongService.hasChallenger(client)) {
       client.emit("rejectChallenge", "challenger not found");
-      this.statusService.updateUserState(client.user.id, "ONLINE");
+      this.setStateIfOnline(client.user.id, "ONLINE");
     } else {
       this.startNewGame(this.pongService.getChallenger(client), client);
     }
@@ -188,7 +188,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   @SubscribeMessage('rejectChallenge')
   rejectChallenge(@ConnectedSocket() client: SocketWithUser) {
-    this.statusService.updateUserState(client.user.id, "ONLINE");
+    this.setStateIfOnline(client.user.id, "ONLINE");
     if (this.pongService.hasChallenger(client)) {
       this.sendChallengeRejection(this.pongService.getChallenger(client));
     }
@@ -197,7 +197,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   sendChallengeRejection(client: SocketWithUser) {
     client.emit('rejectChallenge', "challenge rejected");
-    this.statusService.updateUserState(client.user.id, "ONLINE");
+    this.setStateIfOnline(client.user.id, "ONLINE");
   }
 
   // Check if there is another client ready to play, otherwise set client as waiting/searching
@@ -205,7 +205,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     if (!this.pongService.canMatch(client)) {
       console.log(client.user.username, 'is searching');
       this.pongService.enterMatchmakingQueue(client);
-      this.statusService.updateUserState(client.user.id, "SEARCHING");
+      this.setStateIfOnline(client.user.id, "SEARCHING");
       return;
     }
     const matchedUser = this.pongService.getMatch(client);
@@ -224,13 +224,13 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     } else if (client.id === target.id) {
       client.emit('exception', 'you challenged yourself');
       return;
-    } else if (target.gameRoom) {
-      client.emit('rejectChallenge', 'target is already playing or observing');
+    } else if (this.statusService.getState(targetId) !== "ONLINE") {
+      client.emit('rejectChallenge', 'target is not available');
       return;
     }
     this.pongService.addChallenger(client, target);
-    this.statusService.updateUserState(client.user.id, "SEARCHING");
-    this.statusService.updateUserState(target.user.id, "CHALLENGED");
+    this.setStateIfOnline(client.user.id, "SEARCHING");
+    this.setStateIfOnline(target.user.id, "CHALLENGED");
     target.emit('requestChallenge', { source: client.user });
   }
 
@@ -241,8 +241,8 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.joinRoom(clientOne, roomName);
     this.joinRoom(clientTwo, roomName);
 
-    this.statusService.updateUserState(clientOne.user.id, "PLAYING");
-    this.statusService.updateUserState(clientTwo.user.id, "PLAYING");
+    this.setStateIfOnline(clientOne.user.id, "PLAYING");
+    this.setStateIfOnline(clientTwo.user.id, "PLAYING");
 
     const gameState = newGameState(clientOne.user.username, clientTwo.user.username);
     const intervalId = this.startGameLoop(roomName, gameState);
@@ -311,12 +311,19 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       return;
     }
     this.pongService.observe(client, roomName);
-    this.statusService.updateUserState(client.user.id, "OBSERVING");
+    this.setStateIfOnline(client.user.id, "OBSERVING");
   }
 
   @SubscribeMessage('cancelObserve')
   cancelObserve(client: SocketWithUser) {
     this.pongService.cancelObserve(client);
-    this.statusService.updateUserState(client.user.id, "ONLINE");
+    this.setStateIfOnline(client.user.id, "ONLINE");
+  }
+
+  setStateIfOnline(id: number, newState: UserState) {
+    console.log("changing state of", id, "from", this.statusService.getState(id), "to", newState);
+    if (this.statusService.getState(id) !== "OFFLINE") {
+      this.statusService.updateUserState(id, newState);
+    }
   }
 }

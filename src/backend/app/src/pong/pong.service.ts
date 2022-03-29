@@ -183,8 +183,11 @@ export class PongService {
   // TODO: remove, should look at "PLAYING" status for playing users
   async getAvailableUsers(): Promise<User[]> {
     const users: User[] = [];
-    for (const id in this.socketService.sockets) {
-      if (!this.socketService.sockets[id].pong.gameRoom) {
+    for (let id in this.socketService.sockets) {
+      if (!this.socketService.userExistsType(parseInt(id), "pong")) {
+        console.log("user doesn't exist on pong socket:", id);
+      }
+      if (!(this.socketService.sockets[id].pong?.gameRoom)) {
         users.push(this.socketService.sockets[id].pong.user);
       }
     }

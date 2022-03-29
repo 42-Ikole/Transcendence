@@ -12,7 +12,7 @@ Why IN MEMORY and not database?
 
 
 // NULL or MISSING === OFFLINE
-type UserState =
+export type UserState =
     "OFFLINE"
   | "ONLINE"
   | "SEARCHING"
@@ -50,7 +50,7 @@ export class StatusService {
     }
 
     getState(userId: number): UserState {
-        if (!this.userStatus) {
+        if (!this.userStatus[userId]) {
             return "OFFLINE";
         }
         return this.userStatus[userId];
