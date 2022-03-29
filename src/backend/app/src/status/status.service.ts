@@ -17,7 +17,8 @@ export type UserState =
   | 'SEARCHING'
   | 'PLAYING'
   | 'OBSERVING'
-  | 'CHALLENGED';
+  | 'CHALLENGED'
+  | "CONNECTION_DENIED";
 
 type UserStatusMap = Record<number, UserState>; // userId -> status
 

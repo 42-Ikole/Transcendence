@@ -39,6 +39,14 @@ export class SocketService {
     delete this.sockets[userId];
   }
 
+  disconnectUser(userId: number) {
+    if (this.userExists(userId)) {
+      this.sockets[userId].pong.disconnect();
+      this.sockets[userId].status.disconnect();
+    }
+    this.deleteSocket(userId);
+  }
+
   userExists(userId: number): boolean {
     return !!this.sockets[userId];
   }
