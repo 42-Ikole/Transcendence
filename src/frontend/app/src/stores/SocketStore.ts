@@ -29,7 +29,7 @@ export const useSocketStore = defineStore("socket", {
       this.initPongSocket();
     },
     initStatusSocket() {
-      this.status = io(STATUS_WS_ADDR, {withCredentials: true});
+      this.status = io(STATUS_WS_ADDR, { withCredentials: true });
       this.status.on("statusUpdate", (update: StatusUpdate) => {
         useUserStore().setState(update.newState);
       });

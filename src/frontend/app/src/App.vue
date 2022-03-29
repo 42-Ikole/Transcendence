@@ -1,5 +1,4 @@
 <template>
-
   <div v-if="connectionDenied">
     <ConnectionDenied />
   </div>
@@ -28,15 +27,15 @@ export default defineComponent({
   components: {
     NavBar,
     RouterView,
-    ConnectionDenied
-},
+    ConnectionDenied,
+  },
   computed: {
     ...mapState(useUserStore, {
-      state: "state"
+      state: "state",
     }),
     connectionDenied() {
       return this.state === "CONNECTION_DENIED";
-    }
+    },
   },
 });
 </script>

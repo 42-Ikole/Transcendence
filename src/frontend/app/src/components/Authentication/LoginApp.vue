@@ -17,18 +17,27 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { loginUser, logoutUser, getUserInfo } from "@/utils/Login";
+import {
+  loginUser,
+  logoutUser,
+  getUserInfo,
+  OAuthProvider,
+} from "@/utils/Login";
 import { mapState } from "pinia";
 import { useUserStore } from "@/stores/UserStore";
 
+interface DataObject {
+  userData: any;
+}
+
 export default defineComponent({
-  data() {
+  data(): DataObject {
     return {
-      userData: "" as any,
+      userData: "",
     };
   },
   methods: {
-    login(type: string) {
+    login(type: OAuthProvider) {
       loginUser(type);
     },
     logout() {
