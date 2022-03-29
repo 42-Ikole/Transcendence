@@ -21,7 +21,7 @@ export async function getUserInfo() {
   return useUserStore().$state;
 }
 
-export async function canMakeConnection(): boolean {
+export async function canMakeConnection(): Promise<boolean> {
   const response = await makeApiCall("/status/can-connect");
   if (!response.ok || (await response.text()) !== "OK") {
     return false;
@@ -37,7 +37,6 @@ export async function checkUserSession() {
   const state: AuthenticatedState = (await response.json()).state;
   const userStore = useUserStore();
   userStore.setAuthState(state);
-  console.log("Frontend State:", state);
   if (state === "AUTHENTICATED") {
     await userStore.login();
   }

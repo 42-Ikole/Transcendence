@@ -43,23 +43,6 @@ export const useSocketStore = defineStore("socket", {
       this.pong.on("exception", (error: string) => {
         console.error("Received Exception:", error);
       });
-      this.pong.on("startGame", () => {
-        useUserStore().setState("PLAYING");
-      });
-      this.pong.on("endGame", () => {
-        useUserStore().setState("ONLINE");
-      });
-      this.pong.on("observeGame", () => {
-        useUserStore().setState("OBSERVING");
-      });
-      this.pong.on("requestChallenge", (user: any) => {
-        console.log("challenge received from:", user.username);
-        useUserStore().setState("CHALLENGED");
-      });
-      this.pong.on("rejectChallenge", () => {
-        console.log("challenge got rejected");
-        useUserStore().setState("ONLINE");
-      });
     },
     disconnectSockets() {
       if (this.pong) {

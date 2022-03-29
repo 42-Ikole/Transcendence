@@ -47,6 +47,7 @@ export const useUserStore = defineStore("user", {
       this.state = state;
     },
     setAuthState(state: AuthenticatedState) {
+      console.log("New Auth State:", state);
       this.authenticatedState = state;
     },
     setTwoFactor() {
@@ -59,7 +60,7 @@ export const useUserStore = defineStore("user", {
         this.setState("CONNECTION_DENIED");
         return;
       }
-      this.state = "ONLINE";
+      this.setState("ONLINE");
       useSocketStore().init();
       await this.refreshUserData();
     },
@@ -67,7 +68,8 @@ export const useUserStore = defineStore("user", {
       this.profileData = await initUserData();
     },
     logout() {
-      this.authenticatedState = "OAUTH";
+      this.setAuthState("OAUTH");
+      this.setState("OFFLINE");
       this.profileData = null;
       useSocketStore().disconnectSockets();
     },

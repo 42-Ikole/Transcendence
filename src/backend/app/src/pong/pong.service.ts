@@ -8,12 +8,14 @@ import { UserService } from 'src/user/user.service';
 import { CookieService } from 'src/websocket/cookie.service';
 import { User } from 'src/orm/entities/user.entity';
 import { SocketService } from 'src/websocket/socket.service';
+import { StatusService } from 'src/status/status.service';
 
 @Injectable()
 export class PongService {
   constructor(
     private cookieService: CookieService,
     private socketService: SocketService,
+    private statusService: StatusService,
   ) {}
 
   private waitingUser: SocketWithUser | null = null;
@@ -127,6 +129,7 @@ export class PongService {
 
   clearObservers(gameRoom: GameRoom) {
     gameRoom.observers.forEach((id) => {
+      this.statusService.updateUserState(this.sockets[id].user.id, "ONLINE");
       this.sockets[id].gameRoom = null;
     });
   }
