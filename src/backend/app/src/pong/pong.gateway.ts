@@ -9,8 +9,12 @@ import {
   OnGatewayInit,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { ObserveGameDto, RequestMatchDto, SocketWithUser } from '../websocket/websocket.types';
-import { GameRoom, GameState } from './pong.types';
+import {
+  ObserveGameDto,
+  RequestMatchDto,
+  SocketWithUser,
+} from '../websocket/websocket.types';
+import { GameState } from './pong.types';
 import {
   gameHasEnded,
   movePlayer,
@@ -22,7 +26,7 @@ import { UserService } from 'src/user/user.service';
 import { MatchService } from 'src/match/match.service';
 import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { WsExceptionFilter } from 'src/websocket/websocket.exception.filter';
-import { SocketService } from "../websocket/socket.service";
+import { SocketService } from '../websocket/socket.service';
 import { StatusService, UserState } from 'src/status/status.service';
 
 /*
@@ -44,7 +48,9 @@ Emits:
   },
 })
 @UseFilters(WsExceptionFilter)
-export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class PongGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   constructor(
     private pongService: PongService,
     private userService: UserService,
@@ -63,7 +69,10 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     client.user = await this.pongService.userFromCookie(
       client.handshake.headers.cookie,
     );
-    if (!client.user || this.socketService.userExistsType(client.user.id, "pong")) {
+    if (
+      !client.user ||
+      this.socketService.userExistsType(client.user.id, 'pong')
+    ) {
       console.log('/pong connection denied:', client.id);
       client.disconnect();
       return;
@@ -78,7 +87,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   handleReconnect(client: SocketWithUser) {
     this.pongService.reconnectUser(client);
     client.join(client.gameRoom);
-    this.setStateIfOnline(client.user.id, "PLAYING");
+    this.setStateIfOnline(client.user.id, 'PLAYING');
   }
 
   handleDisconnect(client: SocketWithUser) {
@@ -115,8 +124,8 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   endGame(roomName: string) {
     console.log('game ended:', roomName);
     const gameRoom = this.pongService.getGameRoom(roomName);
-    this.setStateIfOnline(gameRoom.playerOne.userId, "ONLINE");
-    this.setStateIfOnline(gameRoom.playerTwo.userId, "ONLINE");
+    this.setStateIfOnline(gameRoom.playerOne.userId, 'ONLINE');
+    this.setStateIfOnline(gameRoom.playerTwo.userId, 'ONLINE');
     this.addMatchHistory(roomName);
     this.deleteGame(roomName);
   }
@@ -178,8 +187,8 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('acceptChallenge')
   acceptChallenge(@ConnectedSocket() client: SocketWithUser) {
     if (!this.pongService.hasChallenger(client)) {
-      client.emit("rejectChallenge", "challenger not found");
-      this.setStateIfOnline(client.user.id, "ONLINE");
+      client.emit('rejectChallenge', 'challenger not found');
+      this.setStateIfOnline(client.user.id, 'ONLINE');
     } else {
       this.startNewGame(this.pongService.getChallenger(client), client);
     }
@@ -188,7 +197,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   @SubscribeMessage('rejectChallenge')
   rejectChallenge(@ConnectedSocket() client: SocketWithUser) {
-    this.setStateIfOnline(client.user.id, "ONLINE");
+    this.setStateIfOnline(client.user.id, 'ONLINE');
     if (this.pongService.hasChallenger(client)) {
       this.sendChallengeRejection(this.pongService.getChallenger(client));
     }
@@ -196,19 +205,19 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   sendChallengeRejection(client: SocketWithUser) {
-    client.emit('rejectChallenge', "challenge rejected");
-    this.setStateIfOnline(client.user.id, "ONLINE");
+    client.emit('rejectChallenge', 'challenge rejected');
+    this.setStateIfOnline(client.user.id, 'ONLINE');
   }
 
   // Check if there is another client ready to play, otherwise set client as waiting/searching
   matchMaking(client: SocketWithUser) {
-    if (!this.pongService.canMatch(client)) {
+    if (!this.pongService.canMatch()) {
       console.log(client.user.username, 'is searching');
       this.pongService.enterMatchmakingQueue(client);
-      this.setStateIfOnline(client.user.id, "SEARCHING");
+      this.setStateIfOnline(client.user.id, 'SEARCHING');
       return;
     }
-    const matchedUser = this.pongService.getMatch(client);
+    const matchedUser = this.pongService.getMatch();
     if (matchedUser.id === client.id) {
       console.error('client matched with itself');
       return;
@@ -224,13 +233,13 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     } else if (client.id === target.id) {
       client.emit('exception', 'you challenged yourself');
       return;
-    } else if (this.statusService.getState(targetId) !== "ONLINE") {
+    } else if (this.statusService.getState(targetId) !== 'ONLINE') {
       client.emit('rejectChallenge', 'target is not available');
       return;
     }
     this.pongService.addChallenger(client, target);
-    this.setStateIfOnline(client.user.id, "SEARCHING");
-    this.setStateIfOnline(target.user.id, "CHALLENGED");
+    this.setStateIfOnline(client.user.id, 'SEARCHING');
+    this.setStateIfOnline(target.user.id, 'CHALLENGED');
     target.emit('requestChallenge', { source: client.user });
   }
 
@@ -241,10 +250,13 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.joinRoom(clientOne, roomName);
     this.joinRoom(clientTwo, roomName);
 
-    this.setStateIfOnline(clientOne.user.id, "PLAYING");
-    this.setStateIfOnline(clientTwo.user.id, "PLAYING");
+    this.setStateIfOnline(clientOne.user.id, 'PLAYING');
+    this.setStateIfOnline(clientTwo.user.id, 'PLAYING');
 
-    const gameState = newGameState(clientOne.user.username, clientTwo.user.username);
+    const gameState = newGameState(
+      clientOne.user.username,
+      clientTwo.user.username,
+    );
     const intervalId = this.startGameLoop(roomName, gameState);
     this.pongService.addGameRoom(roomName, {
       intervalId,
@@ -272,7 +284,9 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       if (gameHasEnded(gameState)) {
         this.endGame(roomName);
       } else {
-        this.socketService.pongServer.to(roomName).emit('updatePosition', gameState);
+        this.socketService.pongServer
+          .to(roomName)
+          .emit('updatePosition', gameState);
       }
     }, 1000 / 60);
     return intervalId;
@@ -297,10 +311,10 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('requestObserve')
   observe(client: SocketWithUser, observeDto: ObserveGameDto) {
     let roomName: string;
-    console.log("Dto:", observeDto);
+    console.log('Dto:', observeDto);
     if (observeDto.roomName) {
       roomName = observeDto.roomName;
-    } else if (!this.socketService.userExistsType(observeDto.userId, "pong")) {
+    } else if (!this.socketService.userExistsType(observeDto.userId, 'pong')) {
       client.emit('exception', 'Observe: requested user not found');
       return;
     } else {
@@ -311,18 +325,25 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       return;
     }
     this.pongService.observe(client, roomName);
-    this.setStateIfOnline(client.user.id, "OBSERVING");
+    this.setStateIfOnline(client.user.id, 'OBSERVING');
   }
 
   @SubscribeMessage('cancelObserve')
   cancelObserve(client: SocketWithUser) {
     this.pongService.cancelObserve(client);
-    this.setStateIfOnline(client.user.id, "ONLINE");
+    this.setStateIfOnline(client.user.id, 'ONLINE');
   }
 
   setStateIfOnline(id: number, newState: UserState) {
-    console.log("changing state of", id, "from", this.statusService.getState(id), "to", newState);
-    if (this.statusService.getState(id) !== "OFFLINE") {
+    console.log(
+      'changing state of',
+      id,
+      'from',
+      this.statusService.getState(id),
+      'to',
+      newState,
+    );
+    if (this.statusService.getState(id) !== 'OFFLINE') {
       this.statusService.updateUserState(id, newState);
     }
   }

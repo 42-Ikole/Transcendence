@@ -15,7 +15,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy) {
       clientID: configService.get('oauth.discord.CLIENT_ID'),
       clientSecret: configService.get('oauth.discord.CLIENT_SECRET'),
       callbackURL: configService.get('oauth.discord.CALLBACK_URL'),
-      scope: ["identify"],
+      scope: ['identify'],
     });
   }
 
@@ -30,7 +30,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy) {
     callback: (error: any, user: SessionUser) => void,
   ) {
     const { username, id: intraId } = profile;
-    const details = { username: username + "_discord" , intraId };
+    const details = { username: username + '_discord', intraId };
     console.log('Discord User:', details);
     const user = await this.authService.validateUser(details);
     callback(null, { id: user.id, twoFactorPassed: !user.twoFactorEnabled });

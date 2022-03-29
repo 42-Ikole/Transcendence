@@ -6,7 +6,7 @@ import { RequestWithUser, AuthenticatedState } from './auth.types';
 import { OAuthGuard } from 'src/2FA/oauth.guard';
 import { AuthenticatedGuard } from './auth.guard';
 import { ConfigService } from '@nestjs/config';
-import { GithubGuard } from "./oauth/github.guard";
+import { GithubGuard } from './oauth/github.guard';
 import { DiscordGuard } from './oauth/discord.guard';
 
 @ApiTags('Auth')

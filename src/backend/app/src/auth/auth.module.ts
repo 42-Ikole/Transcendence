@@ -12,6 +12,12 @@ import { DiscordStrategy } from './oauth/discord.guard';
 @Module({
   imports: [HttpModule, UserModule, ConfigModule],
   controllers: [AuthController],
-  providers: [UserSerializer, AuthService, IntraStrategy, GithubStrategy, DiscordStrategy],
+  providers: [
+    UserSerializer,
+    AuthService,
+    IntraStrategy,
+    GithubStrategy,
+    DiscordStrategy,
+  ],
 })
 export class AuthModule {}

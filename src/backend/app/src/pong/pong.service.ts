@@ -1,12 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SocketWithUser } from 'src/websocket/websocket.types';
 import { GameDto, GameRoom } from './pong.types';
-import { Server } from 'socket.io';
-import { SessionUser } from 'src/auth/auth.types';
-import { ConfigService } from '@nestjs/config';
-import { UserService } from 'src/user/user.service';
 import { CookieService } from 'src/websocket/cookie.service';
-import { User } from 'src/orm/entities/user.entity';
 import { SocketService } from 'src/websocket/socket.service';
 import { StatusService } from 'src/status/status.service';
 
@@ -21,10 +16,10 @@ export class PongService {
   private waitingUser: SocketWithUser | null = null;
   private gameRooms: Record<string, GameRoom> = {}; // roomName -> extra room Data
   private disconnectedUsers: Record<number, string> = {}; // userId -> roomName
-  private challengers: Record<number, number> ={}; // challengedUserId -> challengerUserId
+  private challengers: Record<number, number> = {}; // challengedUserId -> challengerUserId
 
   addClient(client: SocketWithUser) {
-    this.socketService.addSocket(client.user.id, "pong", client);
+    this.socketService.addSocket(client.user.id, 'pong', client);
   }
 
   async userFromCookie(cookie: string) {
@@ -81,11 +76,11 @@ export class PongService {
     this.waitingUser = client;
   }
 
-  canMatch(client: SocketWithUser): boolean {
+  canMatch(): boolean {
     return this.waitingUser !== null;
   }
 
-  getMatch(client: SocketWithUser) {
+  getMatch() {
     const waiting = this.waitingUser;
     this.waitingUser = null;
     return waiting;
@@ -104,11 +99,13 @@ export class PongService {
     this.deleteDisconnectedUser(this.gameRooms[roomName].playerOne.userId);
     this.deleteDisconnectedUser(this.gameRooms[roomName].playerTwo.userId);
     const gameRoom = this.getGameRoom(roomName);
-    if (this.socketService.userExistsType(gameRoom.playerOne.userId, "pong")) {
-      this.socketService.sockets[gameRoom.playerOne.userId].pong.gameRoom = null;
+    if (this.socketService.userExistsType(gameRoom.playerOne.userId, 'pong')) {
+      this.socketService.sockets[gameRoom.playerOne.userId].pong.gameRoom =
+        null;
     }
-    if (this.socketService.userExistsType(gameRoom.playerTwo.userId, "pong")) {
-      this.socketService.sockets[gameRoom.playerTwo.userId].pong.gameRoom = null;
+    if (this.socketService.userExistsType(gameRoom.playerTwo.userId, 'pong')) {
+      this.socketService.sockets[gameRoom.playerTwo.userId].pong.gameRoom =
+        null;
     }
     this.clearObservers(gameRoom);
     delete this.gameRooms[roomName];
@@ -116,7 +113,7 @@ export class PongService {
 
   clearObservers(gameRoom: GameRoom) {
     gameRoom.observers.forEach((id) => {
-      this.statusService.updateUserState(id, "ONLINE");
+      this.statusService.updateUserState(id, 'ONLINE');
       this.socketService.sockets[id].pong.gameRoom = null;
     });
   }
@@ -196,8 +193,8 @@ export class PongService {
     const challengerId = this.challengers[client.user.id];
     return (
       !!this.challengers[client.user.id] &&
-      !!this.socketService.userExistsType(challengerId, "pong") &&
-      this.statusService.getState(challengerId) === "SEARCHING"
+      !!this.socketService.userExistsType(challengerId, 'pong') &&
+      this.statusService.getState(challengerId) === 'SEARCHING'
     );
   }
 

@@ -1,4 +1,4 @@
-import { IsIn, IsInt, IsNumber, IsOptional, IsString, ValidateIf } from 'class-validator';
+import { IsIn, IsInt, IsNumber, IsString, ValidateIf } from 'class-validator';
 import { Socket } from 'socket.io';
 import { User } from 'src/orm/entities/user.entity';
 

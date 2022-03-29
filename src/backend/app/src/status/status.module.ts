@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { StatusGateway } from "./status.gateway";
+import { StatusGateway } from './status.gateway';
 import { CookieModule } from 'src/websocket/cookie.module';
 import { StatusService } from './status.service';
 import { SocketModule } from 'src/websocket/socket.module';

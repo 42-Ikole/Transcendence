@@ -1,5 +1,5 @@
-import { Controller, Body, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
 import { UserService } from 'src/user/user.service';
 import { PongService } from './pong.service';

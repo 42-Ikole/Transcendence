@@ -40,15 +40,15 @@ export class CookieService {
     private userService: UserService,
   ) {}
 
-    async userFromCookie(cookie: string) {
-      const sessionUser: SessionUser = await decodeCookie(
-        cookie,
-        this.configService,
-      );
-      if (!sessionUser) {
-        return null;
-      }
-      const user = await this.userService.findById(sessionUser.id);
-      return user;  
+  async userFromCookie(cookie: string) {
+    const sessionUser: SessionUser = await decodeCookie(
+      cookie,
+      this.configService,
+    );
+    if (!sessionUser) {
+      return null;
     }
+    const user = await this.userService.findById(sessionUser.id);
+    return user;
+  }
 }

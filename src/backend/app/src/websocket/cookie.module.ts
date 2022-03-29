@@ -5,8 +5,8 @@ import { UserModule } from 'src/user/user.module';
 
 @Global()
 @Module({
- imports: [ConfigModule, UserModule],
- providers: [CookieService],
- exports: [CookieService],
+  imports: [ConfigModule, UserModule],
+  providers: [CookieService],
+  exports: [CookieService],
 })
 export class CookieModule {}
