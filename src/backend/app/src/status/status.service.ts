@@ -48,4 +48,11 @@ export class StatusService {
     getStates(): UserStatusMap {
         return this.userStatus;
     }
+
+    getState(userId: number): UserState {
+        if (!this.userStatus) {
+            return "OFFLINE";
+        }
+        return this.userStatus[userId];
+    }
 }

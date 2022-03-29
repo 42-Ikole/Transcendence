@@ -9,7 +9,7 @@ import {
   OnGatewayInit,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { RequestMatchDto, SocketWithUser } from '../websocket/websocket.types';
+import { ObserveGameDto, RequestMatchDto, SocketWithUser } from '../websocket/websocket.types';
 import { GameRoom, GameState } from './pong.types';
 import {
   gameHasEnded,
@@ -32,9 +32,7 @@ Endpoints:
   `requestObserve`
   `cancelObserve`
 Emits:
-  `startGame`
   `endGame`
-  `observeGame`
   `exception`
 */
 
@@ -66,7 +64,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       client.handshake.headers.cookie,
     );
     if (!client.user || this.socketService.userExistsType(client.user.id, "pong")) {
-      console.log('/pong connection denied::', client.id);
+      console.log('/pong connection denied:', client.id);
       client.disconnect();
       return;
     }
@@ -80,7 +78,6 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   handleReconnect(client: SocketWithUser) {
     this.pongService.reconnectUser(client);
     client.join(client.gameRoom);
-    client.emit('startGame');
     this.statusService.updateUserState(client.user.id, "PLAYING");
   }
 
@@ -181,10 +178,12 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('acceptChallenge')
   acceptChallenge(@ConnectedSocket() client: SocketWithUser) {
     if (!this.pongService.hasChallenger(client)) {
-      this.sendChallengeRejection(client);
-      return;
+      client.emit("rejectChallenge", "challenger not found");
+      this.statusService.updateUserState(client.user.id, "ONLINE");
+    } else {
+      this.startNewGame(this.pongService.getChallenger(client), client);
     }
-    this.startNewGame(this.pongService.getChallenger(client), client);
+    this.pongService.deleteChallenger(client);
   }
 
   @SubscribeMessage('rejectChallenge')
@@ -193,11 +192,12 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     if (this.pongService.hasChallenger(client)) {
       this.sendChallengeRejection(this.pongService.getChallenger(client));
     }
+    this.pongService.deleteChallenger(client);
   }
 
-  sendChallengeRejection(challenger: SocketWithUser) {
-    challenger.emit('rejectChallenge');
-    this.statusService.updateUserState(challenger.user.id, "ONLINE");
+  sendChallengeRejection(client: SocketWithUser) {
+    client.emit('rejectChallenge', "challenge rejected");
+    this.statusService.updateUserState(client.user.id, "ONLINE");
   }
 
   // Check if there is another client ready to play, otherwise set client as waiting/searching
@@ -213,8 +213,6 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       console.error('client matched with itself');
       return;
     }
-    // TODO: disallow a user to play against themselves, for now it is useful for testing
-    // User shouldn't be able to search while they are already searching on a different machine
     this.startNewGame(matchedUser, client);
   }
 
@@ -223,13 +221,11 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     if (!target) {
       client.emit('exception', 'could not find target with id:', targetId);
       return;
-    }
-    if (client.id === target.id) {
+    } else if (client.id === target.id) {
       client.emit('exception', 'you challenged yourself');
       return;
-    }
-    if (target.gameRoom) {
-      client.emit('exception', 'target is already playing or observing');
+    } else if (target.gameRoom) {
+      client.emit('rejectChallenge', 'target is already playing or observing');
       return;
     }
     this.pongService.addChallenger(client, target);
@@ -239,54 +235,30 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   // Create a new unique room for these clients to play in
-  // Signal to the clients that they can play
-  // Add the game to a record (map) of games being played
+  // Set client's state to PLAYING
   async startNewGame(clientOne: SocketWithUser, clientTwo: SocketWithUser) {
-    if (clientOne.user.id === clientTwo.user.id) {
-      clientOne.emit('exception', 'WARNING: you are playing with yourself');
-      clientTwo.emit('exception', 'WARNING: you are playing with yourself');
-    }
     const roomName = this.pongService.generateRoomName();
-  
-    console.log(
-      clientOne.user.username,
-      'vs',
-      clientTwo.user.username,
-      'in',
-      roomName,
-    );
-
     this.joinRoom(clientOne, roomName);
     this.joinRoom(clientTwo, roomName);
+
     this.statusService.updateUserState(clientOne.user.id, "PLAYING");
     this.statusService.updateUserState(clientTwo.user.id, "PLAYING");
-    this.socketService.pongServer.to(roomName).emit('startGame');
-    const gameState = await this.createNewGame(
-      clientOne.user.id,
-      clientTwo.user.id,
-    );
+
+    const gameState = newGameState(clientOne.user.username, clientTwo.user.username);
     const intervalId = this.startGameLoop(roomName, gameState);
     this.pongService.addGameRoom(roomName, {
       intervalId,
       playerOne: {
-        socketId: clientOne.id,
         userId: clientOne.user.id,
         disconnected: false,
       },
       playerTwo: {
-        socketId: clientTwo.id,
         userId: clientTwo.user.id,
         disconnected: false,
       },
-      observers: new Set<string>(),
+      observers: new Set<number>(),
       gameState,
     });
-  }
-
-  async createNewGame(p1: number, p2: number) {
-    const userOne = await this.userService.findById(p1);
-    const userTwo = await this.userService.findById(p2);
-    return newGameState(userOne.username, userTwo.username);
   }
 
   joinRoom(client: SocketWithUser, roomName: string) {
@@ -312,30 +284,39 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     if (!gameRoom) {
       return;
     }
-    if (client.id === gameRoom.playerOne.socketId) {
+    if (client.user.id === gameRoom.playerOne.userId) {
       movePlayer(gameRoom.gameState.playerOne.bar, data);
-    } else if (client.id === gameRoom.playerTwo.socketId) {
+    } else if (client.user.id === gameRoom.playerTwo.userId) {
       movePlayer(gameRoom.gameState.playerTwo.bar, data);
     }
   }
 
-  // TODO: validation pipe
+  /*
+  DTO: userId of user who is playing a game OR roomName of name of room to join
+  */
   @SubscribeMessage('requestObserve')
-  observe(client: SocketWithUser, roomName: string) {
+  observe(client: SocketWithUser, observeDto: ObserveGameDto) {
+    let roomName: string;
+    console.log("Dto:", observeDto);
+    if (observeDto.roomName) {
+      roomName = observeDto.roomName;
+    } else if (!this.socketService.userExistsType(observeDto.userId, "pong")) {
+      client.emit('exception', 'Observe: requested user not found');
+      return;
+    } else {
+      roomName = this.socketService.sockets[observeDto.userId].pong.gameRoom;
+    }
     if (!roomName || !this.pongService.gameExists(roomName)) {
-      client.emit('exception', 'observe failed');
+      client.emit('exception', 'requested room is not an active game');
       return;
     }
     this.pongService.observe(client, roomName);
-    client.join(roomName);
     this.statusService.updateUserState(client.user.id, "OBSERVING");
-    client.emit('observeGame');
   }
 
   @SubscribeMessage('cancelObserve')
   cancelObserve(client: SocketWithUser) {
     this.pongService.cancelObserve(client);
-    client.leave(client.gameRoom);
     this.statusService.updateUserState(client.user.id, "ONLINE");
   }
 }

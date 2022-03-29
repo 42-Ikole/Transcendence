@@ -30,7 +30,6 @@ export interface GameState {
 }
 
 interface PongUser {
-  socketId: string;
   userId: number;
   disconnected: boolean;
 }
@@ -44,6 +43,6 @@ export interface GameRoom {
   intervalId: NodeJS.Timer;
   playerOne: PongUser;
   playerTwo: PongUser;
-  observers: Set<string>; // set of socketIds
+  observers: Set<number>; // set of userIds
   gameState: GameState;
 }
