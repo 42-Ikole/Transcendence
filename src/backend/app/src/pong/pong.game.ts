@@ -6,6 +6,7 @@ So position `x = 0.5` is half of the screen/game width in the frontend.
 */
 
 // TODO: add BALL acceleration and key input (like space) for some special move
+//
 const BALL_SPEED = 0.01;
 const PLAYER_SPEED = 0.01;
 
@@ -16,12 +17,11 @@ function newBall(): Ball {
       y: 0.5,
     },
     direction: {
-      // TODO: randomize start direction
-      x: -1,
+      x: Math.random() < 0.5 ? -1 : 1,
       y: 0,
     },
     radius: 0.015,
-  };
+  };        
 }
 
 function newPlayer(username: string): Player {
@@ -61,14 +61,23 @@ function resetGameState(state: GameState) {
 }
 
 // directions[0] === ArrowUpDown, directions[1] === ArrowDownDown
-// TODO: change to two-tuple (typescript)
-export function movePlayer(bar: PongBar, directions: boolean[]) {
-  if (directions[0]) {
+export function movePlayer(bar: PongBar, directions: Set<string>) {
+  if ( directions.has('ArrowUp') === true || directions.has('w') === true){
     bar.position.y -= PLAYER_SPEED;
-  }
-  if (directions[1]) {
+  } if (directions.has('ArrowDown') === true || directions.has('s') === true) {
     bar.position.y += PLAYER_SPEED;
   }
+
+
+  // if (directions[0]) {
+  //   bar.position.y -= PLAYER_SPEED;
+  // }
+  // if (directions[1]) {
+  //   bar.position.y += PLAYER_SPEED;
+  // }
+
+
+
   // so that the bar doesn't go beyond the edge (top/bottom)
   if (bar.position.y > 1 - bar.height) {
     bar.position.y = 1 - bar.height;
@@ -102,6 +111,18 @@ function ballBarIntersection(ball: Ball, bar: PongBar): boolean {
   );
 }
 
+function ballBarDirection(ball: Ball, bar: PongBar)
+{
+  ball.direction.x *= -1;
+  let offset = ball.position.y - bar.position.y - (bar.height/2);
+  ball.direction.y += (offset / (bar.height / 2) * 1.2) / 2;
+  if (bar.height > 0.05){
+    bar.height -= 0.005;
+    bar.position.y += 0.0025;
+  }
+}
+
+
 function updateBallPosition(state: GameState) {
   state.ball.position.x += state.ball.direction.x * BALL_SPEED;
   state.ball.position.y += state.ball.direction.y * BALL_SPEED;
@@ -109,11 +130,12 @@ function updateBallPosition(state: GameState) {
     state.ball.direction.y *= -1;
   }
   if (
-    ballBarIntersection(state.ball, state.playerOne.bar) ||
-    ballBarIntersection(state.ball, state.playerTwo.bar)
-  ) {
+    ballBarIntersection(state.ball, state.playerOne.bar)) {
     // TODO: get the correct new direction
-    state.ball.direction.x *= -1;
+      ballBarDirection(state.ball, state.playerOne.bar);
+    } else if(ballBarIntersection(state.ball, state.playerTwo.bar)){
+      ballBarDirection(state.ball, state.playerTwo.bar);
+      
   }
 }
 
