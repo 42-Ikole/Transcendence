@@ -95,10 +95,6 @@ function handleRoundEnd(state: GameState) {
   } else if (state.ball.position.x >= 1) {
     state.playerOne.score += 1;
   }
-  // is this necessary? It is also handled in the gameloop
-  if (gameHasEnded(state)) {
-    return true;
-  }
   resetGameState(state);
 }
 
@@ -134,7 +130,10 @@ function updateBallPosition(state: GameState) {
 }
 
 export function gameHasEnded(state: GameState): boolean {
-  return state.playerOne.score === 3 || state.playerTwo.score === 3;
+  return (
+    (state.playerOne.score >= 11 || state.playerTwo.score >= 11)
+    && Math.abs(state.playerOne.score - state.playerTwo.score) > 1
+  )
 }
 
 export function updateGamestate(state: GameState): GameState {
