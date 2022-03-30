@@ -2,10 +2,12 @@ import { defineStore } from "pinia";
 import { useSocketStore } from "./SocketStore";
 import type { UserProfileData } from "@/types/UserType";
 import makeApiCall from "@/utils/ApiCall";
+import { canMakeConnection } from "@/utils/Login";
 
 export type UserState =
   | "OFFLINE"
   | "ONLINE"
+  | "CONNECTION_DENIED"
   | "SEARCHING"
   | "PLAYING"
   | "OBSERVING"
@@ -45,21 +47,30 @@ export const useUserStore = defineStore("user", {
       this.state = state;
     },
     setAuthState(state: AuthenticatedState) {
+      console.log("New Auth State:", state);
       this.authenticatedState = state;
     },
     setTwoFactor() {
       this.authenticatedState = "2FA";
     },
-    login() {
+    async login() {
       this.authenticatedState = "AUTHENTICATED";
-      this.state = "ONLINE";
-      useSocketStore().initPongSocket();
+      const canConnect = await canMakeConnection();
+      if (!canConnect) {
+        this.setState("CONNECTION_DENIED");
+        return;
+      }
+      this.setState("ONLINE");
+      useSocketStore().init();
+      await this.refreshUserData();
     },
-    async loadUserData() {
+    async refreshUserData() {
       this.profileData = await initUserData();
     },
     logout() {
-      this.authenticatedState = "OAUTH";
+      this.setAuthState("OAUTH");
+      this.setState("OFFLINE");
+      this.profileData = null;
       useSocketStore().disconnectSockets();
     },
   },

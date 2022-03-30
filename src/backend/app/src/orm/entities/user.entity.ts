@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Match } from './match.entity';
 import { IsString, IsOptional, IsBoolean } from 'class-validator';
-import { Exclude } from "class-transformer";
+import { Exclude } from 'class-transformer';
 
 //////     //////
 // User Entity //

@@ -46,7 +46,7 @@ export default defineComponent({
     async observe(game: ActiveGame) {
       const response = await makeApiCall(`/pong/status/${game.name}`);
       if (response.ok && (await response.text()) === "OK") {
-        useSocketStore().pong!.emit("requestObserve", game.name);
+        useSocketStore().pong!.emit("requestObserve", { roomName: game.name });
       } else {
         await this.refresh();
         // TODO: popup/message: game is already finished
