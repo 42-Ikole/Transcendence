@@ -299,9 +299,9 @@ export class PongGateway
       return;
     }
     if (client.user.id === gameRoom.playerOne.userId) {
-      movePlayer(gameRoom.gameState.playerOne.bar,  Array.from(data));
+      movePlayer(gameRoom.gameState.playerOne.bar, Array.from(data));
     } else if (client.user.id === gameRoom.playerTwo.userId) {
-      movePlayer(gameRoom.gameState.playerTwo.bar,  Array.from(data));
+      movePlayer(gameRoom.gameState.playerTwo.bar, Array.from(data));
     }
   }
 

@@ -20,10 +20,13 @@ function newBall(): Ball {
     direction: {
       x: Math.random() < 0.5 ? -1 : 1,
       // create a offset less than 1 to not only have horizontal starting balls
-      y: Math.random() < 0.5 ? Math.random() * -VERTICAL_FACTOR : Math.random() * VERTICAL_FACTOR,
+      y:
+        Math.random() < 0.5
+          ? Math.random() * -VERTICAL_FACTOR
+          : Math.random() * VERTICAL_FACTOR,
     },
     radius: 0.015,
-  };        
+  };
 }
 
 function newPlayer(username: string): Player {
@@ -64,12 +67,11 @@ function resetGameState(state: GameState) {
 
 // directions is an array of pressed keys, add functionality
 export function movePlayer(bar: PongBar, directions: Array<string>) {
-
-  for(var item of directions)
-  {
-    if ( item === 'ArrowUp' || item === 'w'){
+  for (const item of directions) {
+    if (item === 'ArrowUp' || item === 'w') {
       bar.position.y -= PLAYER_SPEED;
-    } if (item === 'ArrowDown' || item === 's') {
+    }
+    if (item === 'ArrowDown' || item === 's') {
       bar.position.y += PLAYER_SPEED;
     }
   }
@@ -94,18 +96,17 @@ function handleRoundEnd(state: GameState) {
     state.playerOne.score += 1;
   }
   // is this necessary? It is also handled in the gameloop
-  if (gameHasEnded(state)){
-    return (true);
+  if (gameHasEnded(state)) {
+    return true;
   }
   resetGameState(state);
 }
 
-function ballBarDirection(ball: Ball, bar: PongBar)
-{
+function ballBarDirection(ball: Ball, bar: PongBar) {
   ball.direction.x *= -1;
-  let offset = ball.position.y - bar.position.y - (bar.height/2);
-  ball.direction.y += (offset / (bar.height / 2) * 1.2) / 2;
-  if (bar.height > 0.05){
+  const offset = ball.position.y - bar.position.y - bar.height / 2;
+  ball.direction.y += ((offset / (bar.height / 2)) * 1.2) / 2;
+  if (bar.height > 0.05) {
     bar.height -= 0.005;
     bar.position.y += 0.0025;
   }
@@ -117,7 +118,7 @@ function ballBarIntersection(ball: Ball, bar: PongBar) {
     ball.position.x - ball.radius <= bar.position.x + bar.width &&
     ball.position.y + ball.radius >= bar.position.y &&
     ball.position.y - ball.radius <= bar.position.y + bar.height
-  ){
+  ) {
     ballBarDirection(ball, bar);
   }
 }
@@ -128,8 +129,8 @@ function updateBallPosition(state: GameState) {
   if (state.ball.position.y <= 0 || state.ball.position.y >= 1) {
     state.ball.direction.y *= -1;
   }
-  ballBarIntersection(state.ball, state.playerOne.bar)
-  ballBarIntersection(state.ball, state.playerTwo.bar)
+  ballBarIntersection(state.ball, state.playerOne.bar);
+  ballBarIntersection(state.ball, state.playerTwo.bar);
 }
 
 export function gameHasEnded(state: GameState): boolean {
