@@ -1,30 +1,15 @@
 <template>
 	<div v-if="isNotJoined">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
-		<form class="conv_joining" @submit.prevent="joinChat">
-			<h3>Joining a chat room.</h3>
-			<div id="chosing_type">
-				<div class="one_elem">
-					<input type="radio" value="public" v-model="type" />
-					<label for="public">Public</label>
-				</div>
-				<div class="one_elem">
-					<input type="radio" value="protected" v-model="type" />
-					<label for="protected">Protected</label>
-				</div>
-			</div>
-			<div>
-				Room name: <input class="input_name" placeholder="Type here" type="text" v-model="name" />
-			</div>
-			<div v-if="type === 'protected'">
+		<form class="card card-body" @submit.prevent="joinChat">
+			<div v-if="chat.type === 'protected'">
 				Room password:
-					<input v-if="showPassword" class="input_pass" placeholder="Password" type="text" v-model="pass" />
-					<input v-else class="input_pass" placeholder="Password" type="password" v-model="pass" />
-				<button class="button" type="button" @click="toggleShowPassword">
+				<input class="input_pass" placeholder="Password" :type="passwordVisibility" v-model="typedPassword" />
+				<button class="button" type="button" @click="toggleShowPassword" >
 					<i class="fas" :class="{ 'fa-eye-slash': showPassword, 'fa-eye': !showPassword }"></i>
 				</button>
 			</div>
-			<input v-bind:disabled="invalidRoomInput === true" type="submit" value="Join" />
+			<input type="submit" value="Join" />
 		</form>
 	</div>
 	<div v-else-if="isJoined">
@@ -36,6 +21,7 @@
 
 import Chatroom from './Chatroom.vue';
 import { defineComponent } from 'vue';
+import { Chat } from './Chatrooms.types.ts';
 
 enum Room {
 	NOTJOINED,
@@ -43,40 +29,34 @@ enum Room {
 }
 
 interface DataObject {
-	type: string;
-	name: string;
-	pass: string;
+	typedPassword: string;
 	showPassword: boolean;
 	room: Room;
 }
 
 export default defineComponent({
+	props: {
+		chat: {
+			type: Object as PropType<Chat>,
+			required: true,
+		},
+	},
 	data(): DataObject {
 		return {
-			type: '',
-			name: '',
-			pass: '',
+			typedPassword: '',
 			showPassword: false,
 			room: Room.NOTJOINED,
-		};
+		}
 	},
 	methods: {
 		async joinChat() {
-			if (this.name === '' || (this.type === 'protected' && this.pass === '')) {
-				return ;
+			if (this.typedPassword === this.chat.password) {
+				this.room = Room.JOINED;
 			}
-			// checken of de room bestaat.
-			this.room = Room.JOINED;
+			alert('Wrong password bitches');
 		},
 		toggleShowPassword() {
-			this.showPassword = !this.showPassword
-		},
-	},
-	watch: {
-		type(newType, oldType) {
-			if (oldType !== 'protected') {
-				this.pass = '';
-			}
+			this.showPassword = !this.showPassword;
 		},
 	},
 	computed: {
@@ -86,47 +66,12 @@ export default defineComponent({
 		isJoined() {
 			return this.room === Room.JOINED;
 		},
-		invalidRoomInput() {
-			if (this.type === '' || this.name === '' || (this.type === 'protected' && this.pass === '')) {
-				return true;
-			}
-			return false;
+		passwordVisibility() {
+			return this.showPassword ? 'text' : 'password';
 		},
 	},
 	components: {
 		Chatroom,
 	}
 })
-
 </script>
-
-<style scoped>
-
-	.conv_joining {
-		width: 380px;
-		height: 200px;
-		padding: 0px 10px;
-		margin: auto;
-		border: 2.5px solid #000044;
-		text-align: left;
-	}
-
-	#chosing_type {
-		display: flex;
-	}
-
-	.one_elem {
-		flex-direction: column;
-		margin: 5px 0px;
-		margin-right: 15px;
-	}
-
-	.input_name {
-		margin: 5px 0px;
-	}
-
-	.input_pass {
-		margin: 5px 0px;
-	}
-	
-</style>
