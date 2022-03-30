@@ -16,7 +16,6 @@ interface DataObject {
   context: CanvasRenderingContext2D | null;
   playerOneScore: number;
   playerTwoScore: number;
-  // PressedKeys: boolean[];
   PressedKeys: Set<string>;
 }
 
@@ -29,7 +28,6 @@ export default defineComponent({
       context: null,
       playerOneScore: 0,
       playerTwoScore: 0,
-      // PressedKeys: [false, false],
       PressedKeys: new Set<string>(),
     };
   },
@@ -88,20 +86,10 @@ export default defineComponent({
 
     keyDown(data: any) {
       this.PressedKeys.add(data.key);
-      // if (data.key === "ArrowUp" || data.key === "w") {
-      //   this.PressedKeys[0] = true;
-      // } else if (data.key === "ArrowDown" || data.key === "s") {
-      //   this.PressedKeys[1] = true;
-      // }
     },
 
     keyUp(data: any) {
       this.PressedKeys.delete(data.key);
-      // if (data.key === "ArrowUp" || data.key === "w") {
-      //   this.PressedKeys[0] = false;
-      // } else if (data.key === "ArrowDown" || data.key === "s") {
-      //   this.PressedKeys[1] = false;
-      // }
     },
 
     clear() {

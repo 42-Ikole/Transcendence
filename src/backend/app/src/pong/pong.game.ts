@@ -9,6 +9,7 @@ So position `x = 0.5` is half of the screen/game width in the frontend.
 //
 const BALL_SPEED = 0.01;
 const PLAYER_SPEED = 0.01;
+const VERTICAL_FACTOR = 0.7;
 
 function newBall(): Ball {
   return {
@@ -18,7 +19,8 @@ function newBall(): Ball {
     },
     direction: {
       x: Math.random() < 0.5 ? -1 : 1,
-      y: 0,
+      // create a offset less than 1 to not only have horizontal starting balls
+      y: Math.random() < 0.5 ? Math.random() * -VERTICAL_FACTOR : Math.random() * VERTICAL_FACTOR,
     },
     radius: 0.015,
   };        
@@ -91,6 +93,7 @@ function handleRoundEnd(state: GameState) {
   } else if (state.ball.position.x >= 1) {
     state.playerOne.score += 1;
   }
+  // is this necessary? It is also handled in the gameloop
   if (gameHasEnded(state)){
     return (true);
   }
@@ -129,7 +132,7 @@ function updateBallPosition(state: GameState) {
   ballBarIntersection(state.ball, state.playerTwo.bar)
 }
 
-export function gameHasEnded(state: GameState) {
+export function gameHasEnded(state: GameState): boolean {
   return state.playerOne.score === 3 || state.playerTwo.score === 3;
 }
 
