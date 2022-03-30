@@ -5,7 +5,7 @@
 
   <div v-else>
     <header>
-      <div v-if="authenticatedState">
+      <div v-if="isAuthenticated">
         <NavBar />
       </div>
     </header>
@@ -48,6 +48,9 @@ export default defineComponent({
     isLoggedIn() {
       return !(this.state === "OAUTH");
     },
+	isAuthenticated() {
+		return this.state === "AUTHENTICATED";
+	},
   },
 });
 </script>
