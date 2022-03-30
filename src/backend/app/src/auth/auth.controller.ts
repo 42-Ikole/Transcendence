@@ -1,21 +1,34 @@
 import { Controller, Delete, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { IntraGuard } from './intra.guard';
+import { IntraGuard } from './oauth/intra.guard';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestWithUser, AuthenticatedState } from './auth.types';
 import { OAuthGuard } from 'src/2FA/oauth.guard';
 import { AuthenticatedGuard } from './auth.guard';
 import { ConfigService } from '@nestjs/config';
+import { GithubGuard } from './oauth/github.guard';
+import { DiscordGuard } from './oauth/discord.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private configService: ConfigService) {}
 
-  @ApiOperation({ summary: 'This endpoint redirects the user to 42 to login.' })
-  @Get('login')
+  @Get('login/intra')
   @UseGuards(IntraGuard)
-  async login(@Res() res: Response) {
+  async loginIntra(@Res() res: Response) {
+    res.redirect(this.configService.get('oauth.REDIRECT_URL'));
+  }
+
+  @Get('login/github')
+  @UseGuards(GithubGuard)
+  async loginGithub(@Res() res: Response) {
+    res.redirect(this.configService.get('oauth.REDIRECT_URL'));
+  }
+
+  @Get('login/discord')
+  @UseGuards(DiscordGuard)
+  async loginDiscord(@Res() res: Response) {
     res.redirect(this.configService.get('oauth.REDIRECT_URL'));
   }
 
