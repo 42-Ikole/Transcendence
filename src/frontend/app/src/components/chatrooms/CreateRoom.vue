@@ -22,8 +22,7 @@
 			</div>
 			<div v-if="type === 'protected'">
 				Room password:
-					<input v-if="showPassword" class="input_pass" placeholder="Password" type="text" v-model="pass" />
-					<input v-else class="input_pass" placeholder="Password" type="password" v-model="pass" />	
+				<input class="input_pass" placeholder="Password" :type="passwordVisibility" v-model="pass" />
 				<button class="button" type="button" @click="toggleShowPassword" >
 					<i class="fas" :class="{ 'fa-eye-slash': showPassword, 'fa-eye': !showPassword }"></i>
 				</button>
@@ -40,7 +39,7 @@
 
 import Chatroom from './Chatroom.vue';
 import { defineComponent } from 'vue';
-import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
+import { makeApiCallJson } from "@/utils/ApiCall";
 
 enum Room {
 	NOTCREATED,
@@ -71,7 +70,9 @@ export default defineComponent({
 				return ;
 			}
 			const response = await makeApiCallJson("/chat", "POST", { type: this.type, name: this.name, password: this.pass });
-			this.room = Room.CREATED;
+			if (response.ok) {
+				this.room = Room.CREATED;
+			}
 		},
 		toggleShowPassword() {
 			this.showPassword = !this.showPassword;
@@ -96,6 +97,9 @@ export default defineComponent({
 				return true;
 			}
 			return false;
+		},
+		passwordVisibility() {
+			return this.showPassword ? 'text' : 'password';
 		},
 	},
 	components: {
