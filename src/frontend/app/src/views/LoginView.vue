@@ -18,7 +18,7 @@
 
 					</div>
 					<p class="footnote text-white-50">
-						By the New Coder on the Block
+						By the New Coders on the Block
 					</p>
 				</div>
 			</div>
