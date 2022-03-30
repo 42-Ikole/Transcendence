@@ -16,7 +16,7 @@ interface DataObject {
   context: CanvasRenderingContext2D | null;
   playerOneScore: number;
   playerTwoScore: number;
-  PressedKeys: boolean[];
+  PressedKeys: Set<string>;
 }
 
 export default defineComponent({
@@ -28,7 +28,7 @@ export default defineComponent({
       context: null,
       playerOneScore: 0,
       playerTwoScore: 0,
-      PressedKeys: [false, false],
+      PressedKeys: new Set<string>(),
     };
   },
   computed: {
@@ -44,7 +44,7 @@ export default defineComponent({
   },
   methods: {
     updatePlayer(data: GameState) {
-      this.socket!.emit("movement", this.PressedKeys);
+      this.socket!.emit("movement", Array.from(this.PressedKeys));
       this.updateObserver(data);
     },
 
@@ -85,19 +85,11 @@ export default defineComponent({
     },
 
     keyDown(data: any) {
-      if (data.key === "ArrowUp") {
-        this.PressedKeys[0] = true;
-      } else if (data.key === "ArrowDown") {
-        this.PressedKeys[1] = true;
-      }
+      this.PressedKeys.add(data.key);
     },
 
     keyUp(data: any) {
-      if (data.key === "ArrowUp") {
-        this.PressedKeys[0] = false;
-      } else if (data.key === "ArrowDown") {
-        this.PressedKeys[1] = false;
-      }
+      this.PressedKeys.delete(data.key);
     },
 
     clear() {

@@ -6,8 +6,10 @@ So position `x = 0.5` is half of the screen/game width in the frontend.
 */
 
 // TODO: add BALL acceleration and key input (like space) for some special move
+//
 const BALL_SPEED = 0.01;
 const PLAYER_SPEED = 0.01;
+const VERTICAL_FACTOR = 0.7;
 
 function newBall(): Ball {
   return {
@@ -16,9 +18,12 @@ function newBall(): Ball {
       y: 0.5,
     },
     direction: {
-      // TODO: randomize start direction
-      x: -1,
-      y: 0,
+      x: Math.random() < 0.5 ? -1 : 1,
+      // create a offset less than 1 to not only have horizontal starting balls
+      y:
+        Math.random() < 0.5
+          ? Math.random() * -VERTICAL_FACTOR
+          : Math.random() * VERTICAL_FACTOR,
     },
     radius: 0.015,
   };
@@ -60,14 +65,15 @@ function resetGameState(state: GameState) {
   state.playerTwo.score = scoreTwo;
 }
 
-// directions[0] === ArrowUpDown, directions[1] === ArrowDownDown
-// TODO: change to two-tuple (typescript)
-export function movePlayer(bar: PongBar, directions: boolean[]) {
-  if (directions[0]) {
-    bar.position.y -= PLAYER_SPEED;
-  }
-  if (directions[1]) {
-    bar.position.y += PLAYER_SPEED;
+// directions is an array of pressed keys, add functionality
+export function movePlayer(bar: PongBar, directions: Array<string>) {
+  for (const item of directions) {
+    if (item === 'ArrowUp' || item === 'w') {
+      bar.position.y -= PLAYER_SPEED;
+    }
+    if (item === 'ArrowDown' || item === 's') {
+      bar.position.y += PLAYER_SPEED;
+    }
   }
   // so that the bar doesn't go beyond the edge (top/bottom)
   if (bar.position.y > 1 - bar.height) {
@@ -92,14 +98,25 @@ function handleRoundEnd(state: GameState) {
   resetGameState(state);
 }
 
-function ballBarIntersection(ball: Ball, bar: PongBar): boolean {
-  // TODO: proper intersection, right now it's just a square intersection
-  return (
+function ballBarDirection(ball: Ball, bar: PongBar) {
+  ball.direction.x *= -1;
+  const offset = ball.position.y - bar.position.y - bar.height / 2;
+  ball.direction.y += ((offset / (bar.height / 2)) * 1.2) / 2;
+  if (bar.height > 0.05) {
+    bar.height -= 0.005;
+    bar.position.y += 0.0025;
+  }
+}
+
+function ballBarIntersection(ball: Ball, bar: PongBar) {
+  if (
     ball.position.x + ball.radius >= bar.position.x &&
     ball.position.x - ball.radius <= bar.position.x + bar.width &&
     ball.position.y + ball.radius >= bar.position.y &&
     ball.position.y - ball.radius <= bar.position.y + bar.height
-  );
+  ) {
+    ballBarDirection(ball, bar);
+  }
 }
 
 function updateBallPosition(state: GameState) {
@@ -108,17 +125,15 @@ function updateBallPosition(state: GameState) {
   if (state.ball.position.y <= 0 || state.ball.position.y >= 1) {
     state.ball.direction.y *= -1;
   }
-  if (
-    ballBarIntersection(state.ball, state.playerOne.bar) ||
-    ballBarIntersection(state.ball, state.playerTwo.bar)
-  ) {
-    // TODO: get the correct new direction
-    state.ball.direction.x *= -1;
-  }
+  ballBarIntersection(state.ball, state.playerOne.bar);
+  ballBarIntersection(state.ball, state.playerTwo.bar);
 }
 
-export function gameHasEnded(state: GameState) {
-  return state.playerOne.score === 3 || state.playerTwo.score === 3;
+export function gameHasEnded(state: GameState): boolean {
+  return (
+    (state.playerOne.score >= 11 || state.playerTwo.score >= 11) &&
+    Math.abs(state.playerOne.score - state.playerTwo.score) > 1
+  );
 }
 
 export function updateGamestate(state: GameState): GameState {
