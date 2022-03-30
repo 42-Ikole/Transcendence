@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Match } from './match.entity';
 import { IsString, IsOptional, IsBoolean } from 'class-validator';
+import { Exclude } from 'class-transformer';
 
 //////     //////
 // User Entity //
@@ -20,12 +21,6 @@ export class User {
   @Column({ nullable: true })
   avatar: string;
 
-  @Column({ nullable: true })
-  fullName: string;
-
-  @Column({ nullable: true })
-  email: string;
-
   @OneToMany(() => Match, (match) => match.winner)
   wins: Match[];
 
@@ -34,6 +29,7 @@ export class User {
 
   // Two Factor
   @Column({ nullable: true })
+  @Exclude()
   twoFactorSecret: string;
 
   @Column({ default: false })
@@ -52,14 +48,6 @@ export class PartialUser {
   @IsString()
   @IsOptional()
   avatar?: string;
-
-  @IsString()
-  @IsOptional()
-  fullName?: string;
-
-  @IsString()
-  @IsOptional()
-  email?: string;
 
   @IsString()
   @IsOptional()

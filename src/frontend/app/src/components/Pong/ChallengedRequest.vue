@@ -9,17 +9,14 @@
 
 <script lang="ts">
 import { useSocketStore } from "@/stores/SocketStore";
-import { useUserStore } from "@/stores/UserStore";
 import { defineComponent } from "vue";
 
 export default defineComponent({
   methods: {
     accept() {
-      useUserStore().setState("ONLINE");
       useSocketStore().pong!.emit("acceptChallenge");
     },
     reject() {
-      useUserStore().setState("ONLINE");
       useSocketStore().pong!.emit("rejectChallenge");
     },
   },

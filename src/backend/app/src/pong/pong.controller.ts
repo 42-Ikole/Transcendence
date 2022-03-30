@@ -1,13 +1,17 @@
-import { Controller, Body, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
+import { UserService } from 'src/user/user.service';
 import { PongService } from './pong.service';
 
 @ApiTags('pong')
 @Controller('pong')
 @UseGuards(AuthenticatedGuard)
 export class PongController {
-  constructor(private pongService: PongService) {}
+  constructor(
+    private pongService: PongService,
+    private userService: UserService,
+  ) {}
 
   @Get('games')
   getActiveGames() {
@@ -23,8 +27,9 @@ export class PongController {
     }
   }
 
+  // Remove since user endpoint should be used instead
   @Get('users')
   async getAvailableUsers() {
-    return await this.pongService.getAvailableUsers();
+    return await this.userService.findAll();
   }
 }
