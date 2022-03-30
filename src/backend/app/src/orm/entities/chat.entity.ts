@@ -25,4 +25,7 @@ export class Chat {
     eager: true,
   })
   messages: Message[];
+
+  @Column()
+  type: string;
 }
