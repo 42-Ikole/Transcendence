@@ -12,11 +12,11 @@ relatedUser: the user who received it
 @Entity()
 export class UserRelation {
 	@PrimaryColumn()
-	@ManyToOne(() => User, (user) => user.id, { cascade: true, primary: true })
+	@ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE', cascade: true, primary: true })
 	relatingUserId: number;
 
 	@PrimaryColumn()
-	@ManyToOne(() => User, (user) => user.id, { cascade: true, primary: true })
+	@ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE', cascade: true, primary: true })
 	relatedUserId: number;
 
 	@Column()

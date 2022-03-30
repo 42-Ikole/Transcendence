@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRelation } from 'src/orm/entities/friend.entity';
 import { User } from 'src/orm/entities/user.entity';
+import { StatusService } from 'src/status/status.service';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { UserRelationDto, UserRelationType } from './friend.types';
@@ -11,6 +12,7 @@ export class FriendService {
 	constructor(
 		@InjectRepository(UserRelation) private friendRepository: Repository<UserRelation>,
 		private userService: UserService,
+		private statusService: StatusService,
 	) {}
 
 	createEntity(dto: UserRelationDto) {
@@ -33,6 +35,67 @@ export class FriendService {
 		}
 	}
 
+	async rejectRequest(relatedUserId: number, relatingUserId: number) {
+		const entity = await this.friendRepository.findOne({
+			where: { relatingUserId, relatedUserId, type: "REQUEST" }
+		});
+		console.log("Removing:", entity);
+		this.statusService.emitToUser(entity.relatedUserId, "friendUpdate");
+		this.statusService.emitToUser(entity.relatingUserId, "friendUpdate");
+		this.friendRepository.delete(entity);
+	}
+
+	async acceptRequest(relatedUserId: number, relatingUserId: number) {
+		const entity = await this.friendRepository.findOne({
+			where: { relatedUserId, relatingUserId, type: "REQUEST" }
+		});
+		console.log("Removing:", entity);
+		this.statusService.emitToUser(entity.relatingUserId, "friendUpdate");
+		this.statusService.emitToUser(entity.relatedUserId, "friendUpdate");
+		this.friendRepository.update(entity, {
+			type: "FRIEND",
+		});
+	}
+
+	async removeFriend(idOne: number, idTwo: number) {
+		const entity = await this.friendRepository.findOne({
+			where: [
+				{ relatedUserId: idOne, relatingUserId: idTwo, type: "FRIEND" },
+				{ relatedUserId: idTwo, relatingUserId: idOne, type: "FRIEND" },
+				{ relatedUserId: idOne, relatingUserId: idTwo, type: "REQUEST" },
+				{ relatedUserId: idTwo, relatingUserId: idOne, type: "REQUEST" },
+			],
+		});
+		if (!entity) {
+			return;
+		}
+		this.statusService.emitToUser(entity.relatingUserId, "friendUpdate");
+		this.statusService.emitToUser(entity.relatedUserId, "friendUpdate");
+		await this.friendRepository.delete(entity);
+	}
+
+	async blockUser(id: number, targetId: number) {
+		const entity = this.createEntity({
+			relatingUserId: id,
+			relatedUserId: targetId,
+			type: "BLOCK",
+		});
+		this.statusService.emitToUser(id, "friendUpdate");
+		this.statusService.emitToUser(targetId, "friendUpdate");
+		await this.friendRepository.save(entity);
+	}
+	
+	async unblockUser(id: number, targetId: number) {
+		const entity = await this.friendRepository.findOne({
+			relatingUserId: id, relatedUserId: targetId, type: "BLOCK"
+		});
+		if (!entity) {
+			return;
+		}
+		this.statusService.emitToUser(id, "friendUpdate");
+		await this.friendRepository.delete(entity);
+	}
+
 	async findAll(): Promise<UserRelation[]> {
 		return this.friendRepository.find({
 			relations: ["relatingUserId", "relatedUserId"]
@@ -49,11 +112,17 @@ export class FriendService {
 			],
 			relations: ["relatingUserId", "relatedUserId"],
 		});
-		return relations.map((relation) => {
-			return relation.relatedUserId !== id ? relation.relatedUserId : relation.relatingUserId;
+		const friends = relations.map((relation: any) => {
+			// typed incorrectly because it fetches the User instead of being a number
+			if (relation.relatedUserId.id !== id) {
+				return relation.relatedUserId;
+			} else {
+				return relation.relatingUserId;
+			}
 		})
+		return friends;
 	}
-	
+
 	// Only relevant if relatedUser
 	// Return the other user that sent a request
 	async findRequests(id: number) {

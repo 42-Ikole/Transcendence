@@ -40,7 +40,7 @@ export class StatusService {
     if (this.socketService.userExistsType(id, 'status')) {
       this.socketService.sockets[id].status.emit('statusUpdate', updatedState);
     }
-    this.socketService.statusServer.emit('friendUpdate', updatedState);
+    this.socketService.statusServer.emit('friendStatusUpdate', updatedState);
   }
 
   getStates(): UserStatusMap {
@@ -52,5 +52,13 @@ export class StatusService {
       return 'OFFLINE';
     }
     return this.userStatus[userId];
+  }
+
+  emitToUser(id: number, event: string, ...args: any[]) {
+    if (!this.socketService.userExists(id)) {
+      console.error("tried to emit to", id, "who is not online");
+      return;
+    }
+    this.socketService.sockets[id].status.emit(event, args);
   }
 }

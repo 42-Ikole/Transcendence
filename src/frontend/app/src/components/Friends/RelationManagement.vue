@@ -2,7 +2,7 @@
 	<UserList name="Friends" :users="friends" />
 	<UserList name="Requests" :users="friendRequests" />
 	<UserList name="Blocked Users" :users="blockedUsers" />
-	<UserList name="Online Users" :users="users" />
+	<OnlineUsers />
 </template>
 
 <script lang="ts">
@@ -11,13 +11,11 @@ import makeApiCall from "@/utils/ApiCall";
 import { mapState } from "pinia";
 import { defineComponent } from "vue";
 import UserList from "./UserList.vue";
+import OnlineUsers from "./OnlineUsers.vue";
+import { useSocketStore } from "@/stores/SocketStore";
 
 export default defineComponent({
-	data() {
-		return {
-			users: [],
-		}
-	},
+
 	computed: {
 		...mapState(useFriendStore, [
 			"friends",
@@ -27,11 +25,14 @@ export default defineComponent({
 	},
 	async mounted() {
 		await useFriendStore().refresh();
-		const response = await makeApiCall("/user/all");
-		this.users = await response.json();
+		useSocketStore().status!.on("friendUpdate", useFriendStore().refresh);
+	},
+	unmounted() {
+		useSocketStore().status!.removeListener("friendUpdate", useFriendStore().refresh);
 	},
 	components: {
 		UserList,
-	}
+		OnlineUsers,
+	},
 });
 </script>

@@ -9,6 +9,7 @@
         <NavBar />
       </div>
     </header>
+    <h3> You are: {{ username }} </h3>
     <div class="m-3">
       <RouterView />
     </div>
@@ -32,10 +33,17 @@ export default defineComponent({
   computed: {
     ...mapState(useUserStore, {
       state: "state",
+      profileData: "profileData",
     }),
     connectionDenied() {
       return this.state === "CONNECTION_DENIED";
     },
+    username() {
+      if (this.profileData) {
+        return this.profileData.username;
+      }
+      return "not logged in";
+    }
   },
 });
 </script>
