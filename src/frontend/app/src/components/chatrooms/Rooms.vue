@@ -8,14 +8,14 @@
 		<CreateRoom />
 	</div>
 	<div v-else-if="isJoining">
-		<JoinRoom />
+		<RoomsList />
 	</div>
 </template>
 
 <script lang="ts">
 
 import CreateRoom from './CreateRoom.vue';
-import JoinRoom from  './JoinRoom.vue';
+import RoomsList from  './RoomsList.vue';
 import { defineComponent } from 'vue';
 
 enum State {
@@ -55,7 +55,7 @@ export default defineComponent({
 	},
 	components: {
 		CreateRoom,
-		JoinRoom
+		RoomsList
 	}
 });
 
