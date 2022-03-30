@@ -13,6 +13,7 @@ import { configModuleOptions } from './config/options';
 import { PongModule } from './pong/pong.module';
 import { SocketModule } from './websocket/socket.module';
 import { StatusModule } from './status/status.module';
+import { FriendModule } from './friend/friend.module';
 import { CookieModule } from './websocket/cookie.module';
 
 @Module({
@@ -26,6 +27,7 @@ import { CookieModule } from './websocket/cookie.module';
     SocketModule,
     StatusModule,
     CookieModule,
+    FriendModule,
     PassportModule.register({ session: true }),
     ConfigModule.forRoot(configModuleOptions),
   ],

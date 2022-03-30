@@ -1,7 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, JoinColumn } from 'typeorm';
 import { Match } from './match.entity';
 import { IsString, IsOptional, IsBoolean } from 'class-validator';
 import { Exclude } from 'class-transformer';
+import { UserRelation } from './friend.entity';
 
 //////     //////
 // User Entity //
@@ -26,6 +27,15 @@ export class User {
 
   @OneToMany(() => Match, (match) => match.loser)
   losses: Match[];
+
+  // Friendships
+  @OneToMany(() => UserRelation, (relation) => relation.relatingUserId)
+  @JoinColumn()
+  relatingUsers: UserRelation[];
+
+  @OneToMany(() => UserRelation, (relation) => relation.relatedUserId)
+  @JoinColumn()
+  relatedUsers: UserRelation[];
 
   // Two Factor
   @Column({ nullable: true })
