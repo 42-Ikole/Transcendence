@@ -30,7 +30,7 @@ export default defineComponent({
       playerOneScore: 0,
       playerTwoScore: 0,
       // PressedKeys: [false, false],
-      PressedKeys: new Set(),
+      PressedKeys: new Set<string>(),
     };
   },
   computed: {
@@ -46,7 +46,7 @@ export default defineComponent({
   },
   methods: {
     updatePlayer(data: GameState) {
-      this.socket!.emit("movement", this.PressedKeys);
+      this.socket!.emit("movement", Array.from(this.PressedKeys));
       this.updateObserver(data);
     },
 

@@ -275,15 +275,15 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('movement')
-  movement(client: SocketWithUser, data: Set<string>) {
+  movement(client: SocketWithUser, data: Array<string>) {
     const gameRoom = this.pongService.getGameRoom(client.gameRoom);
     if (!gameRoom) {
       return;
     }
     if (client.id === gameRoom.playerOne.socketId) {
-      movePlayer(gameRoom.gameState.playerOne.bar, data);
+      movePlayer(gameRoom.gameState.playerOne.bar, Array.from(data));
     } else if (client.id === gameRoom.playerTwo.socketId) {
-      movePlayer(gameRoom.gameState.playerTwo.bar, data);
+      movePlayer(gameRoom.gameState.playerTwo.bar, Array.from(data));
     }
   }
 
