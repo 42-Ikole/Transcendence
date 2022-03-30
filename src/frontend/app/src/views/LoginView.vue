@@ -6,15 +6,15 @@
 						<img src="/src/assets/pongHub.png" alt="ponghub" id="ponghubLogin" />
 						<p class="text-white mb-5">The best pong experience you will ever have💦</p>
 
-              <div v-if="isOAuth">
-                <LoggedOut />
-              </div>
-              <div v-else-if="isTwoFactor">
-                <TwoFactorApp />
-              </div>
-              <div v-else>
-                <LoginApp />
-              </div>
+						<div v-if="isOAuth">
+							<LoggedOut />
+						</div>
+						<div v-else-if="isTwoFactor">
+							<TwoFactorApp />
+						</div>
+						<div v-else>
+							<LoginApp />
+						</div>
 
 					</div>
 					<p class="footnote text-white-50">
