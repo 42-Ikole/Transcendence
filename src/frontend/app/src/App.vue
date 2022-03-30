@@ -5,11 +5,11 @@
 
   <div v-else>
     <header>
-      <div>
+      <div v-if="authenticatedState">
         <NavBar />
       </div>
     </header>
-    <div class="m-3">
+    <div>
       <RouterView />
     </div>
   </div>
