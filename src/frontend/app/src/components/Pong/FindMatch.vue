@@ -1,5 +1,5 @@
 <template>
-  <button @click="requestMatch">Find Match</button>
+  <button class="btn btn-outline-light btn-lg px-5 me-2" @click="requestMatch">Find Match</button>
 </template>
 
 <script lang="ts">

@@ -8,7 +8,7 @@
             <div class="col-md-7">
                 <h1>{{userName}}</h1>
 				<p class="status" v-bind:class="statusStyling">{{userStatus}}</p>
-				<hr class="profileDivider">
+				<hr>
 				<MatchHistory />
             </div>
         </div>
@@ -26,11 +26,6 @@
   width: 400px;
   border: solid;
   border-width: 3px;
-}
-
-.profileDivider {
-	border-top: 5px solid #bbb;
-	border-radius: 5px;
 }
 
 .status-offline {

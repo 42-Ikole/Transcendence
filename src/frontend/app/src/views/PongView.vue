@@ -1,26 +1,41 @@
 <template>
-  <div v-if="isPlaying">
-    <PongGame :observing="isObserving" />
-  </div>
-  <div v-else-if="isObserving">
-    <PongGame :observing="isObserving" />
-  </div>
-  <div v-else-if="isSearching">
-    <!-- TODO: some kind of searching/loading component -->
-    <p>Searching...</p>
-  </div>
-  <div v-else-if="showScoreScreen">
-    <ScoreScreen :game-state="gameState" />
-    <button @click="showScoreScreen = false">Continue</button>
-  </div>
-  <div v-else-if="isChallenged">
-    <ChallengedRequest />
-  </div>
-  <div v-else>
-    <FindMatch />
-    <ActiveGames />
-    <ChallengeUsers />
-  </div>
+	<div class="container mt-5">
+		<h1>PongHub Hub</h1>
+		<hr>
+		<div v-if="isPlaying">
+			<PongGame :observing="isObserving" />
+		</div>
+		<div v-else-if="isObserving">
+			<PongGame :observing="isObserving" />
+		</div>
+		<div v-else-if="isSearching">
+			<!-- TODO: some kind of searching/loading component -->
+			<p>Searching...</p>
+		</div>
+		<div v-else-if="showScoreScreen">
+			<ScoreScreen :game-state="gameState" />
+			<button @click="showScoreScreen = false">Continue</button>
+		</div>
+		<div v-else-if="isChallenged">
+			<ChallengedRequest />
+		</div>
+		<div v-else>
+			<div class="row">
+				<div class="col-lg-3">
+					<h3>Ranked:</h3>
+					<FindMatch />
+				</div>
+				<div class="col-lg-3">
+					<h3>Spectate:</h3>
+					<ActiveGames />
+				</div>
+				<div class="col-lg-3">
+					<h3>Challenge:</h3>
+					<ChallengeUsers />
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script lang="ts">

@@ -73,12 +73,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4 {
+h1, h2, h3, h4, h5 {
 	color: #ff8e00;
 }
 
 p {
 	color: #b7b5b5;
+}
+
+hr {
+	border-top: 5px solid #bbb !important;
+	border-radius: 5px !important;
 }
 
 /* Id styling */
