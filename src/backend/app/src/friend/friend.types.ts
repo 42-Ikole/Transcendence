@@ -1,7 +1,7 @@
-export type UserRelationType = "FRIEND" | "REQUEST" | "BLOCK";
+export type FriendRelationType = "FRIEND" | "REQUEST" | "BLOCK";
 
-export interface UserRelationDto {
+export interface FriendRelationDto {
 	relatingUserId: number;
 	relatedUserId: number;
-	type: UserRelationType;
+	type: FriendRelationType;
 }

@@ -6,7 +6,7 @@ import { StatusService } from 'src/status/status.service';
 import { IdDto, NumberIdParam } from 'src/types/param.validation';
 import { UserService } from 'src/user/user.service';
 import { FriendService } from './friend.service';
-import { UserRelationDto } from './friend.types';
+import { FriendRelationDto } from './friend.types';
 
 @ApiTags('relation')
 @Controller('relation')
@@ -25,7 +25,7 @@ export class FriendController {
 	@Post('friend-request')
 	async requestFriend(@Req() req: RequestWithUser, @Body() param: IdDto) {
 		console.log(req.user.id, "friend requests:", param.id);
-		const dto: UserRelationDto = {
+		const dto: FriendRelationDto = {
 			relatingUserId: req.user.id,
 			relatedUserId: param.id,
 			type: "REQUEST",

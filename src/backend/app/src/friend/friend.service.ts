@@ -1,25 +1,25 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserRelation } from 'src/orm/entities/friend.entity';
+import { FriendRelation } from 'src/orm/entities/friend.entity';
 import { User } from 'src/orm/entities/user.entity';
 import { StatusService } from 'src/status/status.service';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
-import { UserRelationDto, UserRelationType } from './friend.types';
+import { FriendRelationDto, FriendRelationType } from './friend.types';
 
 @Injectable()
 export class FriendService {
 	constructor(
-		@InjectRepository(UserRelation) private friendRepository: Repository<UserRelation>,
+		@InjectRepository(FriendRelation) private friendRepository: Repository<FriendRelation>,
 		private userService: UserService,
 		private statusService: StatusService,
 	) {}
 
-	createEntity(dto: UserRelationDto) {
+	createEntity(dto: FriendRelationDto) {
 		return this.friendRepository.create(dto);
 	}
 
-	async newRelationShip(relationDto: UserRelationDto) {
+	async newRelationShip(relationDto: FriendRelationDto) {
 		const target = await this.userService.findById(relationDto.relatedUserId);
 		console.log(relationDto);
 		if (relationDto.relatingUserId === relationDto.relatedUserId) {
@@ -37,12 +37,10 @@ export class FriendService {
 
 	async rejectRequest(relatedUserId: number, relatingUserId: number) {
 		const entity = await this.friendRepository.findOne({
-			where: { relatingUserId, relatedUserId, type: "REQUEST" }
+			where: { relatingUserId, relatedUserId, type: "REQUEST" },
 		});
 		console.log("Removing:", entity);
-		this.statusService.emitToUser(entity.relatedUserId, "friendUpdate");
-		this.statusService.emitToUser(entity.relatingUserId, "friendUpdate");
-		this.friendRepository.delete(entity);
+		await this.friendRepository.delete(entity);
 	}
 
 	async acceptRequest(relatedUserId: number, relatingUserId: number) {
@@ -96,7 +94,7 @@ export class FriendService {
 		await this.friendRepository.delete(entity);
 	}
 
-	async findAll(): Promise<UserRelation[]> {
+	async findAll(): Promise<FriendRelation[]> {
 		return this.friendRepository.find({
 			relations: ["relatingUserId", "relatedUserId"]
 		});
