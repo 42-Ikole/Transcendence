@@ -30,9 +30,9 @@
 import { useUserStore, type AuthenticatedState } from "@/stores/UserStore";
 import { mapState } from "pinia";
 import { defineComponent } from "vue";
-import LoginApp from "@/components/login/LoginApp.vue";
-import TwoFactorApp from "@/components/login/TwoFactorApp.vue";
-import  LoggedOut  from "@/components/login/LoggedOut.vue";
+import LoginApp from "@/components/Authentication/LoginApp.vue";
+import TwoFactorApp from "@/components/Authentication/TwoFactorApp.vue";
+import  LoggedOut  from "@/components/Authentication/LoggedOut.vue";
 
 export default defineComponent({
   components: {
