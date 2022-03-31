@@ -128,7 +128,6 @@ export default defineComponent({
   height: 80vh;
   border: 1px solid black;
   display: block;
-  position: absolute;
   background-color: white;
   margin: auto;
   top: 0;
