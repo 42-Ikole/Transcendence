@@ -36,20 +36,13 @@ export default defineComponent({
   computed: {
     ...mapState(useUserStore, {
       state: "state",
+	  authenticatedState: "authenticatedState",
     }),
     connectionDenied() {
       return this.state === "CONNECTION_DENIED";
     },
-  },
-  computed: {
-    ...mapState(useUserStore, {
-      state: "authenticatedState",
-    }),
-    isLoggedIn() {
-      return !(this.state === "OAUTH");
-    },
 	isAuthenticated() {
-		return this.state === "AUTHENTICATED";
+		return this.authenticatedState === "AUTHENTICATED";
 	},
   },
 });
