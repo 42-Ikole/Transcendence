@@ -1,17 +1,14 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Friend } from 'src/orm/entities/friend.entity';
-import { User } from 'src/orm/entities/user.entity';
 import { StatusService } from 'src/status/status.service';
-import { UserService } from 'src/user/user.service';
-import { Entity, Repository } from 'typeorm';
-import { FriendDto, FriendRelationType } from './friend.types';
+import { Repository } from 'typeorm';
+import { FriendDto } from './friend.types';
 
 @Injectable()
 export class FriendService {
 	constructor(
 		@InjectRepository(Friend) private friendRepository: Repository<Friend>,
-		private userService: UserService,
 		private statusService: StatusService,
 	) {}
 
@@ -28,15 +25,17 @@ export class FriendService {
 		return result;
 	}
 
+	// Remove exact friend (example: unblock a single side of the relationship)
 	async removeFriend(friend: FriendDto) {
-		const entity = await this.findExact(friend);
+		const entity = await this.findExactOrFail(friend);
 		const result = await this.friendRepository.remove(entity);
 		this.emitUpdate(friend);
 		return result;
 	}
-	
+
+	// Remove either friend (example: FRIEND can be both the relating or related user)
 	async removeEither(friend: FriendDto) {
-		const entity = await this.findFriendship(friend);
+		const entity = await this.findFriendshipOrFail(friend);
 		const result = await this.friendRepository.remove(entity);
 		this.emitUpdate(friend);
 		return result;
@@ -132,7 +131,7 @@ export class FriendService {
 	}
 
 	private async findFriendship(friend: FriendDto) {
-		const entity = await this.friendRepository.findOneOrFail({
+		const entity = await this.friendRepository.findOne({
 			where: [{
 				...friend,
 			}, {
@@ -144,9 +143,26 @@ export class FriendService {
 		return entity;
 	}
 
-	private async findExact(friend: FriendDto) {
-		const entity = await this.friendRepository.findOneOrFail(friend);
+	private findExact(friend: FriendDto) {
+		return this.friendRepository.findOne(friend);
+	}
+
+	private async findExactOrFail(friend: FriendDto) {
+		const entity = await this.findExact(friend);
+		this.checkNotFound(entity);
 		return entity;
+	}
+
+	private async findFriendshipOrFail(friend: FriendDto) {
+		const entity = await this.findFriendship(friend);
+		this.checkNotFound(entity);
+		return entity;
+	}
+
+	private checkNotFound(entity: Friend | undefined) {
+		if (!entity) {
+			return new NotFoundException();
+		}
 	}
 
 	private emitUpdate(users: FriendDto) {
