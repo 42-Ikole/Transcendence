@@ -10,14 +10,18 @@ relatedUser: the user who received it
 */
 
 @Entity()
-export class FriendRelation {
+export class Friend {
 	@PrimaryColumn()
-	@ManyToOne(() => User, (user) => user.id, { cascade: false, primary: true })
-	relatingUserId: number;
+	@ManyToOne(() => User, (user: User) => user.relatingUsers, {
+		onDelete: 'CASCADE',
+	})
+	relatingUser: number;
 
 	@PrimaryColumn()
-	@ManyToOne(() => User, (user) => user.id, { cascade: false, primary: true })
-	relatedUserId: number;
+	@ManyToOne(() => User, (user: User) => user.relatedUsers, {
+		onDelete: 'CASCADE',
+	})
+	relatedUser: number;
 
 	@Column()
 	type: string;

@@ -37,32 +37,32 @@ export default defineComponent({
 	},
 	methods: {
 		async sendFriendRequest(user: PublicUser) {
-			await makeApiCallJson("relation/friend-request", "POST", {
+			await makeApiCallJson("friend/request", "POST", {
 				id: user.id
 			});
 		},
 		async rejectFriendRequest(user: PublicUser) {
-			await makeApiCallJson("relation/request/reject", "POST", {
+			await makeApiCallJson("friend/request/reject", "POST", {
 				id: user.id
 			});
 		},
 		async acceptFriendRequest(user: PublicUser) {
-			await makeApiCallJson("relation/request/accept", "POST", {
+			await makeApiCallJson("friend/request/accept", "POST", {
 				id: user.id
 			});
 		},
 		async removeFriend(user: PublicUser) {
-			await makeApiCall(`relation/unfriend/${user.id}`, {
+			await makeApiCall(`friend/unfriend/${user.id}`, {
 				method: "DELETE",
 			});
 		},
 		async blockUser(user: PublicUser) {
-			await makeApiCallJson("relation/block", "POST", {
+			await makeApiCallJson("friend/block", "POST", {
 				id: user.id,
 			});
 		},
 		async unblockUser(user: PublicUser) {
-			await makeApiCall(`relation/unblock/${user.id}`, {
+			await makeApiCall(`friend/unblock/${user.id}`, {
 				method: "DELETE",
 			});
 		},

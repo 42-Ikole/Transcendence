@@ -2,6 +2,7 @@ import type { PublicUser } from "@/types/UserType";
 import makeApiCall from "@/utils/ApiCall";
 import { defineStore } from "pinia";
 
+// TODO: should be a set of users!
 interface FriendState {
   friends: PublicUser[];
   friendRequests: PublicUser[];
@@ -25,7 +26,7 @@ export const useFriendStore = defineStore("friend", {
       await this.refreshBlockedUsers();
     },
     async refreshFriends() {
-      const response = await makeApiCall("/relation/friends");
+      const response = await makeApiCall("/friend/friends");
       if (!response.ok) {
         console.error(response.statusText);
         return;
@@ -33,7 +34,7 @@ export const useFriendStore = defineStore("friend", {
       this.friends = await response.json();
     },
     async refreshFriendRequests() {
-      const response = await makeApiCall("/relation/requests");
+      const response = await makeApiCall("/friend/requests");
       if (!response.ok) {
         console.error(response.statusText);
         return;
@@ -41,7 +42,7 @@ export const useFriendStore = defineStore("friend", {
       this.friendRequests = await response.json();
     },
     async refreshBlockedUsers() {
-      const response = await makeApiCall("/relation/blocked");
+      const response = await makeApiCall("/friend/blocked");
       if (!response.ok) {
         console.error(response.statusText);
         return;

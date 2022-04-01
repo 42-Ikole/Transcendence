@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn, OneToMany, JoinColumn } from 't
 import { Match } from './match.entity';
 import { IsString, IsOptional, IsBoolean } from 'class-validator';
 import { Exclude } from 'class-transformer';
-import { FriendRelation } from './friend.entity';
+import { Friend } from './friend.entity';
 
 //////     //////
 // User Entity //
@@ -29,13 +29,11 @@ export class User {
   losses: Match[];
 
   // Friendships
-  @OneToMany(() => FriendRelation, (relation) => relation.relatingUserId, { cascade: true })
-  @JoinColumn()
-  relatingUsers: FriendRelation[];
+  @OneToMany(() => Friend, (relation: Friend) => relation.relatingUser)
+  relatingUsers: Friend[];
 
-  @OneToMany(() => FriendRelation, (relation) => relation.relatedUserId, { cascade: true })
-  @JoinColumn()
-  relatedUsers: FriendRelation[];
+  @OneToMany(() => Friend, (relation: Friend) => relation.relatedUser)
+  relatedUsers: Friend[];
 
   // Two Factor
   @Column({ nullable: true })

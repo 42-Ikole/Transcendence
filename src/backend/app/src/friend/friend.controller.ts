@@ -1,37 +1,34 @@
-import { Controller, Get, UseGuards, Req, Delete, Post, Body, BadRequestException, Param } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Delete, Post, Body, BadRequestException, Param, ParseIntPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
 import { RequestWithUser } from 'src/auth/auth.types';
 import { StatusService } from 'src/status/status.service';
-import { IdDto, NumberIdParam } from 'src/types/param.validation';
+import { IdDto } from 'src/types/param.validation';
 import { UserService } from 'src/user/user.service';
 import { FriendService } from './friend.service';
-import { FriendRelationDto } from './friend.types';
+import { FriendDto } from './friend.types';
 
-@ApiTags('relation')
-@Controller('relation')
+@ApiTags('friend')
+@Controller('friend')
 @UseGuards(AuthenticatedGuard)
 export class FriendController {
 
 	constructor(
 		private friendService: FriendService,
-		private statusService: StatusService,
 	) {}
 
 	/*
 	1. Store friend request in DB (if not blocked or not already friends)
 	2. Emit friend request event to target (if online)
 	*/
-	@Post('friend-request')
-	async requestFriend(@Req() req: RequestWithUser, @Body() param: IdDto) {
-		console.log(req.user.id, "friend requests:", param.id);
-		const dto: FriendRelationDto = {
-			relatingUserId: req.user.id,
-			relatedUserId: param.id,
-			type: "REQUEST",
-		};
-		await this.friendService.newRelationShip(dto);
-		this.statusService.emitToUser(param.id, "friendUpdate");
+	@Post('request')
+	async friendRequest(
+		@Req() request: RequestWithUser,
+		@Body('id', ParseIntPipe) targetId: number
+	) {
+		console.log("Friend Request:", request.user.id, "-",  targetId);
+		const friendRequest = new FriendDto(request.user.id, targetId, "REQUEST");
+		return await this.friendService.friendRequest(friendRequest);
 	}
 
 	/*
@@ -39,13 +36,23 @@ export class FriendController {
 	2. Emit rejection to original user
 	*/
 	@Post('request/reject')
-	async rejectFriend(@Req() req: RequestWithUser, @Body() param: IdDto) {
-		await this.friendService.rejectRequest(req.user.id, param.id);
+	async rejectFriend(
+		@Req() request: RequestWithUser,
+		@Body('id', ParseIntPipe) targetId: number
+	) {
+		console.log("Reject Friend:", request.user.id, "-", targetId);
+		const reject = new FriendDto(targetId, request.user.id, "REQUEST");
+		return await this.friendService.removeFriend(reject);
 	}
 
 	@Post('request/accept')
-	async acceptFriend(@Req() req: RequestWithUser, @Body() param: IdDto) {
-		await this.friendService.acceptRequest(req.user.id, param.id);
+	async acceptFriend(
+		@Req() request: RequestWithUser,
+		@Body('id', ParseIntPipe) targetId: number
+	) {
+		console.log("Accept Friend:", request.user.id, "-", targetId);
+		const accept = new FriendDto(targetId, request.user.id, "FRIEND");
+		return await this.friendService.acceptFriendRequest(accept);
 	}
 
 	/*
@@ -53,8 +60,13 @@ export class FriendController {
 	2. Emit friendUpdate to both users
 	*/
 	@Delete('unfriend/:id')
-	async unfriend(@Req() req: RequestWithUser, @Param() params: NumberIdParam) {
-		await this.friendService.removeFriend(req.user.id, params.id);
+	async unfriend(
+		@Req() req: RequestWithUser,
+		@Param('id', ParseIntPipe) targetId: number
+	) {
+		console.log("Remove Friend:", req.user.id, "-", targetId);
+		const unfriend = new FriendDto(targetId, req.user.id, "FRIEND");
+		return await this.friendService.removeEither(unfriend);
 	}
 
 	/*
@@ -63,14 +75,19 @@ export class FriendController {
 	2. Emit to user who made the request that the block was successful
 	*/
 	@Post('block')
-	async blockUser(@Req() req: RequestWithUser, @Body() param: IdDto) {
-		await this.friendService.removeFriend(req.user.id, param.id);
-		await this.friendService.blockUser(req.user.id, param.id);
+	async blockUser(
+		@Req() req: RequestWithUser,
+		@Body('id', ParseIntPipe) targetId: number) {
+		const block = new FriendDto(req.user.id, targetId, "BLOCK");
+		return await this.friendService.blockUser(block);
 	}
 
 	@Delete('unblock/:id')
-	async unblockUser(@Req() req: RequestWithUser, @Param() param: NumberIdParam) {
-		await this.friendService.unblockUser(req.user.id, param.id);
+	async unblockUser(
+		@Req() req: RequestWithUser,
+		@Param('id', ParseIntPipe) targetId: number) {
+		const unblock = new FriendDto(req.user.id, targetId, "BLOCK");
+		return await this.friendService.unblockUser(unblock);
 	}
 
 	@Get()
@@ -91,5 +108,10 @@ export class FriendController {
 	@Get('requests')
 	async findRequests(@Req() request: RequestWithUser) {
 		return await this.friendService.findRequests(request.user.id);
+	}
+
+	@Delete('clear')
+	async clearFriends() {
+		return await this.friendService.clear();
 	}
 }

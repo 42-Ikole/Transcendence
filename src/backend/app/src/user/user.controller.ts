@@ -8,12 +8,12 @@ import {
   UseGuards,
   Req,
   NotFoundException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
 import { RequestWithUser } from 'src/auth/auth.types';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
-import { NumberIdParam } from 'src/types/param.validation';
 import { UserService } from 'src/user/user.service';
 import { PrivateUser, PublicUser } from './user.types';
 
@@ -48,12 +48,8 @@ export class UserController {
   }
 
   @Get('/:id')
-  @ApiParam({
-    name: 'id',
-    type: Number,
-  })
-  async findById(@Param() params: NumberIdParam): Promise<PublicUser> {
-    const user = await this.userService.findById(params.id);
+  async findById(@Param('id', ParseIntPipe) id: number): Promise<PublicUser> {
+    const user = await this.userService.findById(id);
     if (!user) {
       throw new NotFoundException();
     }

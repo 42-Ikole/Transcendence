@@ -1,102 +1,61 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FriendRelation } from 'src/orm/entities/friend.entity';
+import { Friend } from 'src/orm/entities/friend.entity';
 import { User } from 'src/orm/entities/user.entity';
 import { StatusService } from 'src/status/status.service';
 import { UserService } from 'src/user/user.service';
-import { Repository } from 'typeorm';
-import { FriendRelationDto, FriendRelationType } from './friend.types';
+import { Entity, Repository } from 'typeorm';
+import { FriendDto, FriendRelationType } from './friend.types';
 
 @Injectable()
 export class FriendService {
 	constructor(
-		@InjectRepository(FriendRelation) private friendRepository: Repository<FriendRelation>,
+		@InjectRepository(Friend) private friendRepository: Repository<Friend>,
 		private userService: UserService,
 		private statusService: StatusService,
 	) {}
 
-	createEntity(dto: FriendRelationDto) {
-		return this.friendRepository.create(dto);
+	async friendRequest(request: FriendDto) {
+		const entity = this.createEntity(request);
+		const result = await this.friendRepository.save(entity);
+		this.emitUpdate(request);
+		return result;
 	}
 
-	async newRelationShip(relationDto: FriendRelationDto) {
-		const target = await this.userService.findById(relationDto.relatedUserId);
-		console.log(relationDto);
-		if (relationDto.relatingUserId === relationDto.relatedUserId) {
-			throw new BadRequestException("cannot friend yourself");
-		} else if (!target) {
-			throw new BadRequestException("target friend doesn't exist");
-		}
-		const entity = this.createEntity(relationDto);
-		try {
-			await this.friendRepository.save(entity);
-		} catch(error) {
-			throw new BadRequestException(error);
-		}
+	async acceptFriendRequest(friend: FriendDto) {
+		const result = await this.updateType(friend);
+		this.emitUpdate(friend);
+		return result;
 	}
 
-	async rejectRequest(relatedUserId: number, relatingUserId: number) {
-		const entity = await this.friendRepository.findOne({
-			where: { relatingUserId, relatedUserId, type: "REQUEST" },
-		});
-		console.log("Removing:", entity);
-		await this.friendRepository.delete(entity);
-	}
-
-	async acceptRequest(relatedUserId: number, relatingUserId: number) {
-		const entity = await this.friendRepository.findOne({
-			where: { relatedUserId, relatingUserId, type: "REQUEST" }
-		});
-		console.log("Removing:", entity);
-		this.statusService.emitToUser(entity.relatingUserId, "friendUpdate");
-		this.statusService.emitToUser(entity.relatedUserId, "friendUpdate");
-		this.friendRepository.update(entity, {
-			type: "FRIEND",
-		});
-	}
-
-	async removeFriend(idOne: number, idTwo: number) {
-		const entity = await this.friendRepository.findOne({
-			where: [
-				{ relatedUserId: idOne, relatingUserId: idTwo, type: "FRIEND" },
-				{ relatedUserId: idTwo, relatingUserId: idOne, type: "FRIEND" },
-				{ relatedUserId: idOne, relatingUserId: idTwo, type: "REQUEST" },
-				{ relatedUserId: idTwo, relatingUserId: idOne, type: "REQUEST" },
-			],
-		});
-		if (!entity) {
-			return;
-		}
-		this.statusService.emitToUser(entity.relatingUserId, "friendUpdate");
-		this.statusService.emitToUser(entity.relatedUserId, "friendUpdate");
-		await this.friendRepository.delete(entity);
-	}
-
-	async blockUser(id: number, targetId: number) {
-		const entity = this.createEntity({
-			relatingUserId: id,
-			relatedUserId: targetId,
-			type: "BLOCK",
-		});
-		this.statusService.emitToUser(id, "friendUpdate");
-		this.statusService.emitToUser(targetId, "friendUpdate");
-		await this.friendRepository.save(entity);
+	async removeFriend(friend: FriendDto) {
+		const entity = await this.findExact(friend);
+		const result = await this.friendRepository.remove(entity);
+		this.emitUpdate(friend);
+		return result;
 	}
 	
-	async unblockUser(id: number, targetId: number) {
-		const entity = await this.friendRepository.findOne({
-			relatingUserId: id, relatedUserId: targetId, type: "BLOCK"
-		});
-		if (!entity) {
-			return;
-		}
-		this.statusService.emitToUser(id, "friendUpdate");
-		await this.friendRepository.delete(entity);
+	async removeEither(friend: FriendDto) {
+		const entity = await this.findFriendship(friend);
+		const result = await this.friendRepository.remove(entity);
+		this.emitUpdate(friend);
+		return result;
 	}
 
-	async findAll(): Promise<FriendRelation[]> {
+	async blockUser(user: FriendDto) {
+		const entity = this.createEntity(user);
+		const result = await this.friendRepository.save(entity);
+		this.emitUpdate(user);
+		return result;
+	}
+
+	async unblockUser(user: FriendDto) {
+		return await this.removeFriend(user);
+	}
+
+	async findAll(): Promise<Friend[]> {
 		return this.friendRepository.find({
-			relations: ["relatingUserId", "relatedUserId"]
+			relations: ["relatingUser", "relatedUser"]
 		});
 	}
 
@@ -105,33 +64,35 @@ export class FriendService {
 	async findFriends(id: number) {
 		const relations = await this.friendRepository.find({
 			where: [
-				{ relatedUserId: id, type: "FRIEND" },
-				{ relatingUserId: id, type: "FRIEND" }
+				{ relatedUser: id, type: "FRIEND" },
+				{ relatingUser: id, type: "FRIEND" }
 			],
-			relations: ["relatingUserId", "relatedUserId"],
+			relations: ["relatingUser", "relatedUser"],
 		});
 		const friends = relations.map((relation: any) => {
 			// typed incorrectly because it fetches the User instead of being a number
-			if (relation.relatedUserId.id !== id) {
-				return relation.relatedUserId;
+			if (relation.relatedUser.id !== id) {
+				return relation.relatedUser;
 			} else {
-				return relation.relatingUserId;
+				return relation.relatingUser;
 			}
 		})
 		return friends;
 	}
 
+
+/* Getters */
 	// Only relevant if relatedUser
 	// Return the other user that sent a request
 	async findRequests(id: number) {
 		const relations = await this.friendRepository.find({
 			where: [
-				{ relatedUserId: id, type: "REQUEST" }
+				{ relatedUser: id, type: "REQUEST" }
 			],
-			relations: ["relatingUserId", "relatedUserId"],
+			relations: ["relatingUser"],
 		});
 		const users = relations.map((relation) => {
-			return relation.relatingUserId;
+			return relation.relatingUser;
 		})
 		return users;
 	}
@@ -140,12 +101,56 @@ export class FriendService {
 	// Return the other user that was blocked
 	async findBlocked(id: number) {
 		const relations = await this.friendRepository.find({
-			where: [{relatingUserId: id, type: "BLOCK"}],
-			relations: ["relatingUserId", "relatedUserId"],
+			where: [{relatingUser: id, type: "BLOCK"}],
+			relations: ["relatedUser"],
 		});
 		const users = relations.map((relation) => {
-			return relation.relatedUserId;
+			return relation.relatedUser;
 		})
 		return users;
+	}
+
+	async clear() {
+		const entities = await this.friendRepository.find();
+		return await this.friendRepository.remove(entities);
+	}
+
+/* Private */
+	private createEntity(dto: FriendDto) {
+		return this.friendRepository.create(dto);
+	}
+
+	private async updateType(dto: FriendDto) {
+		const entity = await this.friendRepository.findOne({
+			relatingUser: dto.relatingUser,
+			relatedUser: dto.relatedUser,
+		});
+		if (!entity) {
+			throw new NotFoundException();
+		}
+		return await this.friendRepository.update(entity, dto);
+	}
+
+	private async findFriendship(friend: FriendDto) {
+		const entity = await this.friendRepository.findOneOrFail({
+			where: [{
+				...friend,
+			}, {
+				relatingUser: friend.relatedUser,
+				relatedUser: friend.relatingUser,
+				type: friend.type,
+			}]
+		});
+		return entity;
+	}
+
+	private async findExact(friend: FriendDto) {
+		const entity = await this.friendRepository.findOneOrFail(friend);
+		return entity;
+	}
+
+	private emitUpdate(users: FriendDto) {
+		this.statusService.emitToUser(users.relatingUser, "friendUpdate");
+		this.statusService.emitToUser(users.relatedUser, "friendUpdate");
 	}
 }
