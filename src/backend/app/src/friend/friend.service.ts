@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException, UnauthorizedExcepti
 import { InjectRepository } from '@nestjs/typeorm';
 import { Friend } from 'src/orm/entities/friend.entity';
 import { StatusService } from 'src/status/status.service';
+import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { FriendDto } from './friend.types';
 
@@ -10,9 +11,11 @@ export class FriendService {
 	constructor(
 		@InjectRepository(Friend) private friendRepository: Repository<Friend>,
 		private statusService: StatusService,
+		private userService: UserService,
 	) {}
 
 	async friendRequest(request: FriendDto) {
+		await this.validateFriendRequest(request);
 		const entity = this.createEntity(request);
 		const result = await this.friendRepository.save(entity);
 		this.emitUpdate(request);
@@ -42,6 +45,11 @@ export class FriendService {
 	}
 
 	async blockUser(user: FriendDto) {
+		await this.validateUser(user);
+		if (await this.relationExists(user)) {
+			return;
+		}
+		await this.removeActiveFriendship(user);
 		const entity = this.createEntity(user);
 		const result = await this.friendRepository.save(entity);
 		this.emitUpdate(user);
@@ -143,6 +151,19 @@ export class FriendService {
 		return entity;
 	}
 
+	private async findAnyType(friend: FriendDto) {
+		const entity = await this.friendRepository.findOne({
+			where: [{
+				relatingUser: friend.relatingUser,
+				relatedUser: friend.relatedUser,
+			}, {
+				relatingUser: friend.relatedUser,
+				relatedUser: friend.relatingUser,
+			}]
+		});
+		return entity;
+	}
+
 	private findExact(friend: FriendDto) {
 		return this.friendRepository.findOne(friend);
 	}
@@ -161,12 +182,56 @@ export class FriendService {
 
 	private checkNotFound(entity: Friend | undefined) {
 		if (!entity) {
-			return new NotFoundException();
+			throw new NotFoundException();
 		}
 	}
 
 	private emitUpdate(users: FriendDto) {
 		this.statusService.emitToUser(users.relatingUser, "friendUpdate");
 		this.statusService.emitToUser(users.relatedUser, "friendUpdate");
+	}
+
+	private async validateFriendRequest(user: FriendDto) {
+		await this.validateUser(user);
+		const entity = await this.friendRepository.findOne({
+			where: [{
+				relatingUser: user.relatingUser,
+				relatedUser: user.relatedUser,
+			}, {
+				relatingUser: user.relatedUser,
+				relatedUser: user.relatingUser,
+			}]
+		});
+		if (entity) {
+			throw new BadRequestException("relationship already exists");
+		}
+	}
+
+	// Check if an active friendship or friendrequest should be removed
+	private async removeActiveFriendship(user: FriendDto) {
+		const entity = await this.findAnyType(user);
+		if (!entity || entity.type === "BLOCK") {
+			return;
+		}
+		console.log("Removing:", entity);
+		await this.friendRepository.remove(entity);
+	}
+
+	private async relationExists(user: FriendDto): Promise<boolean> {
+		const friend = await this.findExact(user);
+		return !!friend
+	}
+
+	private async validateUser(user: FriendDto) {
+		if (user.relatingUser === user.relatedUser) {
+			throw new BadRequestException("equivalent IDs");
+		} else if (!await this.userExists(user.relatedUser)) {
+			throw new BadRequestException("target doesn't exist");
+		}
+	}
+
+	private async userExists(id: number): Promise<boolean> {
+		const user = await this.userService.findById(id);
+		return !!user;
 	}
 }

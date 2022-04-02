@@ -38,7 +38,7 @@ export default defineComponent({
 	methods: {
 		async sendFriendRequest(user: PublicUser) {
 			await makeApiCallJson("friend/request", "POST", {
-				id: 50
+				id: user.id
 			});
 		},
 		async rejectFriendRequest(user: PublicUser) {
