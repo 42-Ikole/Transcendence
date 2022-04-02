@@ -29,8 +29,8 @@ export class StatusGateway
 {
   constructor(
     private socketService: SocketService,
-    private cookieService: CookieService,
     private statusService: StatusService,
+    private cookieService: CookieService,
   ) {}
 
   afterInit(server: Server) {

@@ -49,11 +49,7 @@ export class UserController {
 
   @Get('/:id')
   async findById(@Param('id', ParseIntPipe) id: number): Promise<PublicUser> {
-    const user = await this.userService.findById(id);
-    if (!user) {
-      throw new NotFoundException();
-    }
-    return new PublicUser(user);
+    return new PublicUser(await this.userService.findById(id));
   }
 
   @Get('findIntraId/:id')

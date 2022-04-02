@@ -147,7 +147,7 @@ export class PongService {
   }
 
   getClientFromId(id: number) {
-    if (!this.socketService.userExistsType(id, "pong")) {
+    if (!this.socketService.userExistsType(id, 'pong')) {
       return null;
     }
     return this.socketService.sockets[id].pong;

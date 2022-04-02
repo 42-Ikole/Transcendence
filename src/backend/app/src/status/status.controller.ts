@@ -30,7 +30,7 @@ export class StatusController {
 
   @Delete('reset-connection')
   resetConnection(@Req() request: RequestWithUser) {
-    this.statusService.updateUserState(request.user.id, "CONNECTION_DENIED");
+    this.statusService.updateUserState(request.user.id, 'CONNECTION_DENIED');
     this.socketService.disconnectUser(request.user.id);
   }
 }

@@ -1,7 +1,10 @@
 <template>
 	<UserList name="Friends" :users="friends" />
-	<UserList name="Requests" :users="friendRequests" />
+	<UserList name="Received Requests" :users="friendRequests" />
+	<UserList name="Sent Requests" :users="sentRequests" />
 	<UserList name="Blocked Users" :users="blockedUsers" />
+	<UserList name="Blocked By Users" :users="blockedByUsers" />
+	<hr>
 	<OnlineUsers />
 </template>
 
@@ -20,7 +23,9 @@ export default defineComponent({
 		...mapState(useFriendStore, [
 			"friends",
 			"friendRequests",
+			"sentRequests",
 			"blockedUsers",
+			"blockedByUsers",
 		]),
 	},
 	async mounted() {

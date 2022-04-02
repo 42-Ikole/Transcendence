@@ -16,10 +16,12 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
       clientSecret: configService.get('oauth.intra.CLIENT_SECRET'),
       callbackURL: configService.get('oauth.intra.CALLBACK_URL'),
       profileFields: {
-        'id': function (obj) { return String(obj.id); },
-        'username': 'login',
-        'image_url': 'image_url',
-      }
+        id: function (obj) {
+          return String(obj.id);
+        },
+        username: 'login',
+        image_url: 'image_url',
+      },
     });
   }
 

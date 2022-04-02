@@ -228,7 +228,10 @@ export class PongGateway
   challenge(client: SocketWithUser, targetId: number) {
     const target = this.pongService.getClientFromId(targetId);
     if (!target) {
-      client.emit('exception', 'could not find target with id:' + targetId.toString());
+      client.emit(
+        'exception',
+        'could not find target with id:' + targetId.toString(),
+      );
       return;
     } else if (client.id === target.id) {
       client.emit('exception', 'you challenged yourself');

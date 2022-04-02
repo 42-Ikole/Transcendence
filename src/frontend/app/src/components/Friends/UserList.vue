@@ -1,8 +1,9 @@
 <template>
 	<h3>{{ name }}</h3>
 	<div v-for="user in users" key="user.type">
-		<p>{{ user.username }}</p>
+		<p>{{ user.username }} - {{ user.status }}</p>
 	</div>
+	<hr>
 </template>
 
 <script lang="ts">

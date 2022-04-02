@@ -4,7 +4,7 @@ import { Friend } from 'src/orm/entities/friend.entity';
 import { StatusModule } from 'src/status/status.module';
 import { UserModule } from 'src/user/user.module';
 import { FriendController } from './friend.controller';
-import { FriendService } from "./friend.service";
+import { FriendService } from './friend.service';
 
 @Module({
   imports: [UserModule, StatusModule, TypeOrmModule.forFeature([Friend])],
