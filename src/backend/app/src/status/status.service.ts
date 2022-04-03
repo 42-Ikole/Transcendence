@@ -4,6 +4,7 @@ import { User } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { SocketService } from 'src/websocket/socket.service';
 import { Repository } from 'typeorm';
+import { UserState } from "./status.types"
 
 /*
 The point of this class is to update the status of a user and emit it
@@ -14,39 +15,19 @@ Why IN MEMORY and not database?
     - it is accessed often and a database lookup would be more inefficent
 */
 
-// NULL or MISSING === OFFLINE
-export type UserState =
-  | 'OFFLINE'
-  | 'ONLINE'
-  | 'SEARCHING'
-  | 'PLAYING'
-  | 'OBSERVING'
-  | 'CHALLENGED'
-  | 'CONNECTION_DENIED';
-
-export const USER_STATES: UserState[] = [
-  'OFFLINE',
-  'ONLINE',
-  'SEARCHING',
-  'PLAYING',
-  'OBSERVING',
-  'CHALLENGED',
-  'CONNECTION_DENIED',
-];
-
 type UserStatusMap = Record<number, UserState>; // userId -> status
 
 @Injectable()
 export class StatusService {
   constructor(
     private socketService: SocketService,
-    // private userService: UserService,
+    private userService: UserService,
   ) {}
 
   private userStatus: UserStatusMap = {};
 
   updateUserState(id: number, state: UserState) {
-    // this.userService.update(id, { status: state });
+    this.userService.update(id, { status: state });
     if (state === 'OFFLINE') {
       delete this.userStatus[id];
     } else {

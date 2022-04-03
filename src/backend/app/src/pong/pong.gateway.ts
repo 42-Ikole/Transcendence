@@ -27,7 +27,8 @@ import { MatchService } from 'src/match/match.service';
 import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { WsExceptionFilter } from 'src/websocket/websocket.exception.filter';
 import { SocketService } from '../websocket/socket.service';
-import { StatusService, UserState } from 'src/status/status.service';
+import { StatusService } from 'src/status/status.service';
+import { UserState } from 'src/status/status.types';
 
 /*
 Endpoints:

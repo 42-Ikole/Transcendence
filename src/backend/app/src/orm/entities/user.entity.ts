@@ -9,7 +9,7 @@ import { Match } from './match.entity';
 import { IsString, IsOptional, IsBoolean, IsIn } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { Friend } from './friend.entity';
-import { USER_STATES } from 'src/status/status.service';
+import { USER_STATES } from 'src/status/status.types';
 
 //////     //////
 // User Entity //
