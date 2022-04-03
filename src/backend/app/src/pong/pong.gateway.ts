@@ -296,15 +296,15 @@ export class PongGateway
   }
 
   @SubscribeMessage('movement')
-  movement(client: SocketWithUser, data: boolean[]) {
+  movement(client: SocketWithUser, data: Array<string>) {
     const gameRoom = this.pongService.getGameRoom(client.gameRoom);
     if (!gameRoom) {
       return;
     }
     if (client.user.id === gameRoom.playerOne.userId) {
-      movePlayer(gameRoom.gameState.playerOne.bar, data);
+      movePlayer(gameRoom.gameState.playerOne.bar, Array.from(data));
     } else if (client.user.id === gameRoom.playerTwo.userId) {
-      movePlayer(gameRoom.gameState.playerTwo.bar, data);
+      movePlayer(gameRoom.gameState.playerTwo.bar, Array.from(data));
     }
   }
 
