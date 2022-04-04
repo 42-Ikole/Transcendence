@@ -31,15 +31,16 @@
 		</form>
 	</div>
 	<div v-else-if="isCreated">
-		<Chatroom />
+		<RoomsList />
 	</div>
 </template>
 
 <script lang="ts">
 
-import Chatroom from './Chatroom.vue';
+import RoomsList from './RoomsList.vue';
 import { defineComponent } from 'vue';
 import { makeApiCallJson } from "@/utils/ApiCall";
+import { Chat } from './Chatrooms.types.ts';
 
 enum Room {
 	NOTCREATED,
@@ -103,7 +104,7 @@ export default defineComponent({
 		},
 	},
 	components: {
-		Chatroom,
+		RoomsList,
 	},
 })
 

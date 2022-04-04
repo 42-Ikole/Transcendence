@@ -13,7 +13,7 @@
 		</form>
 	</div>
 	<div v-else-if="isJoined">
-		<Chatroom />
+		<Chatroom :chat="chat" />
 	</div>
 </template>
 
@@ -52,8 +52,9 @@ export default defineComponent({
 		async joinChat() {
 			if (this.typedPassword === this.chat.password) {
 				this.room = Room.JOINED;
+			} else {
+				alert('Wrong password bitches');
 			}
-			alert('Wrong password bitches');
 		},
 		toggleShowPassword() {
 			this.showPassword = !this.showPassword;
@@ -72,6 +73,6 @@ export default defineComponent({
 	},
 	components: {
 		Chatroom,
-	}
+	},
 })
 </script>

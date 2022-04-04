@@ -2,7 +2,7 @@
 	<div id="chatbox">
 		<div id="msgbox">
 			<div class="messages">
-				<div v-for="message in messages"> {{ message }} </div>
+				<div v-for="message in this.chat.messages" > {{ message }} </div>
 			</div>
 		</div>
 			<form id="sendmsgbox" @submit.prevent="sendMessage">
@@ -10,6 +10,7 @@
 				<input class="submitbutton" type="submit" value="Send" />
 			</form>
 		<div>
+			Users in chat:
 			<div v-for="user in users"> {{ user }} </div>
 		</div>
 	</div>
@@ -20,6 +21,7 @@
 import io from 'socket.io-client';
 import { useSocketStore } from '@/stores/SocketStore';
 import { mapState } from 'pinia';
+import { Chat } from './Chatrooms.types.ts';
 
 interface DataObject {
 	myMessage: string;
@@ -28,10 +30,17 @@ interface DataObject {
 }
 
 export default {
+	props: {
+		chat: {
+			type: Object as PropType<Chat>,
+			required: true,
+		},
+	},
 	data(): DataObject {
+		console.log(this.chat);
 		return {
 			myMessage: '',
-			messages: [],
+		//	messages: [],
 			users: [],
 		};
 	},
@@ -39,11 +48,12 @@ export default {
 		sendMessage() {
 			console.log(`send: ${this.myMessage}`); //debug
 			this.socket.emit('messageToChat', this.myMessage);
+			//this.chat.messages.push(this.myMessage);
 			this.myMessage = '';
 		},
 		receivedMessage(message) {
 			console.log(`recv: ${message}`); //debug
-			this.messages.push(message);
+			this.chat.messages.push(message);
 		},
 		addUserToList(user) {
 			console.log(`user joined: ${user}`); //debug

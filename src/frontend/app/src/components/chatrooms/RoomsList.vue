@@ -1,13 +1,13 @@
 <template>
-		<div class="conv_joining">
-			<h3>Listed chatrooms:</h3>
-			<div class="dropdown" v-for="chat in filterPrivateChats" :key="chat.id">
-				<p class="btn btn-primary" data-bs-toggle="collapse" v-bind:href="'#chat' + chat.id" role="button" aria-expanded="false" aria-controls="collapseExample"> {{ chat.name }} </p>
-				<div class="collapse" v-bind:id="'chat' + chat.id">
-					<JoinRoom :chat="chat" />
-				</div>
+	<div class="conv_joining">
+		<h3>Listed chatrooms:</h3>
+		<div class="dropdown" v-for="chat in filterPrivateChats" :key="chat.id">
+			<p class="btn btn-primary" data-bs-toggle="collapse" v-bind:href="'#chat' + chat.id" role="button" aria-expanded="false" aria-controls="collapseExample"> {{ chat.name }} </p>
+			<div class="collapse" v-bind:id="'chat' + chat.id">
+				<JoinRoom :chat="chat" />
 			</div>
 		</div>
+	</div>
 </template>
 
 <script lang="ts">
@@ -29,6 +29,7 @@ export default defineComponent({
 	},
 	computed: {
 		filterPrivateChats() {
+			// laat ook privé kamers van de user zien.
 			return this.chats.filter(t => t.type !== 'private');
 		},
 	},
