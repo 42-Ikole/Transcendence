@@ -1,12 +1,32 @@
 <template>
   <p>
-    <button @click="refresh">Refresh Users</button>
+    <button class="btn btn-outline-light btn-lg px-5 me-2" @click="refresh">
+      Refresh Users
+    </button>
   </p>
   <div v-for="user in users" :key="user.id">
-    {{ displayUser(user) }}
-    <button @click="challenge(user)">Challenge</button>
+    <div class="card bg-dark mt-2" style="max-width: 500px">
+      <div class="row g-0">
+        <div class="col-md-6">
+          <h5 class="card-title text-center">{{ displayUser(user) }}</h5>
+        </div>
+        <div class="col-md-4">
+          <div class="card-body">
+            <button class="btn btn-outline-light" @click="challenge(user)">
+              Challenge
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
+<style>
+.text-center {
+  top: 25%;
+}
+</style>
 
 <script lang="ts">
 import { useSocketStore } from "@/stores/SocketStore";

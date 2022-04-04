@@ -6,39 +6,24 @@
       <button @click="logout">Logout</button>
       <p>You are logged in.</p>
     </div>
-    <div v-else>
-      <button @click="login('intra')">Login with Intra</button>
-      <button @click="login('github')">Login with Github</button>
-      <button @click="login('discord')">Login with Discord</button>
-      <p>You are logged out.</p>
-    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import {
-  loginUser,
-  logoutUser,
-  getUserInfo,
-  OAuthProvider,
-} from "@/utils/Login";
+import { loginUser, logoutUser, getUserInfo } from "@/utils/Login";
 import { mapState } from "pinia";
 import { useUserStore } from "@/stores/UserStore";
 
-interface DataObject {
-  userData: any;
-}
-
 export default defineComponent({
-  data(): DataObject {
+  data() {
     return {
-      userData: "",
+      userData: "" as any,
     };
   },
   methods: {
-    login(type: OAuthProvider) {
-      loginUser(type);
+    login() {
+      loginUser();
     },
     logout() {
       logoutUser(this.$router);
