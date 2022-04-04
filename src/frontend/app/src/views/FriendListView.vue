@@ -1,10 +1,12 @@
 <template>
-  <button
-    v-for="state in states" :key="state"
-    class="btn btn-outline-light btn-sm"
-    @click="setState(state)">
-    {{ state }}
-  </button>
+  <div class="mt-1">
+    <button
+      v-for="state in states" :key="state"
+      class="btn btn-outline-light btn-sm ms-1"
+      @click="setState(state)">
+      {{ state }}
+    </button>
+  </div>
   <hr>
   <FriendList v-if="state === 'FRIENDS'" />
   <BlockList v-else-if="state === 'BLOCKED'" />
