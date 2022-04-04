@@ -177,10 +177,10 @@ export class PongGateway
     @MessageBody() data: RequestMatchDto,
   ) {
     if (data.type === 'matchmaking') {
-      this.matchMaking(client);
+      this.matchMaking(client, data.default);
     } else {
       console.log('Challenge:', data);
-      this.challenge(client, data.targetId);
+      this.challenge(client, data.targetId, data.default);
     }
   }
 
@@ -190,7 +190,7 @@ export class PongGateway
       client.emit('rejectChallenge', 'challenger not found');
       this.setStateIfOnline(client.user.id, 'ONLINE');
     } else {
-      this.startNewGame(this.pongService.getChallenger(client), client);
+      this.startNewGame(this.pongService.getChallenger(client), client, this.pongService.getMode(client));
     }
     this.pongService.deleteChallenger(client);
   }
@@ -210,7 +210,7 @@ export class PongGateway
   }
 
   // Check if there is another client ready to play, otherwise set client as waiting/searching
-  matchMaking(client: SocketWithUser) {
+  matchMaking(client: SocketWithUser, mode: boolean) {
     if (!this.pongService.canMatch()) {
       console.log(client.user.username, 'is searching');
       this.pongService.enterMatchmakingQueue(client);
@@ -222,10 +222,10 @@ export class PongGateway
       console.error('client matched with itself');
       return;
     }
-    this.startNewGame(matchedUser, client);
+    this.startNewGame(matchedUser, client, mode);
   }
 
-  challenge(client: SocketWithUser, targetId: number) {
+  challenge(client: SocketWithUser, targetId: number, mode: boolean) {
     const target = this.pongService.getClientFromId(targetId);
     if (!target) {
       client.emit('exception', 'could not find target with id:', targetId);
@@ -237,7 +237,7 @@ export class PongGateway
       client.emit('rejectChallenge', 'target is not available');
       return;
     }
-    this.pongService.addChallenger(client, target);
+    this.pongService.addChallenger(client, target, mode);
     this.setStateIfOnline(client.user.id, 'SEARCHING');
     this.setStateIfOnline(target.user.id, 'CHALLENGED');
     target.emit('requestChallenge', { source: client.user });
@@ -245,7 +245,7 @@ export class PongGateway
 
   // Create a new unique room for these clients to play in
   // Set client's state to PLAYING
-  async startNewGame(clientOne: SocketWithUser, clientTwo: SocketWithUser) {
+  async startNewGame(clientOne: SocketWithUser, clientTwo: SocketWithUser, mode : boolean) {
     const roomName = this.pongService.generateRoomName();
     this.joinRoom(clientOne, roomName);
     this.joinRoom(clientTwo, roomName);
@@ -256,6 +256,7 @@ export class PongGateway
     const gameState = newGameState(
       clientOne.user.username,
       clientTwo.user.username,
+      mode
     );
     const intervalId = this.startGameLoop(roomName, gameState);
     this.pongService.addGameRoom(roomName, {

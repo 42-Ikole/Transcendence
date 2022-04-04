@@ -10,6 +10,8 @@ So position `x = 0.5` is half of the screen/game width in the frontend.
 const BALL_SPEED = 0.01;
 const PLAYER_SPEED = 0.01;
 const VERTICAL_FACTOR = 0.7;
+const BAR_SHRINK = 0.005;
+const BAR_CORRECTION  = 0.0025;
 
 function newBall(): Ball {
   return {
@@ -44,11 +46,12 @@ function newPlayer(username: string): Player {
   };
 }
 
-export function newGameState(userOne: string, userTwo: string): GameState {
+export function newGameState(userOne: string, userTwo: string, mode: boolean): GameState {
   const state: GameState = {
     ball: newBall(),
     playerOne: newPlayer(userOne),
     playerTwo: newPlayer(userTwo),
+    default : mode,
   };
   state.playerTwo.bar.position.x = 0.975; // 0.99 - bar.width
   return state;
@@ -98,24 +101,24 @@ function handleRoundEnd(state: GameState) {
   resetGameState(state);
 }
 
-function ballBarDirection(ball: Ball, bar: PongBar) {
+function ballBarDirection(ball: Ball, bar: PongBar, mode: boolean) {
   ball.direction.x *= -1;
   const offset = ball.position.y - bar.position.y - bar.height / 2;
   ball.direction.y += ((offset / (bar.height / 2)) * 1.2) / 2;
-  if (bar.height > 0.05) {
-    bar.height -= 0.005;
-    bar.position.y += 0.0025;
+  if (bar.height > 0.025 && mode == false) {
+    bar.height -= BAR_SHRINK;
+    bar.position.y += BAR_CORRECTION;
   }
 }
 
-function ballBarIntersection(ball: Ball, bar: PongBar) {
+function ballBarIntersection(ball: Ball, bar: PongBar, mode: boolean) {
   if (
     ball.position.x + ball.radius >= bar.position.x &&
     ball.position.x - ball.radius <= bar.position.x + bar.width &&
     ball.position.y + ball.radius >= bar.position.y &&
     ball.position.y - ball.radius <= bar.position.y + bar.height
   ) {
-    ballBarDirection(ball, bar);
+    ballBarDirection(ball, bar, mode);
   }
 }
 
@@ -125,8 +128,8 @@ function updateBallPosition(state: GameState) {
   if (state.ball.position.y <= 0 || state.ball.position.y >= 1) {
     state.ball.direction.y *= -1;
   }
-  ballBarIntersection(state.ball, state.playerOne.bar);
-  ballBarIntersection(state.ball, state.playerTwo.bar);
+  ballBarIntersection(state.ball, state.playerOne.bar, state.default);
+  ballBarIntersection(state.ball, state.playerTwo.bar, state.default);
 }
 
 export function gameHasEnded(state: GameState): boolean {

@@ -1,5 +1,6 @@
 <template>
-  <button @click="requestMatch">Find Match</button>
+  <button @click="requestMatch(false)">Find Match</button>
+  <button @click="requestDefaultMatch(true)">Find Default Match</button>
 </template>
 
 <script lang="ts">
@@ -8,12 +9,15 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
   methods: {
-    requestMatch() {
+    requestMatch(mode: boolean) {
       useSocketStore().pong?.emit("requestMatch", {
         type: "matchmaking",
         targetId: null,
+        default: mode,
       });
     },
   },
 });
+
+
 </script>

@@ -4,7 +4,8 @@
   </p>
   <div v-for="user in users" :key="user.id">
     {{ displayUser(user) }}
-    <button @click="challenge(user)">Challenge</button>
+    <button @click="challenge(user, false)">Challenge</button>
+    <button @click="challenge(user, true)">Challenge Default Mode</button>
   </div>
 </template>
 
@@ -33,11 +34,12 @@ export default defineComponent({
     displayUser(user: any) {
       return `${user.username}`;
     },
-    challenge(user: any) {
+    challenge(user: any, mode: boolean) {
       console.log("challenge:", user);
       useSocketStore().pong!.emit("requestMatch", {
         type: "challenge",
         targetId: user.id,
+        default: mode,
       });
     },
   },

@@ -17,6 +17,7 @@ export class PongService {
   private gameRooms: Record<string, GameRoom> = {}; // roomName -> extra room Data
   private disconnectedUsers: Record<number, string> = {}; // userId -> roomName
   private challengers: Record<number, number> = {}; // challengedUserId -> challengerUserId
+  private default: boolean;
 
   addClient(client: SocketWithUser) {
     this.socketService.addSocket(client.user.id, 'pong', client);
@@ -181,8 +182,13 @@ export class PongService {
     return !!this.challengers[client.user.id];
   }
 
-  addChallenger(client: SocketWithUser, target: SocketWithUser) {
+  addChallenger(client: SocketWithUser, target: SocketWithUser, mode) {
     this.challengers[target.user.id] = client.user.id;
+    this.default = mode;
+  }
+
+  getMode(client: SocketWithUser): boolean {
+    return this.default;
   }
 
   // Return true IF:
