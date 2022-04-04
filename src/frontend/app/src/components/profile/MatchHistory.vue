@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import MatchCard from "@/components/pong/MatchCard.vue";
+import MatchCard from "@/components/Pong/MatchCard.vue";
 
 export default defineComponent({
   components: {
