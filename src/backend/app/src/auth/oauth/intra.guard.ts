@@ -15,6 +15,13 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
       clientID: configService.get('oauth.intra.CLIENT_ID'),
       clientSecret: configService.get('oauth.intra.CLIENT_SECRET'),
       callbackURL: configService.get('oauth.intra.CALLBACK_URL'),
+      profileFields: {
+        id: function (obj) {
+          return String(obj.id);
+        },
+        username: 'login',
+        image_url: 'image_url',
+      },
     });
   }
 
@@ -28,8 +35,8 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
     profile: any,
     callback: (error: any, user: SessionUser) => void,
   ) {
-    const { username, id: intraId } = profile;
-    const details = { username, intraId };
+    const { username, id: intraId, image_url: avatar } = profile;
+    const details = { username, intraId, avatar };
     console.log('Intra User:', details);
     const user = await this.authService.validateUser(details);
     callback(null, { id: user.id, twoFactorPassed: !user.twoFactorEnabled });
