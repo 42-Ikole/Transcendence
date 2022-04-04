@@ -1,7 +1,7 @@
 <template>
     <h2>Blocked Users </h2>
     <div v-for="user in blockedUsers" :key="user.id">
-        <p> {{ user.username }} </p>
+        {{ user.username }}
         <button @click="unblock(user)"> Unblock </button>
     </div>
 </template>

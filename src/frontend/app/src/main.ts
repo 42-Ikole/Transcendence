@@ -12,7 +12,6 @@ async function bootstrap() {
   app.use(createPinia());
   // Check with server if user is logged in.
   await checkUserSession();
-  useFriendStore().init();
   app.use(router);
   app.mount("#app");
 }
