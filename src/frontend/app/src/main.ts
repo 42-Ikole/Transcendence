@@ -5,12 +5,14 @@ import router from "./router";
 import { checkUserSession } from "./utils/Login";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.js"; // tutorials put this at the bottom of the file for some reason
+import { useFriendStore } from "./stores/FriendStore";
 
 async function bootstrap() {
   const app = createApp(App);
   app.use(createPinia());
   // Check with server if user is logged in.
   await checkUserSession();
+  useFriendStore().init();
   app.use(router);
   app.mount("#app");
 }

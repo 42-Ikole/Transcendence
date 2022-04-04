@@ -3,11 +3,7 @@
   <div v-for="user in users" :key="user.id">
     <p>{{ user.username }} : {{ user.id }}</p>
     <button @click="sendFriendRequest(user)">Send Friend Request</button>
-    <button @click="rejectFriendRequest(user)">Reject Friend Request</button>
-    <button @click="acceptFriendRequest(user)">Accept Friend Request</button>
-    <button @click="removeFriend(user)">Remove Friend</button>
     <button @click="blockUser(user)">Block</button>
-    <button @click="unblockUser(user)">Unblock</button>
     <hr />
   </div>
 </template>
@@ -41,29 +37,9 @@ export default defineComponent({
         id: user.id,
       });
     },
-    async rejectFriendRequest(user: PublicUser) {
-      await makeApiCallJson("friend/request/reject", "POST", {
-        id: user.id,
-      });
-    },
-    async acceptFriendRequest(user: PublicUser) {
-      await makeApiCallJson("friend/request/accept", "POST", {
-        id: user.id,
-      });
-    },
-    async removeFriend(user: PublicUser) {
-      await makeApiCall(`friend/unfriend/${user.id}`, {
-        method: "DELETE",
-      });
-    },
     async blockUser(user: PublicUser) {
       await makeApiCallJson("friend/block", "POST", {
         id: user.id,
-      });
-    },
-    async unblockUser(user: PublicUser) {
-      await makeApiCall(`friend/unblock/${user.id}`, {
-        method: "DELETE",
       });
     },
     async refresh() {

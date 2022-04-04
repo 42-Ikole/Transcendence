@@ -1,6 +1,7 @@
 import type { PublicUser } from "@/types/UserType";
 import makeApiCall from "@/utils/ApiCall";
 import { defineStore } from "pinia";
+import { useSocketStore } from "./SocketStore";
 
 // TODO: should be a set of users!
 interface FriendState {
@@ -23,6 +24,9 @@ export const useFriendStore = defineStore("friend", {
   },
   getters: {},
   actions: {
+    init() {
+      useSocketStore().status.on('friendUpdate', this.refresh);
+    },
     async refresh() {
       await this.refreshFriends();
       await this.refreshFriendRequests();

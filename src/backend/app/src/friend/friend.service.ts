@@ -33,6 +33,13 @@ export class FriendService {
     return result;
   }
 
+  async cancelFriendRequest(cancel: FriendDto) {
+    const entity = await this.findExactOrFail(cancel);
+    const result = await this.friendRepository.remove(entity);
+    this.emitUpdate(cancel);
+    return result;
+  }
+
   // Remove exact friend (example: unblock a single side of the relationship)
   async removeFriend(friend: FriendDto) {
     const entity = await this.findExactOrFail(friend);
