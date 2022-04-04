@@ -1,5 +1,5 @@
 <template>
-  <p>{{ playerOneScore }} : {{ playerTwoScore }}</p>
+  <p class="text-center" ><h2 class="p1-score inline">{{ playerOneScore }}</h2> <h2 class="inline">:</h2> <h2 class="inline p2-score">{{ playerTwoScore }}</h2></p>
   <canvas class="game" ref="game" width="600" height="480"> </canvas>
 </template>
 
@@ -62,7 +62,7 @@ export default defineComponent({
     },
 
     drawBar(bar: PongBar) {
-      this.context!.fillStyle = "#000";
+      this.context!.fillStyle = "#ff80fd";
       this.context!.fillRect(
         bar.position.x * this.width,
         bar.position.y * this.height,
@@ -73,7 +73,7 @@ export default defineComponent({
 
     drawBall(ball: Ball) {
       this.context!.beginPath();
-      this.context!.fillStyle = "#000";
+      this.context!.fillStyle = "#ffe32e";
       this.context!.arc(
         ball.position.x * this.width,
         ball.position.y * this.height,
@@ -126,7 +126,10 @@ export default defineComponent({
 .game {
   width: 60vw;
   height: 80vh;
-  border: 1px solid black;
+  border-top: 5px solid black;
+  border-bottom: 5px solid black;
+  border-left: 8px solid #b52b24;
+  border-right: 8px solid #32a852;
   display: block;
   background-color: white;
   margin: auto;
@@ -134,5 +137,22 @@ export default defineComponent({
   bottom: 0;
   left: 0;
   right: 0;
+  background-image: url("@/assets/new\ coders.png");
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center;
 }
+
+.p1-score {
+	color: #b52b24;
+}
+
+.p2-score {
+	color: #32a852;
+}
+
+.inline {
+	display: inline !important;
+}
+
 </style>

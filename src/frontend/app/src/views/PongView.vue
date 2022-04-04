@@ -1,5 +1,5 @@
 <template>
-	<div class="container mt-5">
+	<div class="container-fluid pong-margin">
 		<h1>PongHub Hub</h1>
 		<hr>
 		<div v-if="isPlaying">
@@ -37,6 +37,16 @@
 		</div>
 	</div>
 </template>
+
+<style>
+
+.pong-margin {
+	padding-left: 10% !important;
+	padding-right: 10% !important;
+	overflow: hidden;
+}
+
+</style>
 
 <script lang="ts">
 import { defineComponent } from "vue";
