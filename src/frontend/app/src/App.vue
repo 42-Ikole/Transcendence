@@ -10,6 +10,8 @@
       </div>
     </header>
     <div>
+    <h3>You are: {{ username }}</h3>
+    <div class="m-3">
       <RouterView />
     </div>
   </div>
@@ -37,6 +39,7 @@ export default defineComponent({
     ...mapState(useUserStore, {
       state: "state",
 	  authenticatedState: "authenticatedState",
+      profileData: "profileData",
     }),
     connectionDenied() {
       return this.state === "CONNECTION_DENIED";
@@ -44,6 +47,12 @@ export default defineComponent({
 	isAuthenticated() {
 		return this.authenticatedState === "AUTHENTICATED";
 	},
+    username() {
+      if (this.profileData) {
+        return this.profileData.username;
+      }
+      return "not logged in";
+    },
   },
 });
 </script>

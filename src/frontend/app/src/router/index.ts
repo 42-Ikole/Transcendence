@@ -6,6 +6,7 @@ import { isLoggedIn } from "@/utils/Login";
 import Enable2FaView from "@/views/Enable2FaView.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import PongView from "@/views/PongView.vue";
+import FriendView from "@/views/FriendView.vue";
 
 const routes = [
   {
@@ -37,6 +38,11 @@ const routes = [
     path: "/pong",
     name: "pong",
     component: PongView,
+  },
+  {
+    path: "/friend-view",
+    name: "friend-view",
+    component: FriendView,
   },
 ];
 

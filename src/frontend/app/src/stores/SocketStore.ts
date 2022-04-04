@@ -33,7 +33,7 @@ export const useSocketStore = defineStore("socket", {
       this.status.on("statusUpdate", (update: StatusUpdate) => {
         useUserStore().setState(update.newState);
       });
-      this.status.on("friendUpdate", (update: StatusUpdate) => {
+      this.status.on("friendStatusUpdate", (update: StatusUpdate) => {
         console.log("other user:", update);
       });
     },

@@ -27,7 +27,8 @@ import { MatchService } from 'src/match/match.service';
 import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { WsExceptionFilter } from 'src/websocket/websocket.exception.filter';
 import { SocketService } from '../websocket/socket.service';
-import { StatusService, UserState } from 'src/status/status.service';
+import { StatusService } from 'src/status/status.service';
+import { UserState } from 'src/status/status.types';
 
 /*
 Endpoints:
@@ -228,7 +229,10 @@ export class PongGateway
   challenge(client: SocketWithUser, targetId: number) {
     const target = this.pongService.getClientFromId(targetId);
     if (!target) {
-      client.emit('exception', 'could not find target with id:', targetId);
+      client.emit(
+        'exception',
+        'could not find target with id:' + targetId.toString(),
+      );
       return;
     } else if (client.id === target.id) {
       client.emit('exception', 'you challenged yourself');
