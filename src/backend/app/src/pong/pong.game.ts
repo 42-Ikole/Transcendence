@@ -9,7 +9,7 @@ So position `x = 0.5` is half of the screen/game width in the frontend.
 //
 const BALL_SPEED = 0.01;
 const PLAYER_SPEED = 0.01;
-const VERTICAL_FACTOR = 0.7;
+const VERTICAL_FACTOR = 0.5;
 const BAR_SHRINK = 0.005;
 const BAR_CORRECTION  = 0.0025;
 
@@ -127,6 +127,11 @@ function updateBallPosition(state: GameState) {
   state.ball.position.y += state.ball.direction.y * BALL_SPEED;
   if (state.ball.position.y <= 0 || state.ball.position.y >= 1) {
     state.ball.direction.y *= -1;
+    if (state.default == false && state.ball.position.y <= 0){
+      state.ball.radius += 0.001;
+    } else if (state.default == false && state.ball.position.y >= 1) {
+      state.ball.radius -= 0.001;
+    }
   }
   ballBarIntersection(state.ball, state.playerOne.bar, state.default);
   ballBarIntersection(state.ball, state.playerTwo.bar, state.default);

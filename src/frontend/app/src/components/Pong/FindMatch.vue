@@ -1,6 +1,6 @@
 <template>
   <button @click="requestMatch(false)">Find Match</button>
-  <button @click="requestDefaultMatch(true)">Find Default Match</button>
+  <button @click="requestMatch(true)">Find Default Match</button>
 </template>
 
 <script lang="ts">
