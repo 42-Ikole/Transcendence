@@ -1,6 +1,6 @@
-import { IsNumberString } from 'class-validator';
+import { IsInt, IsNumberString } from 'class-validator';
 
-export class NumberIdParam {
-  @IsNumberString()
+export class IdDto {
+  @IsInt()
   id: number;
 }

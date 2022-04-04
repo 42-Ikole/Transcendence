@@ -1,7 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
 import { Match } from './match.entity';
-import { IsString, IsOptional, IsBoolean } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsIn } from 'class-validator';
 import { Exclude } from 'class-transformer';
+import { Friend } from './friend.entity';
+import { USER_STATES } from 'src/status/status.types';
 
 //////     //////
 // User Entity //
@@ -27,6 +35,16 @@ export class User {
   @OneToMany(() => Match, (match) => match.loser)
   losses: Match[];
 
+  // Friendships
+  @OneToMany(() => Friend, (relation: Friend) => relation.relatingUser)
+  relatingUsers: Friend[];
+
+  @OneToMany(() => Friend, (relation: Friend) => relation.relatedUser)
+  relatedUsers: Friend[];
+
+  @Column({ default: 'OFFLINE' })
+  status: string;
+
   // Two Factor
   @Column({ nullable: true })
   @Exclude()
@@ -48,6 +66,11 @@ export class PartialUser {
   @IsString()
   @IsOptional()
   avatar?: string;
+
+  @IsString()
+  @IsIn(USER_STATES)
+  @IsOptional()
+  status?: string;
 
   @IsString()
   @IsOptional()
