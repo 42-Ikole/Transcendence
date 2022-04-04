@@ -1,5 +1,9 @@
 <template>
-  <p class="text-center" ><h2 class="p1-score inline">{{ playerOneScore }}</h2> <h2 class="inline">:</h2> <h2 class="inline p2-score">{{ playerTwoScore }}</h2></p>
+  <div class="text-center">
+    <h2 class="p1-score inline">{{ playerOneScore }}</h2>
+    <h2 class="inline">:</h2>
+    <h2 class="inline p2-score">{{ playerTwoScore }}</h2>
+  </div>
   <canvas class="game" ref="game" width="600" height="480"> </canvas>
 </template>
 
@@ -138,21 +142,20 @@ export default defineComponent({
   left: 0;
   right: 0;
   background-image: url("@/assets/new\ coders.png");
-	background-repeat: no-repeat;
-	background-size: cover;
-	background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
 }
 
 .p1-score {
-	color: #b52b24;
+  color: #b52b24;
 }
 
 .p2-score {
-	color: #32a852;
+  color: #32a852;
 }
 
 .inline {
-	display: inline !important;
+  display: inline !important;
 }
-
 </style>

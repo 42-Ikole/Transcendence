@@ -130,7 +130,7 @@ function updateBallPosition(state: GameState) {
 }
 
 export function gameHasEnded(state: GameState): boolean {
-	return (
+  return (
     (state.playerOne.score >= 11 || state.playerTwo.score >= 11) &&
     Math.abs(state.playerOne.score - state.playerTwo.score) > 1
   );

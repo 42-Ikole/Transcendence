@@ -1,18 +1,34 @@
 <template>
-
   <div class="input-group">
-    <input v-bind:class="errorStyling" v-model="code" type="text" class="form-control" placeholder="2FA code" aria-label="2FA code">
-    <button v-bind:class="errorStyling" class="btn btn-outline-light"  @click="submit">Submit</button>
-    <button v-bind:class="errorStyling" class="btn btn-outline-light" @click="logout">Logout</button>
+    <input
+      v-bind:class="setErrorStyling"
+      v-model="code"
+      type="text"
+      class="form-control"
+      placeholder="2FA code"
+      aria-label="2FA code"
+    />
+    <button
+      v-bind:class="setErrorStyling"
+      class="btn btn-outline-light"
+      @click="submit"
+    >
+      Submit
+    </button>
+    <button
+      v-bind:class="setErrorStyling"
+      class="btn btn-outline-light"
+      @click="logout"
+    >
+      Logout
+    </button>
   </div>
 </template>
 
 <style>
-
 .errorStyling {
-	border-color: red !important;
+  border-color: red !important;
 }
-
 </style>
 
 <script lang="ts">
@@ -25,17 +41,16 @@ export default defineComponent({
   data() {
     return {
       code: "",
-	  error: false
+      error: false,
     };
   },
   computed: {
-	  errorStyling() {
-		  console.log("error");
-		  if (this.error === true) {
-		  	this.error = false;
-		  	return 'errorStyling';
-		  }
-	  }
+    setErrorStyling() {
+      if (this.error) {
+        return "errorStyling";
+      }
+      return "";
+    },
   },
   methods: {
     async submit() {
@@ -43,12 +58,12 @@ export default defineComponent({
         twoFactorCode: this.code,
       });
       if (response.ok) {
+        this.error = false;
         useUserStore().login();
+      } else {
+        this.code = "";
+        this.error = true;
       }
-	  else {
-		this.code = "";
-		this.error = true;
-	  }
     },
     async logout() {
       await logoutUser(this.$router);

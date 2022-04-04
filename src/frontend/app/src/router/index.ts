@@ -32,7 +32,7 @@ const routes = [
   {
     path: "/profile",
     name: "profile",
-	component: ProfileView,
+    component: ProfileView,
   },
   {
     path: "/pong",

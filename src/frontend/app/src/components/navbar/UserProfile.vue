@@ -1,23 +1,32 @@
 <template>
   <div class="btn-group">
-    <button type="button" class="buttonImage dropdown-toggle" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
-    </button>
+    <button
+      type="button"
+      class="buttonImage dropdown-toggle"
+      data-bs-toggle="dropdown"
+      data-bs-display="static"
+      aria-expanded="false"
+    ></button>
     <ul class="dropdown-menu dropdown-menu-end">
       <li>
-	  	  <button class="dropdown-item" type="button" @click="goToProfile">Profile</button>
-		  </li>
-      <li>
-        <hr class="dropdown-divider">
+        <button class="dropdown-item" type="button" @click="goToProfile">
+          Profile
+        </button>
       </li>
       <li>
-        <button class="dropdown-item" type="button" @click="logout">Logout</button>
+        <hr class="dropdown-divider" />
+      </li>
+      <li>
+        <button class="dropdown-item" type="button" @click="logout">
+          Logout
+        </button>
       </li>
     </ul>
   </div>
 </template>
 
 <style>
-.buttonImage{
+.buttonImage {
   background: #f0f0f0 url("@/assets/profileplaceholder.jpeg");
   background-repeat: no-repeat;
   background-size: cover;
@@ -27,20 +36,16 @@
   border-width: 0px;
   background-repeat: no-repeat;
 }
-
 </style>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { logoutUser } from "@/utils/Login";
 import { mapState } from "pinia";
-import  LoggedOut  from "@/components/Authentication/LoggedOut.vue";
+import LoggedOut from "@/components/Authentication/LoggedOut.vue";
 import makeApiCall from "@/utils/ApiCall";
 
 export default defineComponent({
-  components: {
-	  LoggedOut,
-  },
   methods: {
     logout() {
       logoutUser(this.$router);
