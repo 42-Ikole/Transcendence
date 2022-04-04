@@ -4,16 +4,12 @@
   </div>
 
   <div v-else>
-    <header>
-      <div v-if="isAuthenticated">
-        <NavBar />
-      </div>
-    </header>
-    <div>
-    <h3>You are: {{ username }}</h3>
-    <div class="m-3">
-      <RouterView />
-    </div>
+		<header>
+			<div v-if="isAuthenticated">
+				<NavBar />
+			</div>
+		</header>
+		<RouterView />
   </div>
 </template>
 
@@ -47,12 +43,6 @@ export default defineComponent({
 	isAuthenticated() {
 		return this.authenticatedState === "AUTHENTICATED";
 	},
-    username() {
-      if (this.profileData) {
-        return this.profileData.username;
-      }
-      return "not logged in";
-    },
   },
 });
 </script>
