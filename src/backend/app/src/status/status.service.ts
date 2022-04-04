@@ -4,7 +4,7 @@ import { User } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { SocketService } from 'src/websocket/socket.service';
 import { Repository } from 'typeorm';
-import { UserState } from "./status.types"
+import { UserState } from './status.types';
 
 /*
 The point of this class is to update the status of a user and emit it

@@ -9,7 +9,7 @@
         <NavBar />
       </div>
     </header>
-    <h3> You are: {{ username }} </h3>
+    <h3>You are: {{ username }}</h3>
     <div class="m-3">
       <RouterView />
     </div>
@@ -43,7 +43,7 @@ export default defineComponent({
         return this.profileData.username;
       }
       return "not logged in";
-    }
+    },
   },
 });
 </script>

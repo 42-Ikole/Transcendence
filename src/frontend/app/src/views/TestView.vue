@@ -1,20 +1,20 @@
 <template>
-<p>{{ prop.id }}</p>
+  <p>{{ prop.id }}</p>
 </template>
 
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
 
 interface ChatRoom {
-	id: number;
+  id: number;
 }
 
 export default defineComponent({
-	props: {
-		prop: {
-			type: Object as PropType<ChatRoom>,
-			required: true,
-		},
-	},
-})
+  props: {
+    prop: {
+      type: Object as PropType<ChatRoom>,
+      required: true,
+    },
+  },
+});
 </script>

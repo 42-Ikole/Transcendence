@@ -13,16 +13,15 @@ interface FriendState {
 
 export const useFriendStore = defineStore("friend", {
   state: (): FriendState => {
-      return {
-        friends: [],
-        friendRequests: [], // received requests
-        sentRequests: [],
-        blockedUsers: [],
-        blockedByUsers: [],
+    return {
+      friends: [],
+      friendRequests: [], // received requests
+      sentRequests: [],
+      blockedUsers: [],
+      blockedByUsers: [],
     };
   },
-  getters: {
-  },
+  getters: {},
   actions: {
     async refresh() {
       await this.refreshFriends();
