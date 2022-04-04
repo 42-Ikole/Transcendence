@@ -5,23 +5,20 @@
 
   <div v-else>
     <header>
-      <div>
+      <div v-if="isAuthenticated">
         <NavBar />
       </div>
     </header>
-    <h3>You are: {{ username }}</h3>
-    <div class="m-3">
-      <RouterView />
-    </div>
+    <RouterView />
   </div>
 </template>
 
 <script lang="ts">
+import { useUserStore, type AuthenticatedState } from "@/stores/UserStore";
 import { defineComponent } from "vue";
 import { RouterView } from "vue-router";
-import NavBar from "@/components/NavBar.vue";
+import NavBar from "@/components/navbar/NavBar.vue";
 import { mapState } from "pinia";
-import { useUserStore } from "./stores/UserStore";
 import ConnectionDenied from "./components/Authentication/ConnectionDenied.vue";
 
 export default defineComponent({
@@ -33,16 +30,14 @@ export default defineComponent({
   computed: {
     ...mapState(useUserStore, {
       state: "state",
+      authenticatedState: "authenticatedState",
       profileData: "profileData",
     }),
     connectionDenied() {
       return this.state === "CONNECTION_DENIED";
     },
-    username() {
-      if (this.profileData) {
-        return this.profileData.username;
-      }
-      return "not logged in";
+    isAuthenticated() {
+      return this.authenticatedState === "AUTHENTICATED";
     },
   },
 });

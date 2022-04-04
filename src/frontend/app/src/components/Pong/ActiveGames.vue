@@ -1,11 +1,18 @@
 <template>
   <p>
-    <button @click="refresh">Refresh Games</button>
+    <button class="btn btn-outline-light btn-lg px-5 me-2" @click="refresh">
+      Refresh Games
+    </button>
   </p>
   <div v-for="game in games" :key="game.name">
     <p>
       {{ getMessage(game) }}
-      <button @click="observe(game)">Observe</button>
+      <button
+        class="btn btn-outline-light btn-sm px-5 me-2 mt-1"
+        @click="observe(game)"
+      >
+        Observe
+      </button>
     </p>
   </div>
 </template>
