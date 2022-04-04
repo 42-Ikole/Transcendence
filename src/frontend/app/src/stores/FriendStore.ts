@@ -25,7 +25,8 @@ export const useFriendStore = defineStore("friend", {
   getters: {},
   actions: {
     init() {
-      useSocketStore().status.on('friendUpdate', this.refresh);
+      this.refresh();
+      useSocketStore().status!.on('friendUpdate', this.refresh);
     },
     async refresh() {
       await this.refreshFriends();

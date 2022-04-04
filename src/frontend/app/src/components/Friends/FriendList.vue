@@ -1,15 +1,20 @@
 <template>
-    <h3> Pending Requests </h3>
     <div v-for="user in friendRequests" :key="user.id">
-        {{ user.username }}
-        <button @click="accept(user)"> Accept </button>
-        <button @click="reject(user)"> Reject </button>
+        <p>
+            Friend Request: {{ user.username }}
+            <button class="btn btn-outline-light btn-sm" @click="accept(user)"> Accept </button>
+            <button class="btn btn-outline-light btn-sm" @click="reject(user)"> Reject </button>
+        </p>
     </div>
 
-    <h3> Friends </h3>
-    <div v-for="user in friends" :key="user.id">
-        <p> {{ user.username }} </p>
-        <button @click="unfriend(user)"> Unfriend </button>
+    <div v-if="noFriends">
+        <p>You have no friends... :(</p>
+    </div>
+    <div v-else v-for="user in friends" :key="user.id">
+        <p>
+            {{ user.username }}
+            <button class="btn btn-outline-light btn-sm" @click="unfriend(user)"> Unfriend </button>
+        </p>
     </div>
 </template>
 
@@ -17,12 +22,15 @@
 import { defineComponent } from "vue";
 import { mapState } from "pinia";
 import { useFriendStore } from "@/stores/FriendStore";
-import { PublicUser } from "@/types/UserType";
+import type { PublicUser } from "@/types/UserType";
 import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
 
 export default defineComponent({
     computed: {
         ...mapState(useFriendStore, ["friends", "friendRequests"]),
+        noFriends(): boolean {
+            return this.friends.length === 0;
+        }
     },
     methods: {
         unfriend(user: PublicUser) {

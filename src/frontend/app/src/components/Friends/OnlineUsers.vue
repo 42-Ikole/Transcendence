@@ -1,10 +1,12 @@
 <template>
-  <h2>Online Users</h2>
+  <h2>All Users</h2>
   <div v-for="user in users" :key="user.id">
-    <p>{{ user.username }} : {{ user.id }}</p>
-    <button @click="sendFriendRequest(user)">Send Friend Request</button>
-    <button @click="blockUser(user)">Block</button>
-    <hr />
+    <div v-if="isOtherUser(user)">
+      <p>{{ user.username }} : {{ user.id }}</p>
+      <button class="btn btn-outline-light btn-sm" @click="sendFriendRequest(user)">Send Friend Request</button>
+      <button class="btn btn-outline-light btn-sm" @click="blockUser(user)">Block</button>
+      <hr />
+    </div>
   </div>
 </template>
 
@@ -46,6 +48,9 @@ export default defineComponent({
       const response = await makeApiCall("/user/all");
       this.users = await response.json();
     },
+    isOtherUser(user: PublicUser): boolean {
+      return user.id !== useUserStore().profileData!.id;
+    }
   },
   async mounted() {
     await this.refresh();

@@ -1,7 +1,11 @@
 <template>
-  <div v-for="state in states" :key="state.type">
-     <button @click="setState(state)"> {{ state }} </button>
-  </div>
+  <button
+    v-for="state in states" :key="state"
+    class="btn btn-outline-light btn-sm"
+    @click="setState(state)">
+    {{ state }}
+  </button>
+  <hr>
   <FriendList v-if="state === 'FRIENDS'" />
   <BlockList v-else-if="state === 'BLOCKED'" />
   <FriendRequest v-else-if="state === 'REQUESTS'" />
@@ -19,7 +23,7 @@ type FriendListStates = "FRIENDS" | "BLOCKED" | "REQUESTS" | "USERS";
 
 interface DataObject {
   state: FriendListStates;
-  states: [FriendListStates];
+  states: FriendListStates[];
 }
 
 export default defineComponent({
