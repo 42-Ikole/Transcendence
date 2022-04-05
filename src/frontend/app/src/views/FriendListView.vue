@@ -1,13 +1,15 @@
 <template>
   <div class="mt-1">
     <button
-      v-for="state in states" :key="state"
+      v-for="state in states"
+      :key="state"
       class="btn btn-outline-light btn-sm ms-1"
-      @click="setState(state)">
+      @click="setState(state)"
+    >
       {{ state }}
     </button>
   </div>
-  <hr>
+  <hr />
   <FriendList v-if="state === 'FRIENDS'" />
   <BlockList v-else-if="state === 'BLOCKED'" />
   <FriendRequest v-else-if="state === 'REQUESTS'" />
@@ -32,8 +34,8 @@ export default defineComponent({
   data(): DataObject {
     return {
       state: "FRIENDS",
-      states: [ "FRIENDS", "BLOCKED", "REQUESTS", "USERS" ],
-    }
+      states: ["FRIENDS", "BLOCKED", "REQUESTS", "USERS"],
+    };
   },
   components: {
     FriendList,
@@ -44,7 +46,7 @@ export default defineComponent({
   methods: {
     setState(state: FriendListStates) {
       this.state = state;
-    }
+    },
   },
 });
 </script>

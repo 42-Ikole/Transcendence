@@ -12,10 +12,15 @@ interface FriendState {
   blockedByUsers: PublicUser[];
 }
 
-type RelationType = "FRIENDS" | "FRIEND_REQUESTS" | "SENT_REQUESTS" | "BLOCKED" | "BLOCKED_BY";
+type RelationType =
+  | "FRIENDS"
+  | "FRIEND_REQUESTS"
+  | "SENT_REQUESTS"
+  | "BLOCKED"
+  | "BLOCKED_BY";
 
 function appearsInList(id: number, users: PublicUser[]) {
-  for (let user of users) {
+  for (const user of users) {
     if (id === user.id) {
       return true;
     }
@@ -47,11 +52,11 @@ export const useFriendStore = defineStore("friend", {
           return appearsInList(id, this.blockedUsers);
         case "BLOCKED_BY":
           return appearsInList(id, this.blockedByUsers);
-      };
+      }
     },
     init() {
       this.refresh();
-      useSocketStore().status!.on('friendUpdate', this.refresh);
+      useSocketStore().status!.on("friendUpdate", this.refresh);
     },
     async refresh() {
       await this.refreshFriends();

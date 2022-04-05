@@ -1,13 +1,15 @@
 <template>
-    <div v-if="hasBlocked">
-        <p> You have no blocked users. </p>
-    </div>
-    <div v-else v-for="user in blockedUsers" :key="user.id">
-        <p>
-            {{ user.username }}
-            <button class="btn btn-outline-light btn-sm" @click="unblock(user)"> Unblock </button>
-        </p>
-    </div>
+  <div v-if="hasBlocked">
+    <p>You have no blocked users.</p>
+  </div>
+  <div v-else v-for="user in blockedUsers" :key="user.id">
+    <p>
+      {{ user.username }}
+      <button class="btn btn-outline-light btn-sm" @click="unblock(user)">
+        Unblock
+      </button>
+    </p>
+  </div>
 </template>
 
 <script lang="ts">
@@ -18,18 +20,18 @@ import type { PublicUser } from "@/types/UserType";
 import { makeApiCall } from "@/utils/ApiCall";
 
 export default defineComponent({
-    computed: {
-        ...mapState(useFriendStore, ["blockedUsers"]),
-        hasBlocked(): boolean {
-            return this.blockedUsers.length === 0;
-        }
+  computed: {
+    ...mapState(useFriendStore, ["blockedUsers"]),
+    hasBlocked(): boolean {
+      return this.blockedUsers.length === 0;
     },
-    methods: {
-        unblock(user: PublicUser) {
-            makeApiCall(`/friend/unblock/${user.id}`, {
-                method: "DELETE",
-            });
-        },
+  },
+  methods: {
+    unblock(user: PublicUser) {
+      makeApiCall(`/friend/unblock/${user.id}`, {
+        method: "DELETE",
+      });
     },
+  },
 });
 </script>

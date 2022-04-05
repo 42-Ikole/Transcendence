@@ -3,8 +3,15 @@
   <div v-for="user in users" :key="user.id">
     <div v-if="isOtherUser(user)">
       <p>{{ user.username }} : {{ user.id }}</p>
-      <button class="btn btn-outline-light btn-sm" @click="sendFriendRequest(user)">Send Friend Request</button>
-      <button class="btn btn-outline-light btn-sm" @click="blockUser(user)">Block</button>
+      <button
+        class="btn btn-outline-light btn-sm"
+        @click="sendFriendRequest(user)"
+      >
+        Send Friend Request
+      </button>
+      <button class="btn btn-outline-light btn-sm" @click="blockUser(user)">
+        Block
+      </button>
       <hr />
     </div>
   </div>
