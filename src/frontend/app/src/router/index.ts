@@ -7,6 +7,7 @@ import Enable2FaView from "@/views/Enable2FaView.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import PongView from "@/views/PongView.vue";
 import FriendView from "@/views/FriendView.vue";
+import EditProfileView from "@/views/EditProfileView.vue";
 
 const routes = [
   {
@@ -33,6 +34,11 @@ const routes = [
     path: "/profile",
     name: "profile",
     component: ProfileView,
+  },
+  {
+    path: "/profile/edit",
+    name: "profile-edit",
+    component: EditProfileView,
   },
   {
     path: "/pong",
