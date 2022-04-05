@@ -12,6 +12,10 @@ import { ConfigModule } from '@nestjs/config';
 import { configModuleOptions } from './config/options';
 import { ChatModule } from './chat/chat.module';
 import { PongModule } from './pong/pong.module';
+import { SocketModule } from './websocket/socket.module';
+import { StatusModule } from './status/status.module';
+import { FriendModule } from './friend/friend.module';
+import { CookieModule } from './websocket/cookie.module';
 
 @Module({
   imports: [
@@ -21,6 +25,10 @@ import { PongModule } from './pong/pong.module';
     AuthModule,
     TwoFactorModule,
     PongModule,
+    SocketModule,
+    CookieModule,
+    StatusModule,
+    FriendModule,
     PassportModule.register({ session: true }),
     ConfigModule.forRoot(configModuleOptions),
     ChatModule,

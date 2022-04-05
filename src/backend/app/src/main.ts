@@ -1,7 +1,7 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { INestApplication } from '@nestjs/common';
+import { ClassSerializerInterceptor, INestApplication } from '@nestjs/common';
 import * as session from 'express-session';
 import * as passport from 'passport';
 import { TypeORMSession } from './orm/entities/session.entity';
@@ -30,6 +30,7 @@ async function setupSession(app: INestApplication) {
     session({
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 7,
+        sameSite: 'strict',
       },
       name: configService.get('cookie.NAME'),
       secret: configService.get('cookie.SECRET'),
@@ -49,6 +50,7 @@ async function bootstrap() {
   await setupSession(app);
   app.enableCors(); // For frontend API connection
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   await app.listen(3000);
 }
 bootstrap();

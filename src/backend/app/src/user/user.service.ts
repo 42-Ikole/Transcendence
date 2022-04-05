@@ -3,13 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { IUser } from 'src/user/user.interface';
-import { Match } from 'src/orm/entities/match.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-    @InjectRepository(Match) private matchRepository: Repository<Match>,
   ) {}
 
   ////////////

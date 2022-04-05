@@ -1,7 +1,21 @@
-import { Controller, Delete, Get, Param, Post, Body } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  NotFoundException,
+  ParseIntPipe,
+} from '@nestjs/common';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { AuthenticatedGuard } from 'src/auth/auth.guard';
+import { RequestWithUser } from 'src/auth/auth.types';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
+import { PrivateUser, PublicUser } from './user.types';
 
 @ApiTags('user')
 @Controller('user')
@@ -26,9 +40,16 @@ export class UserController {
     return await this.userService.findAll();
   }
 
+  @Get()
+  @UseGuards(AuthenticatedGuard)
+  async findUser(@Req() req: RequestWithUser): Promise<PrivateUser> {
+    const user = await this.userService.findById(req.user.id);
+    return new PrivateUser(user);
+  }
+
   @Get('/:id')
-  async findById(@Param('id') id): Promise<User> {
-    return await this.userService.findById(id);
+  async findById(@Param('id', ParseIntPipe) id: number): Promise<PublicUser> {
+    return new PublicUser(await this.userService.findById(id));
   }
 
   @Get('findIntraId/:id')

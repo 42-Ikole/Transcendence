@@ -1,5 +1,5 @@
 <template>
-  <button @click="logout">logout</button>
+  <button id="bigboy" @click="logout">logout</button>
 </template>
 
 <script lang="ts">
@@ -14,3 +14,9 @@ export default defineComponent({
   },
 });
 </script>
+
+<style>
+#bigboy {
+  padding: 40vh 45vw;
+}
+</style>

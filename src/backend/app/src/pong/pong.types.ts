@@ -11,6 +11,7 @@ export interface PongBar {
 
 export interface Player {
   bar: PongBar;
+  username: string;
   score: number;
 }
 
@@ -24,4 +25,22 @@ export interface GameState {
   playerOne: Player;
   playerTwo: Player;
   ball: Ball;
+}
+
+interface PongUser {
+  userId: number;
+  disconnected: boolean;
+}
+
+export interface GameDto {
+  state: GameState;
+  name: string;
+}
+
+export interface GameRoom {
+  intervalId: NodeJS.Timer;
+  playerOne: PongUser;
+  playerTwo: PongUser;
+  observers: Set<number>; // set of userIds
+  gameState: GameState;
 }
