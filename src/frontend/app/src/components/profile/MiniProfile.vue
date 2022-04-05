@@ -1,6 +1,31 @@
 <template>
-  <div class="MiniProfile"></div>
+  <RouterLink :to="profileLink">
+    <img class="MiniProfile" :src="user.avatar">
+  </RouterLink>
 </template>
+
+<script lang="ts">
+import type { PublicUser } from "@/types/UserType";
+import { defineComponent, type PropType } from "vue";
+import { RouterLink } from "vue-router";
+
+export default defineComponent({
+  components: {
+    RouterLink,
+  },
+  props: {
+    user: {
+      type: Object as PropType<PublicUser>,
+      required: true,
+    },
+  },
+  computed: {
+    profileLink() {
+      return `/profile/${this.user.id}`;
+    }
+  },
+});
+</script>
 
 <style>
 .MiniProfile {
