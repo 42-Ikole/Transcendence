@@ -12,6 +12,17 @@ interface FriendState {
   blockedByUsers: PublicUser[];
 }
 
+type RelationType = "FRIENDS" | "FRIEND_REQUESTS" | "SENT_REQUESTS" | "BLOCKED" | "BLOCKED_BY";
+
+function appearsInList(id: number, users: PublicUser[]) {
+  for (let user of users) {
+    if (id === user.id) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export const useFriendStore = defineStore("friend", {
   state: (): FriendState => {
     return {
@@ -24,6 +35,20 @@ export const useFriendStore = defineStore("friend", {
   },
   getters: {},
   actions: {
+    isPartOfSet(id: number, relationType: RelationType): boolean {
+      switch (relationType) {
+        case "FRIENDS":
+          return appearsInList(id, this.friends);
+        case "FRIEND_REQUESTS":
+          return appearsInList(id, this.friendRequests);
+        case "SENT_REQUESTS":
+          return appearsInList(id, this.sentRequests);
+        case "BLOCKED":
+          return appearsInList(id, this.blockedUsers);
+        case "BLOCKED_BY":
+          return appearsInList(id, this.blockedByUsers);
+      };
+    },
     init() {
       this.refresh();
       useSocketStore().status!.on('friendUpdate', this.refresh);

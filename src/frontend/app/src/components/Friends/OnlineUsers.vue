@@ -13,6 +13,7 @@
 <script lang="ts">
 import { useSocketStore } from "@/stores/SocketStore";
 import { useUserStore } from "@/stores/UserStore";
+import { useFriendStore } from "@/stores/FriendStore";
 import type { PublicUser, UserProfileData } from "@/types/UserType";
 import makeApiCall, { makeApiCallJson } from "@/utils/ApiCall";
 import { mapState } from "pinia";
@@ -50,7 +51,7 @@ export default defineComponent({
     },
     isOtherUser(user: PublicUser): boolean {
       return user.id !== useUserStore().profileData!.id;
-    }
+    },
   },
   async mounted() {
     await this.refresh();
