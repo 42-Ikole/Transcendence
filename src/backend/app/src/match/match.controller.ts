@@ -27,8 +27,8 @@ export class MatchController {
     return this.matchService.findALL(); // SELECT * FROM match
   }
 
-  @Get('userMatches')
-  async findUserMatches(@Req() request: RequestWithUser): Promise<Match[]> {
-    return await this.matchService.findUserMatches(request.user.id);
+  @Get('userMatches/:id')
+  async findUserMatches(@Param('id', ParseIntPipe) id: number): Promise<Match[]> {
+    return await this.matchService.findUserMatches(id);
   }
 }

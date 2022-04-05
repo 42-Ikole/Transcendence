@@ -8,7 +8,7 @@
         <h1>{{ userName }}</h1>
         <p class="status" v-bind:class="statusStyling">{{ userStatus }}</p>
         <hr />
-        <MatchHistory />
+        <MatchHistory :userId="userId" />
       </div>
     </div>
   </div>
@@ -56,6 +56,9 @@ export default defineComponent({
     ...mapState(useUserStore, ["profileData", "state"]),
     userName() {
       return this.profileData.username;
+    },
+    userId() {
+      return this.profileData.id;
     },
     userStatus() {
       return this.state;

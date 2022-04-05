@@ -35,6 +35,12 @@ export default defineComponent({
       showLess: true,
     };
   },
+  props: {
+    userId: {
+      type: Number,
+      required: true,
+    },
+  },
   computed: {
     filteredMatches() {
       if (this.showLess) {
@@ -45,7 +51,7 @@ export default defineComponent({
   },
   methods: {
     async refresh() {
-      const response = await makeApiCall("/match/userMatches?limit=3");
+      const response = await makeApiCall(`/match/userMatches/${this.userId}`);
       this.matches = await response.json();
     },
   },
