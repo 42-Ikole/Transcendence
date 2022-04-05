@@ -1,14 +1,17 @@
 <template>
 	<div id="chatbox">
 		<div id="msgbox">
-			<div class="messages">
+			<div class="messages text-white">
 				<div v-for="message in this.chat.messages" > {{ message }} </div>
 			</div>
 		</div>
-			<form id="sendmsgbox" @submit.prevent="sendMessage">
+		<div id="userpanel row">
+			<form class="sendmsgbox col" @submit.prevent="sendMessage">
 				<input class="typedmsg" type="text" placeholder="Type message" v-model="myMessage" ref="messageBox" />
 				<input class="submitbutton" type="submit" value="Send" />
 			</form>
+			<button class="btn btn-danger col" @click="leaveChat">Leave</button>
+		</div>
 		<div>
 			Users in chat:
 			<div v-for="user in users"> {{ user }} </div>
@@ -21,12 +24,13 @@
 import io from 'socket.io-client';
 import { useSocketStore } from '@/stores/SocketStore';
 import { mapState } from 'pinia';
-import { Chat } from './Chatrooms.types.ts';
+import { Chat, SendChatMessage } from './Chatrooms.types.ts';
 
 interface DataObject {
 	myMessage: string;
 	messages: string[];
 	users: any[];
+	messageToChat: SendChatMessage;
 }
 
 export default {
@@ -42,12 +46,15 @@ export default {
 			myMessage: '',
 		//	messages: [],
 			users: [],
+			messageToChat: [],
 		};
 	},
 	methods: {
 		sendMessage() {
-			console.log(`send: ${this.myMessage}`); //debug
-			this.socket.emit('messageToChat', this.myMessage);
+			this.messageToChat.chatName = this.chat.name;
+			this.messageToChat.message = this.myMessage;
+			console.log(`send: ${this.myMessage} roomname: ${this.chat.name}`); //debug
+			this.socket.emit('messageToChat', this.messageToChat);
 			//this.chat.messages.push(this.myMessage);
 			this.myMessage = '';
 		},
@@ -101,15 +108,6 @@ export default {
         overflow-y: scroll;
         scroll-snap-type: y proximity;
 		position: relative;
-	}
-
-	#sendmsgbox {
-	}
-
-	.typedmsg {
-	}
-
-	.submitbutton {
 	}
 
 	.messages {

@@ -4,3 +4,8 @@ export interface Chat {
 	password: string;
 	type: string;
 }
+
+export interface SendChatMessage {
+	chatName: string;
+	message: string;
+}
