@@ -5,7 +5,7 @@
       <p>{{ user.username }} : {{ user.id }}</p>
       <button
         class="btn btn-outline-light btn-sm"
-        @click="sendFriendRequest(user)"
+        @click="sendFriendRequestUser(user)"
       >
         Send Friend Request
       </button>
@@ -25,6 +25,7 @@ import type { PublicUser, UserProfileData } from "@/types/UserType";
 import makeApiCall, { makeApiCallJson } from "@/utils/ApiCall";
 import { mapState } from "pinia";
 import { defineComponent, type PropType } from "vue";
+import { block, sendFriendRequest } from "@/utils/Friends";
 
 interface DataObject {
   users: PublicUser[];
@@ -42,15 +43,11 @@ export default defineComponent({
     }),
   },
   methods: {
-    async sendFriendRequest(user: PublicUser) {
-      await makeApiCallJson("friend/request", "POST", {
-        id: user.id,
-      });
+    async sendFriendRequestUser(user: PublicUser) {
+      sendFriendRequest(user);
     },
     async blockUser(user: PublicUser) {
-      await makeApiCallJson("friend/block", "POST", {
-        id: user.id,
-      });
+      block(user);
     },
     async refresh() {
       const response = await makeApiCall("/user/all");

@@ -32,6 +32,7 @@
 import { useSocketStore } from "@/stores/SocketStore";
 import makeApiCall from "@/utils/ApiCall";
 import { defineComponent } from "vue";
+import { challengeUser } from "@/utils/Pong";
 
 interface DataObject {
   users: any[];
@@ -55,10 +56,7 @@ export default defineComponent({
     },
     challenge(user: any) {
       console.log("challenge:", user);
-      useSocketStore().pong!.emit("requestMatch", {
-        type: "challenge",
-        targetId: user.id,
-      });
+      challengeUser(user.id);
     },
   },
   mounted() {

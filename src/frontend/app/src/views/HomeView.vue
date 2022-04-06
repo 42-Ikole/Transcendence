@@ -1,6 +1,5 @@
 <template>
   <p>Hey :)</p>
-  <ChatUserDropdown :user="profileData" />
 </template>
 
 <script lang="ts">
@@ -14,9 +13,6 @@ export default defineComponent({
   name: "HomeView",
   computed: {
     ...mapState(useUserStore, ["profileData"]),
-  },
-  components: {
-    ChatUserDropdown,
   },
 });
 </script>

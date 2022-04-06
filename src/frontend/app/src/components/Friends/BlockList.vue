@@ -5,7 +5,7 @@
   <div v-else v-for="user in blockedUsers" :key="user.id">
     <p>
       {{ user.username }}
-      <button class="btn btn-outline-light btn-sm" @click="unblock(user)">
+      <button class="btn btn-outline-light btn-sm" @click="unblockUser(user)">
         Unblock
       </button>
     </p>
@@ -18,6 +18,7 @@ import { mapState } from "pinia";
 import { useFriendStore } from "@/stores/FriendStore";
 import type { PublicUser } from "@/types/UserType";
 import { makeApiCall } from "@/utils/ApiCall";
+import { unblock } from "@/utils/Friends";
 
 export default defineComponent({
   computed: {
@@ -27,10 +28,8 @@ export default defineComponent({
     },
   },
   methods: {
-    unblock(user: PublicUser) {
-      makeApiCall(`/friend/unblock/${user.id}`, {
-        method: "DELETE",
-      });
+    unblockUser(user: PublicUser) {
+      unblock(user);
     },
   },
 });

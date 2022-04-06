@@ -1,13 +1,14 @@
 <template>
-  <div class="input-group mb-3">
-    <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ user.username }}</button>
+  <!-- TODO: filter if ISSELF (maybe show regular dropdown) -->
+  <div class="input-group">
+    <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ user.username }}</button>
     <ul class="dropdown-menu">
-        <li><button class="dropdown-item" type="button">View Profile</button></li>
-        <li><button class="dropdown-item" type="button">Send Challenge</button></li>
-        <li v-if="!isBlocked"><button class="dropdown-item" type="button">Block</button></li>
-        <li v-if="isBlocked"><button class="dropdown-item" type="button">Unblock</button></li>
-        <li v-if="hasNoRelation"><button class="dropdown-item" type="button">Send Friend Request</button></li>
-        <li v-if="isFriend"><button class="dropdown-item" type="button">Unfriend</button></li>
+        <li><button @click="viewProfile" class="dropdown-item" type="button">View Profile</button></li>
+        <li><button @click="sendChallenge" class="dropdown-item" type="button">Send Challenge</button></li>
+        <li v-if="!isBlocked"><button @click="blockUser" class="dropdown-item" type="button">Block</button></li>
+        <li v-if="isBlocked"><button @click="unblockUser" class="dropdown-item" type="button">Unblock</button></li>
+        <li v-if="hasNoRelation"><button @click="sendFriendRequestUser" class="dropdown-item" type="button">Send Friend Request</button></li>
+        <li v-if="isFriend"><button @click="unfriendUser" class="dropdown-item" type="button">Unfriend</button></li>
     </ul>
   </div>
 </template>
@@ -20,6 +21,9 @@ import LoggedOut from "@/components/Authentication/LoggedOut.vue";
 import makeApiCall from "@/utils/ApiCall";
 import { PublicUser } from "@/types/UserType";
 import { useFriendStore } from "@/stores/FriendStore";
+import { useUserStore } from "@/stores/UserStore";
+import { challengeUser } from "@/utils/Pong";
+import { sendFriendRequest, unfriend, unblock, block } from "@/utils/Friends";
 
 export default defineComponent({
   props: {
@@ -30,13 +34,36 @@ export default defineComponent({
   },
   computed: {
     isBlocked() {
-      return true;
+      return useFriendStore().isPartOfSet(this.user.id, "BLOCKED");
     },
     hasNoRelation() {
-      return true;
+      return useFriendStore().hasNoRelation(this.user.id);
     },
     isFriend() {
-      return true;
+      return useFriendStore().isPartOfSet(this.user.id, "FRIENDS");
+    },
+    isSelf() {
+      return useUserStore().profileData!.id === this.user.id;
+    },
+  },
+  methods: {
+    viewProfile() {
+      this.$router.push(`/profile/${this.user.id}`);
+    },
+    sendChallenge() {
+      challengeUser(this.user.id);
+    },
+    blockUser() {
+      block(this.user);
+    },
+    unblockUser() {
+      unblock(this.user);;
+    },
+    sendFriendRequestUser() {
+      sendFriendRequest(this.user);
+    },
+    unfriendUser() {
+      unfriend(this.user);
     },
   },
 });
