@@ -15,12 +15,6 @@ export class ChatController {
 	}
 
 	@Get(':name')
-	@ApiParam({
-		name: 'name',
-		required: true,
-		description: 'Name of a chatroom',
-		type: String,
-	})
 	async findByName(@Param() name: string): Promise<Chat> {
 		return await this.chatService.findByName(name);
 	}
