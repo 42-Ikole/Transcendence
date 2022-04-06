@@ -45,6 +45,9 @@ export const useUserStore = defineStore("user", {
     setState(state: UserState) {
       console.log("New UserState:", state);
       this.state = state;
+      if (this.profileData) {
+        this.profileData.status = state;
+      }
     },
     setAuthState(state: AuthenticatedState) {
       console.log("New Auth State:", state);
