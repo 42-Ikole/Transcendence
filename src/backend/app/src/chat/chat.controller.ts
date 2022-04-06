@@ -1,4 +1,4 @@
-import { ApiTags } from "@nestjs/swagger";
+import { ApiTags, ApiParam } from "@nestjs/swagger";
 import { Controller, Get, Post, Body, Param } from "@nestjs/common";
 import { ChatService } from "./chat.service";
 import { CreateChatDto } from "./chat.types";
@@ -14,7 +14,13 @@ export class ChatController {
 		return await this.chatService.findAll();
 	}
 
-	@Get('/:name')
+	@Get(':name')
+	@ApiParam({
+		name: 'name',
+		required: true,
+		description: 'Name of a chatroom',
+		type: String,
+	})
 	async findByName(@Param() name: string): Promise<Chat> {
 		return await this.chatService.findByName(name);
 	}
