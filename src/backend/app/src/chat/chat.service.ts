@@ -40,7 +40,8 @@ export class ChatService {
 	}
 
 	async addMessage(message: IncomingMessageDtO): Promise<Message> {
-		const newMessage: Message = this.messageRepository.create(message);
+		const messageToDatabase = {message: message.message, chatRoom: await this.findByName(message.chatName)}
+		const newMessage: Message = this.messageRepository.create(messageToDatabase);
 		return await this.messageRepository.save(newMessage);
 	}
 }
