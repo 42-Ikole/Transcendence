@@ -14,6 +14,9 @@
         </button>
       </li>
       <li>
+        <button class="dropdown-item" type="button" @click="editProfile">Edit</button>
+      </li>
+      <li>
         <hr class="dropdown-divider" />
       </li>
       <li>
@@ -52,6 +55,9 @@ export default defineComponent({
     },
     goToProfile() {
       this.$router.push("/profile");
+    },
+    editProfile() {
+      this.$router.push("/profile/edit");
     },
   },
 });

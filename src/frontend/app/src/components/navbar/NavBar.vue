@@ -52,7 +52,6 @@ export default defineComponent({
       routes: [
         { path: "/", message: "Home" },
         { path: "/about", message: "About" },
-        { path: "/2fa", message: "Two Factor" },
         { path: "/login", message: "Login" },
         { path: "/pong", message: "Pong" },
         { path: "/friend-view", message: "friend-view" },
