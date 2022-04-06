@@ -6,6 +6,7 @@ export type UserState =
   | 'PLAYING'
   | 'OBSERVING'
   | 'CHALLENGED'
+  | 'CHALLENGING'
   | 'CONNECTION_DENIED';
 
 export const USER_STATES: UserState[] = [
