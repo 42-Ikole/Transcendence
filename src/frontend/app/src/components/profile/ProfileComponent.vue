@@ -2,7 +2,8 @@
   <div class="container mt-4">
     <div class="row">
       <div class="col-md-5">
-        <div class="profileImg" v-bind:class="statusStyling"></div>
+        <!-- <div class="profileImg" v-bind:class="statusStyling"></div> -->
+        <img class="profileImg" v-bind:class="statusStyling" :src="avatar">
       </div>
       <div class="col-md-7">
         <h1>{{ userName }}</h1>
@@ -65,6 +66,9 @@ export default defineComponent({
     },
     userStatus() {
       return this.profileData.status;
+    },
+    avatar() {
+      return this.profileData.avatar;
     },
     statusStyling() {
       if (this.userStatus === "OFFLINE") {
