@@ -63,6 +63,16 @@ export class FriendController {
     return await this.friendService.acceptFriendRequest(accept);
   }
 
+  @Delete('request/cancel/:id')
+  async cancelFriendRequest(
+    @Req() request: RequestWithUser,
+    @Param('id', ParseIntPipe) targetId: number,
+  ) {
+    console.log('Cancel Friend Request:', request.user.id, '-', targetId);
+    const cancel = new FriendDto(request.user.id, targetId, 'REQUEST');
+    return await this.friendService.cancelFriendRequest(cancel);
+  }
+
   /*
 	1. Remove entry from DB if type === FRIEND
 	2. Emit friendUpdate to both users
