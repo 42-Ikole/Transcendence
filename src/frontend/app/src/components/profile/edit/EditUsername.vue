@@ -16,6 +16,7 @@
 import { useUserStore } from "@/stores/UserStore";
 import { mapState } from "pinia";
 import { defineComponent } from "vue";
+import { makeApiCallJson } from "@/utils/ApiCall";
 
 export default defineComponent({
 	emits: ["update"],
@@ -39,8 +40,13 @@ export default defineComponent({
 				this.usernameInvalid = true;
 				return;
 			}
-			// 1. API call to check if we can update it (unique username)
-			// 2. update it
+			const response = await makeApiCallJson("/user/update", "PATCH", {
+				username: this.newUsername,
+			});
+			if (!response.ok) {
+				this.usernameInvalid = true;
+				return;
+			}
 			this.$emit('update');
 			this.resetState();
 			this.wasUpdated = true;

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
@@ -63,7 +63,10 @@ export class UserService {
 
   async update(id: number, field: PartialUser) {
     console.log('part:', field);
-    return this.userRepository.update(id, field);
+    return await this.userRepository.update(id, field).catch((reason: any) => {
+      console.error("user update failure");
+      throw new ConflictException();
+    });
   }
 
   ////////////

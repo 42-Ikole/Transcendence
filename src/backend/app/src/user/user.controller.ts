@@ -9,6 +9,7 @@ import {
   Req,
   NotFoundException,
   ParseIntPipe,
+  Patch,
 } from '@nestjs/common';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
@@ -67,14 +68,9 @@ export class UserController {
     return await this.userService.findLosses(id);
   }
 
-  ////////////
-  // Update //
-  ////////////
-
-  @Post('update/:id')
-  async update(@Param('id') id, @Body() user: PartialUser) {
-    console.log('id:', id, 'part:', user);
-    return this.userService.update(id, user);
+  @Patch('update')
+  async updateUser(@Req() request: RequestWithUser, @Body() user: PartialUser) {
+    return await this.userService.update(request.user.id, user);
   }
 
   /////////////
