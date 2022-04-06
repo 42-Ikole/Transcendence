@@ -16,7 +16,7 @@ export class ChatController {
 
 	@Get(':name')
 	async findByName(@Param() name: string): Promise<Chat> {
-		return await this.chatService.findByName(name);
+		return await this.chatService.findByName(name, true);
 	}
 
 	@Post()

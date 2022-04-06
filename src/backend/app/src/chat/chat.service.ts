@@ -14,13 +14,19 @@ export class ChatService {
 	) {}
 
 	async findAll(): Promise<Chat[]> {
-		return await this.chatRepository.find();
+		return await this.chatRepository.find({
+			relations: ['messages', 'messages.author'],
+		});
 	}
 
-	async findByName(name: string): Promise<Chat> {
+	async findByName(name: string, findRelations: boolean = true): Promise<Chat> {
+		const relations = findRelations ? ['messages', 'messages.author'] : [];
+		console.log("Relations?", findRelations);
+		console.log("Relations = ", relations);
 		return await this.chatRepository.findOne({
 			where: [{name: name}],
-		})
+			relations: relations,
+		});
 	}
 
 	async findMessagesForChat(chatName: string): Promise<Message[]> {
@@ -43,7 +49,7 @@ export class ChatService {
 	async addMessage(message: IncomingMessageDtO, user: User): Promise<Message> {
 		const messageToDatabase = {
 			message: message.message,
-			chatRoom: await this.findByName(message.chatName),
+			chatRoom: await this.findByName(message.chatName, false),
 			author: user,
 		}
 		const newMessage: Message = this.messageRepository.create(messageToDatabase);

@@ -21,8 +21,7 @@ export class Chat {
   password: string;
 
   @OneToMany(() => Message, (msg) => msg.chatRoom, {
-    cascade: true,
-    eager: true,
+		cascade: true,
   })
 	messages: Message[];
 	
