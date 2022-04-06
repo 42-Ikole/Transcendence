@@ -70,6 +70,9 @@ export default {
 			console.log(`user left: ${newUser}`); //debug
 			this.users = this.users.filter((t) => t !== user);
 		},
+		leaveChat() {
+			console.log("ga weg");
+		},
 	},
 	created() {
 		this.socket.on('messageToClient', (message) => {
