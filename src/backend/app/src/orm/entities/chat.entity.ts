@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinTable } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinTable, Unique } from 'typeorm';
 import { User } from './user.entity';
 import { Message } from './message.entity';
 
@@ -24,7 +24,11 @@ export class Chat {
     cascade: true,
     eager: true,
   })
-  messages: Message[];
+	messages: Message[];
+	
+	@ManyToMany(() => User)
+	@JoinTable()
+	members: User[];
 
   @Column()
   type: string;
