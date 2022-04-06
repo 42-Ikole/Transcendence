@@ -1,23 +1,31 @@
 <template>
-	<div id="chatbox">
-		<div id="msgbox">
-			<div class="messages text-white">
-				<div v-for="message in this.chat.messages" > {{ message }} </div>
+	<div class="container py-5">
+		<div class="row d-flex justify-content-center">
+			<div style="width: 65%; background-color: #eee;">
+				<div class="card">
+					<div class="card-header d-flex justify-content-between align-items-center p-3">
+						<h5 class="mb-0"> {{ this.chat.name }} </h5>
+						<button type="button" class="btn btn-danger btn-sm" data-mdb-ripple-color="dark" @click="leaveChat">Leave chat</button>
+					</div>
+					<div id="autoScrollBottom" class="card-body" style="height: 500px; overflow-y: scroll; padding-bottom: 25px;">
+						<div class="flex-row justify-content-start">
+							<div class="small" v-for="message in this.chat.messages">
+								{{ message }}
+							</div>
+						</div>
+					</div>
+					<div class="card-footer d-flex justify-content-start p-3">
+						<form class="form-control form-control-lg" @submit.prevent="sendMessage">
+							<input style="min-width: 65%; max-width: 10px;" type="text" placeholder="Type message" v-model="myMessage" ref="messageBox" />
+							<input class="btn btn-info btn-rounded float-end" type="submit" value="Send" />
+						</form>
+					</div>
+				</div>
 			</div>
-		</div>
-		<div id="userpanel row">
-			<form class="sendmsgbox col" @submit.prevent="sendMessage">
-				<input class="typedmsg" type="text" placeholder="Type message" v-model="myMessage" ref="messageBox" />
-				<input class="submitbutton" type="submit" value="Send" />
-			</form>
-			<button class="btn btn-danger col" @click="leaveChat">Leave</button>
-		</div>
-		<div>
-			Users in chat:
-			<div v-for="user in users"> {{ user }} </div>
 		</div>
 	</div>
 </template>
+
 
 <script lang="ts">
 
@@ -46,7 +54,10 @@ export default {
 			myMessage: '',
 		//	messages: [],
 			users: [],
-			messageToChat: [],
+			messageToChat: {
+				chatName: '',
+				message: '',
+			},
 		};
 	},
 	methods: {
@@ -55,12 +66,14 @@ export default {
 			this.messageToChat.message = this.myMessage;
 			console.log(`send: ${this.myMessage} roomname: ${this.chat.name}`); //debug
 			this.socket.emit('messageToChat', this.messageToChat);
-			//this.chat.messages.push(this.myMessage);
 			this.myMessage = '';
 		},
 		receivedMessage(message) {
 			console.log(`recv: ${message}`); //debug
 			this.chat.messages.push(message);
+
+			const autoScroll = this.$el.querySelector("#autoScrollBottom");
+			autoScroll.scrollTop = autoScroll.scrollHeight;
 		},
 		addUserToList(user) {
 			console.log(`user joined: ${user}`); //debug
@@ -98,24 +111,5 @@ export default {
 </script>
 
 <style scoped>
-
-	#chatbox {
-		margin-left: 25%;
-	}
-
-	#msgbox {
-		height: 400px;
-		width: 600px;
-		border: solid 0.5px grey;
-		align-items: left;
-        overflow-y: scroll;
-        scroll-snap-type: y proximity;
-		position: relative;
-	}
-
-	.messages {
-		text-align: left;
-		padding: 0px 5px;
-	}
 
 </style>

@@ -49,11 +49,7 @@ export default defineComponent({
 <style scoped>
 
 	.conv_joining {
-		width: 400px;
-		height: 200px;
 		padding: 0px 10px;
-		margin: auto;
-		text-align: left;
 	}
 
 	#chosing_type {
