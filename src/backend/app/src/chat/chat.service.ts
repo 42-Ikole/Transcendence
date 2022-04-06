@@ -4,6 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Chat } from "src/orm/entities/chat.entity";
 import { Message } from "src/orm/entities/message.entity";
+import { User } from "src/orm/entities/user.entity";
 
 @Injectable()
 export class ChatService {
@@ -39,8 +40,12 @@ export class ChatService {
 		return await this.chatRepository.save(newChat);
 	}
 
-	async addMessage(message: IncomingMessageDtO): Promise<Message> {
-		const messageToDatabase = {message: message.message, chatRoom: await this.findByName(message.chatName)}
+	async addMessage(message: IncomingMessageDtO, user: User): Promise<Message> {
+		const messageToDatabase = {
+			message: message.message,
+			chatRoom: await this.findByName(message.chatName),
+			author: user,
+		}
 		const newMessage: Message = this.messageRepository.create(messageToDatabase);
 		return await this.messageRepository.save(newMessage);
 	}

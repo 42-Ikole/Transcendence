@@ -5,6 +5,7 @@ import { IncomingMessageDtO, JoinRoomDto } from './chat.types';
 import { SocketWithUser } from 'src/websocket/websocket.types';
 import { CookieService } from 'src/websocket/cookie.service';
 import { ChatService } from './chat.service';
+import { Message } from 'src/orm/entities/message.entity';
 
 @UsePipes(new ValidationPipe())
 @WebSocketGateway({
@@ -43,14 +44,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('messageToChat')
-	messageToChat(
+	async messageToChat(
 		@MessageBody() data: IncomingMessageDtO,
 		@ConnectedSocket() client: SocketWithUser
-	): void {
+	): Promise<void> {
 		console.log('chat:', data);
-		const message = client.user.username + ": " + data.message;
-		this.chatService.addMessage(data);
-		this.wss.emit('messageToClient', message);
+		const addedMessage: Message = await this.chatService.addMessage(data, client.user);
+		this.wss.emit('messageToClient', addedMessage);
 	}
 
 	@SubscribeMessage('joinRoom')
