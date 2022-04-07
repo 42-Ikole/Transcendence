@@ -19,6 +19,8 @@
 
 <script lang="ts">
 
+import { useSocketStore } from '@/stores/SocketStore';
+import { mapState } from 'pinia';
 import Chatroom from './Chatroom.vue';
 import { defineComponent } from 'vue';
 import { Chat } from './Chatrooms.types.ts';
@@ -51,6 +53,7 @@ export default defineComponent({
 	methods: {
 		async joinChat() {
 			if (this.typedPassword === this.chat.password) {
+				this.socket.emit("joinRoom", {roomName: this.chat.name});
 				this.room = Room.JOINED;
 			} else {
 				alert('Wrong password bitches');
@@ -70,6 +73,9 @@ export default defineComponent({
 		passwordVisibility() {
 			return this.showPassword ? 'text' : 'password';
 		},
+		...mapState(useSocketStore, {
+			socket: 'chat',
+		}),
 	},
 	components: {
 		Chatroom,

@@ -47,6 +47,7 @@ import io from 'socket.io-client';
 import { useSocketStore } from '@/stores/SocketStore';
 import { mapState } from 'pinia';
 import { Chat, SendChatMessage } from './Chatrooms.types.ts';
+import { makeApiCall } from '@/utils/ApiCall';
 
 interface DataObject {
 	myMessage: string;
@@ -82,10 +83,12 @@ export default {
 		},
 		receivedMessage(message) {
 			console.log(`recv: ${message}`); //debug
-			this.chat.messages.push(message);
+			if (this.chat.name === message.chatName) {
+				this.chat.messages.push(message.message);
 
-			const autoScroll = this.$el.querySelector("#autoScrollBottom");
-			autoScroll.scrollTop = autoScroll.scrollHeight;
+				const autoScroll = this.$el.querySelector("#autoScrollBottom");
+				autoScroll.scrollTop = autoScroll.scrollHeight;
+			}
 		},
 		joinChat(user) {
 			console.log(`user joined: ${user}`); //debug
