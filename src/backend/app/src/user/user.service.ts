@@ -3,11 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { IUser } from 'src/user/user.interface';
+import { AvatarService } from 'src/avatar/avatar.service';
+import { avatarData } from 'src/orm/entities/avatar.entity';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private userRepository: Repository<User>,
+	@InjectRepository(User) private userRepository: Repository<User>,
+	private readonly avatarService: AvatarService
   ) {}
 
   ////////////
@@ -60,6 +63,13 @@ export class UserService {
   ////////////
   // Update //
   ////////////
+
+	async addAvatar(id: number, file: avatarData) {
+		const avatar = await this.avatarService.uploadAvatar(file);
+
+		await this.userRepository.update(id, avatar);
+		return avatar;
+	}
 
   async update(id: number, field: PartialUser) {
     console.log('part:', field);

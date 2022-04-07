@@ -16,6 +16,7 @@ import { RequestWithUser } from 'src/auth/auth.types';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { PrivateUser, PublicUser } from './user.types';
+import { avatarData } from 'src/orm/entities/avatar.entity';
 
 @ApiTags('user')
 @Controller('user')
@@ -75,6 +76,11 @@ export class UserController {
   async update(@Param('id') id, @Body() user: PartialUser) {
     console.log('id:', id, 'part:', user);
     return this.userService.update(id, user);
+  }
+
+  @Post('uploadAvatar/:id')
+  async uploadAvatar(@Param('id') id, @Body() file: avatarData) {
+	return this.userService.addAvatar(id, file);
   }
 
   /////////////
