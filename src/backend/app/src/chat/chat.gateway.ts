@@ -48,9 +48,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@MessageBody() data: IncomingMessageDtO,
 		@ConnectedSocket() client: SocketWithUser
 	): Promise<void> {
-		console.log('chat:', data);
 		const addedMessage: Message = await this.chatService.addMessage(data, client.user);
-		this.wss.emit('messageToClient', addedMessage);
+		this.wss.to(data.chatName).emit('messageToClient', {chatName: data.chatName, message: addedMessage});
+		console.log("sent message to room [" + data.chatName + "]");
 	}
 
 	@SubscribeMessage('joinRoom')
@@ -58,6 +58,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@MessageBody() data: JoinRoomDto,
 		@ConnectedSocket() client: SocketWithUser
 	): void {
-
+		client.join(data.roomName);
+		console.log("Client [" + client.user.username + "] joined room [" + data.roomName + "]");
 	}
 }
