@@ -26,7 +26,7 @@ export class IncomingMessageDtO {
 	chatName: string;
 }
 
-export class JoinRoomDto {
+export class ChatRoomDto {
 	@IsString()
 	@IsNotEmpty()
 	roomName: string;

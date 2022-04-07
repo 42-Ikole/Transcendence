@@ -13,27 +13,18 @@ export class ChatService {
 		@InjectRepository(Message) private messageRepository: Repository<Message>,
 	) {}
 
-	async findAll(): Promise<Chat[]> {
-		return await this.chatRepository.find();
+	async findAll(relations = []): Promise<Chat[]> {
+		return await this.chatRepository.find({
+			relations: relations,
+		});
 	}
 
-	async findByName(name: string, findRelations: boolean = true): Promise<Chat> {
-		const relations = findRelations ? ['messages', 'messages.author'] : [];
-		console.log("Relations?", findRelations);
+	async findByName(name: string, relations = []): Promise<Chat> {
 		console.log("Relations = ", relations);
 		return await this.chatRepository.findOne({
 			where: [{name: name}],
 			relations: relations,
 		});
-	}
-
-	async findMessagesForChat(chatName: string): Promise<Message[]> {
-		const chat: Chat = await this.findByName(chatName);
-		if (chat === undefined)
-			throw new NotFoundException();
-		return await this.messageRepository.find({
-			where: [{chatRoom: chat}],
-		})
 	}
 
 	async createChat(param: CreateChatDto): Promise<Chat> {
@@ -47,10 +38,35 @@ export class ChatService {
 	async addMessage(message: IncomingMessageDtO, user: User): Promise<Message> {
 		const messageToDatabase = {
 			message: message.message,
-			chatRoom: await this.findByName(message.chatName, false),
+			chatRoom: await this.findByName(message.chatName),
 			author: user,
 		}
 		const newMessage: Message = this.messageRepository.create(messageToDatabase);
 		return await this.messageRepository.save(newMessage);
+	}
+
+	async userJoinsRoom(user: User, chat: Chat): Promise<void> {
+		// Alleen pushen als niet al erin.
+		if (this.userIsInChat(user, chat)) {
+			console.log("User zit al in chat");
+			return ;
+		}
+		chat.members.push(user);
+		await this.chatRepository.save(chat);
+		return ;
+	}
+
+	async userLeavesRoom(user: User, chat: Chat): Promise<void> {
+		chat.members = chat.members.filter(item => item.id != user.id);
+		await this.chatRepository.save(chat);
+	}
+
+	userIsInChat(user: User, chat: Chat): Boolean {
+		for (let member of chat.members) {
+			if (member.id === user.id) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

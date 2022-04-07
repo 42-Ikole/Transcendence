@@ -22,7 +22,7 @@ export class ChatController {
 		type: String,
 	})
 	async findByName(@Param('name') name: string): Promise<Chat> {
-		const chat: Chat = await this.chatService.findByName(name, true);
+		const chat: Chat = await this.chatService.findByName(name, ['messages', 'messages.author']);
 		if (chat === undefined)
 			throw new NotFoundException();
 		return chat;
