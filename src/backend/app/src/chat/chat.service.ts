@@ -14,9 +14,7 @@ export class ChatService {
 	) {}
 
 	async findAll(): Promise<Chat[]> {
-		return await this.chatRepository.find({
-			relations: ['messages', 'messages.author'],
-		});
+		return await this.chatRepository.find();
 	}
 
 	async findByName(name: string, findRelations: boolean = true): Promise<Chat> {
