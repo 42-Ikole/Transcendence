@@ -23,8 +23,8 @@
 					</div>
 					<div id="autoScrollBottom" class="card-body" style="height: 500px; overflow-y: scroll; padding-bottom: 25px;">
 						<div class="flex-row justify-content-start">
-							<div class="small" v-for="user in this.chat.messages">
-								{{ user.author.username }}: {{ user.message }}
+							<div class="small" v-for="message in this.messages">
+								{{ message.author.username }}: {{ message.message }}
 							</div>
 						</div>
 					</div>
@@ -53,6 +53,7 @@ interface DataObject {
 	myMessage: string;
 	users: any[];
 	messageToChat: SendChatMessage;
+	messages: any[];
 }
 
 export default {
@@ -63,7 +64,7 @@ export default {
 		},
 	},
 	data(): DataObject {
-		console.log(this.chat);
+		console.log(this.chat); //debug
 		return {
 			myMessage: '',
 			users: [],
@@ -71,6 +72,7 @@ export default {
 				chatName: '',
 				message: '',
 			},
+			messages: [],
 		};
 	},
 	methods: {
@@ -84,7 +86,7 @@ export default {
 		receivedMessage(message) {
 			console.log(`recv: ${message}`); //debug
 			if (this.chat.name === message.chatName) {
-				this.chat.messages.push(message.message);
+				this.messages.push(message.message);
 
 				const autoScroll = this.$el.querySelector("#autoScrollBottom");
 				autoScroll.scrollTop = autoScroll.scrollHeight;
@@ -115,7 +117,12 @@ export default {
 			socket: 'chat',
 		}),
 	},
-	mounted() {
+	async mounted() {
+		const response = await makeApiCall('/chat/' + this.chat.name);
+		if (response.ok) {
+			const chatResponse = await response.json();
+			this.messages = chatResponse.messages;
+		}
 		this.$refs.messageBox.focus();
 	},
 }
