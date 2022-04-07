@@ -1,4 +1,4 @@
-import { ApiTags, ApiParam } from "@nestjs/swagger";
+import { ApiTags } from "@nestjs/swagger";
 import { Controller, Get, Post, Body, Param } from "@nestjs/common";
 import { ChatService } from "./chat.service";
 import { CreateChatDto } from "./chat.types";
