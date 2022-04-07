@@ -20,6 +20,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Exclude()
   @Column()
   intraId: string;
 
@@ -50,6 +51,7 @@ export class User {
   @Exclude()
   twoFactorSecret: string;
 
+  @Exclude()
   @Column({ default: false })
   twoFactorEnabled: boolean;
 }
