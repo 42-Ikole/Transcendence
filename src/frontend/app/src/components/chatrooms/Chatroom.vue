@@ -1,16 +1,30 @@
 <template>
 	<div class="container py-5">
 		<div class="row d-flex justify-content-center">
-			<div style="width: 65%; background-color: #eee;">
+			<div style="width: 20%; background-color: #dee;">
+				<div class="card">
+					<div class="card-header d-flex justify-content-between align-items-center p-3">
+						<h5 class="mb-0">Users in chat:</h5>
+					</div>
+					<div class="card-body" style="height: 500px; overflow-y: scroll;">
+						<div class="flex-row justify-content-start">
+							<li class="small">
+								getter voor users in deze chat
+							</li>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div style="width: 60%; background-color: #eee;">
 				<div class="card">
 					<div class="card-header d-flex justify-content-between align-items-center p-3">
 						<h5 class="mb-0"> {{ this.chat.name }} </h5>
-						<button type="button" class="btn btn-danger btn-sm" data-mdb-ripple-color="dark" @click="leaveChat">Leave chat</button>
+						<button type="button" class="btn btn-danger btn-sm" data-mdb-ripple-color="dark" style="line-height: 1;" @click="leaveChat">Leave chat</button>
 					</div>
 					<div id="autoScrollBottom" class="card-body" style="height: 500px; overflow-y: scroll; padding-bottom: 25px;">
 						<div class="flex-row justify-content-start">
-							<div class="small" v-for="message in this.chat.messages">
-								{{ message }}
+							<div class="small" v-for="user in this.chat.messages">
+								{{ user.author.username }}: {{ user.message }}
 							</div>
 						</div>
 					</div>
@@ -36,7 +50,6 @@ import { Chat, SendChatMessage } from './Chatrooms.types.ts';
 
 interface DataObject {
 	myMessage: string;
-	messages: string[];
 	users: any[];
 	messageToChat: SendChatMessage;
 }
@@ -52,7 +65,6 @@ export default {
 		console.log(this.chat);
 		return {
 			myMessage: '',
-		//	messages: [],
 			users: [],
 			messageToChat: {
 				chatName: '',
@@ -75,16 +87,13 @@ export default {
 			const autoScroll = this.$el.querySelector("#autoScrollBottom");
 			autoScroll.scrollTop = autoScroll.scrollHeight;
 		},
-		addUserToList(user) {
+		joinChat(user) {
 			console.log(`user joined: ${user}`); //debug
 			this.users.push(user);
 		},
-		removeUserFromList(user) {
-			console.log(`user left: ${newUser}`); //debug
+		leaveChat(user) {
+			console.log(`user left: ${user}`); //debug
 			this.users = this.users.filter((t) => t !== user);
-		},
-		leaveChat() {
-			console.log("ga weg");
 		},
 	},
 	created() {
@@ -92,10 +101,10 @@ export default {
 			this.receivedMessage(message);
 		});
 		this.socket.on('userJoinedChat', (user) => {
-			this.addUserToList(user);
+			this.joinChat(user);
 		});
 		this.socket.on('userLeftChat', (user) => {
-			this.removeUserFromList(user);
+			this.leaveChat(user);
 		});
 	},
 	computed: {
