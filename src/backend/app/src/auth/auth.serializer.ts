@@ -13,12 +13,15 @@ export class UserSerializer extends PassportSerializer {
   }
 
   // Encrypt the user into a cookie
-  serializeUser(user: SessionUser, done: (err: Error, user: SessionUser) => void) {
+  serializeUser(
+    user: SessionUser,
+    done: (err: Error, user: SessionUser) => void,
+  ) {
     done(null, user);
   }
 
   async deserializeUser(user: SessionUser, done: Done) {
-    const userDb = await this.userService.findOne(user.id);
+    const userDb = await this.userService.findById(user.id);
     (userDb as any).twoFactorPassed = user.twoFactorPassed;
     return done(null, userDb);
   }

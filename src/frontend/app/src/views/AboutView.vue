@@ -1,5 +1,5 @@
 <template>
-  <button @click="logout">logout</button>
+  <button id="bigboy" @click="logout">logout</button>
 </template>
 
 <script lang="ts">
@@ -10,17 +10,13 @@ export default defineComponent({
   methods: {
     logout() {
       logoutUser(this.$router);
-    }
-  }
-})
+    },
+  },
+});
 </script>
 
 <style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
+#bigboy {
+  padding: 40vh 45vw;
 }
 </style>

@@ -4,6 +4,9 @@ import AboutView from "@/views/AboutView.vue";
 import LoginView from "@/views/LoginView.vue";
 import { isLoggedIn } from "@/utils/Login";
 import Enable2FaView from "@/views/Enable2FaView.vue";
+import ProfileView from "@/views/ProfileView.vue";
+import PongView from "@/views/PongView.vue";
+import FriendView from "@/views/FriendView.vue";
 
 const routes = [
   {
@@ -24,8 +27,23 @@ const routes = [
   {
     path: "/2fa",
     name: "2fa",
-    component: Enable2FaView
-  }
+    component: Enable2FaView,
+  },
+  {
+    path: "/profile",
+    name: "profile",
+    component: ProfileView,
+  },
+  {
+    path: "/pong",
+    name: "pong",
+    component: PongView,
+  },
+  {
+    path: "/friend-view",
+    name: "friend-view",
+    component: FriendView,
+  },
 ];
 
 const router = createRouter({

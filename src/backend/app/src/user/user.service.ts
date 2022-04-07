@@ -1,42 +1,78 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from 'src/orm/entities/user.entity';
+import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { IUser } from 'src/user/user.interface';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private usersRepository: Repository<User>,
+    @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
+  ////////////
+  // Create //
+  ////////////
+
+  createUser(user: User): Promise<User> {
+    // creates user entity
+    const newUser = this.userRepository.create(user);
+
+    // inserts if not exists, otherwise its an update
+    return this.userRepository.save(newUser);
+  }
+
+  /////////////
+  // Getters //
+  /////////////
+
   private createFromDto(userDTO: IUser): User {
-    return this.usersRepository.create(userDTO);
+    return this.userRepository.create(userDTO);
   }
 
   async addUser(userDTO: IUser) {
     const user = this.createFromDto(userDTO);
-    return await this.usersRepository.save(user);
+    return await this.userRepository.save(user);
   }
 
   async findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+    return this.userRepository.find();
   }
 
-  async findOne(id: number): Promise<User> {
-    return this.usersRepository.findOne(id);
+  async findById(id: number): Promise<User> {
+    return this.userRepository.findOne(id);
   }
 
-  async findUser(user: IUser): Promise<User | undefined> {
-    return this.usersRepository.findOne({ intraId: user.intraId });
+  async findByIntraId(user: IUser): Promise<User | undefined> {
+    return this.userRepository.findOne({ intraId: user.intraId });
   }
 
-  // TODO: change any to partial user type
-  async updateUser(id: number, partialUser: any) {
-    return this.usersRepository.update(id, partialUser);
+  async findWins(id: number) {
+    return (await this.userRepository.findOne(id, { relations: ['wins'] }))
+      .wins;
   }
 
-  async remove(id: number): Promise<void> {
-    await this.usersRepository.delete(id);
+  async findLosses(id: number) {
+    return (await this.userRepository.findOne(id, { relations: ['losses'] }))
+      .losses;
+  }
+
+  ////////////
+  // Update //
+  ////////////
+
+  async update(id: number, field: PartialUser) {
+    console.log('part:', field);
+    return this.userRepository.update(id, field);
+  }
+
+  ////////////
+  // Delete //
+  ////////////
+
+  async delete(id: number): Promise<User> {
+    const user = await this.findById(id);
+
+    return this.userRepository.remove(user);
   }
 }
