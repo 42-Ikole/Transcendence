@@ -92,12 +92,14 @@ export default {
 				autoScroll.scrollTop = autoScroll.scrollHeight;
 			}
 		},
-		userJoinsChat(user) {
-			console.log(`user joined: ${user}`); //debug
-			//this.users.push(user);
+		userJoinsChat(joinData) {
+			console.log(`user joined: ${joinData}`); //debug
+			if (joinData.chatName === this.chat.name) {
+				this.users.push(joinData.user);
+			}
 		},
-		userLeavesChat(user) {
-			console.log(`user left: ${user}`); //debug
+		userLeavesChat(leaveData) {
+			console.log(`user left: ${leaveData}`); //debug
 		},
 		async refreshChat() {
 			const messagesResponse = await makeApiCall('/chat/messages/' + this.chat.name);
@@ -116,11 +118,11 @@ export default {
 		this.socket.on('messageToClient', (message) => {
 			this.receivedMessage(message);
 		});
-		this.socket.on('userJoinedRoom', (user) => {
-			this.userJoinsChat(user);
+		this.socket.on('userJoinedRoom', (joinData) => {
+			this.userJoinsChat(joinData);
 		});
-		this.socket.on('userLeftRoom', (user) => {
-			this.userLeavesChat(user);
+		this.socket.on('userLeftRoom', (leaveData) => {
+			this.userLeavesChat(leaveData);
 		});
 	},
 	computed: {
