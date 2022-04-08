@@ -87,7 +87,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		console.log(chat);
 		client.join(chat.name);
 		this.chatService.userJoinsRoom(client.user, chat);
-		this.wss.to(chat.name).emit('userJoinedRoom', {user: client.user});
+		this.wss.to(chat.name).emit('userJoinedRoom', {chatName: chat.name, user: client.user});
 	}
 
 	@SubscribeMessage('leaveRoom')
@@ -102,6 +102,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 		client.leave(data.roomName);
 		this.chatService.userLeavesRoom(client.user, chat);
-		this.wss.to(chat.name).emit('userLeftRoom', {user: client.user});
+		this.wss.to(chat.name).emit('userLeftRoom', {chatName: chat.name, user: client.user});
 	}
 }
