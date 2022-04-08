@@ -6,6 +6,7 @@ import { SessionUser } from '../auth.types';
 import { ConfigService } from '@nestjs/config';
 import { downloadAvatar } from './getAvatar';
 import { HttpService } from '@nestjs/axios';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class IntraStrategy extends PassportStrategy(Strategy) {
@@ -13,6 +14,7 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
     private httpService: HttpService,
+    private userService: UserService,
   ) {
     super({
       clientID: configService.get('oauth.intra.CLIENT_ID'),
@@ -23,6 +25,7 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
           return String(obj.id);
         },
         username: 'login',
+        avatar: 'image_url',
       },
     });
   }
@@ -37,12 +40,21 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
     profile: any,
     callback: (error: any, user: SessionUser) => void,
   ) {
-    const { username, id: intraId, image_url: avatar } = profile;
+    console.log(profile);
+    const { username, id: intraId, avatar } = profile;
     const details = { username, intraId };
-    // const imageData = await downloadAvatar(avatar, this.httpService);
     console.log('Intra User:', details);
     const user = await this.authService.validateUser(details);
+    console.log(avatar);
+    if (avatar) {
+      await this.downloadIntraAvatar(user.id, avatar);
+    }
     callback(null, { id: user.id, twoFactorPassed: !user.twoFactorEnabled });
+  }
+
+  private async downloadIntraAvatar(id: number, avatar: string) {
+    const buffer: Buffer = await downloadAvatar(avatar, this.httpService);
+    await this.userService.addAvatar(id, { filename: avatar, data: buffer });
   }
 }
 

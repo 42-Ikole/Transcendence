@@ -77,7 +77,7 @@ export class UserController {
   }
 
   @Post('uploadAvatar')
-  // @UseGuards(AuthenticatedGuard)
+  @UseGuards(AuthenticatedGuard)
   @UseInterceptors(FileInterceptor('file'))
   async uploadAvatar(@Req() request: RequestWithUser, @UploadedFile() file: Express.Multer.File) {
     return this.userService.addAvatar(request.user.id, { filename: file.originalname, data: file.buffer });

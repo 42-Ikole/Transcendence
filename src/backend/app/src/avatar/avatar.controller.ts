@@ -29,17 +29,13 @@ import {
 	@Get(':id')
   	async getDatabaseFileById(@Res({ passthrough: true }) response: Response, @Param('id', ParseIntPipe) id: number) {
 		const file = await this.avatarService.getAvatarById(id);
-	
 		const stream = Readable.from(file.data);
-
 		response.set({
 			'Content-Disposition': `inline; filename="${file.filename}"`,
 			'Content-Type': 'image'
-		  })
-	  
-    	return new StreamableFile(stream);
+		});
+		return new StreamableFile(stream);
 	}
-  
 
 	/////////////
 	// Getters //
