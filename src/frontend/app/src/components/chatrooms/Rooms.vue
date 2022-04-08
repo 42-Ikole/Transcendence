@@ -8,6 +8,9 @@
 				<a v-if="chat.type === 'protected'" >
 					<ChatLockIcon />
 				</a>
+				<a v-else-if="chat.type === 'private'" >
+					<ChatPrivateIcon />
+				</a>
 				<div v-if="selectedChatName === chat.name && chat.type === 'protected'">
 					<input class="input_pass" placeholder="Password" :type="passwordVisibility" v-model="typedPassword" />
 					<button class="button" type="button" @click="toggleShowPassword" >
@@ -42,6 +45,7 @@ import { Chat } from './Chatrooms.types.ts';
 import { useSocketStore } from '@/stores/SocketStore';
 import { mapState } from 'pinia';
 import ChatLockIcon from '../icons/IconChatLock.vue';
+import ChatPrivateIcon from '../icons/IconChatPrivate.vue';
 import EyeOpen from '../icons/IconEyeOpen.vue';
 import EyeClosed from '../icons/IconEyeClosed.vue';
 
@@ -136,6 +140,7 @@ export default defineComponent({
 		CreateRoom,
 		Chatroom,
 		ChatLockIcon,
+		ChatPrivateIcon,
 		EyeOpen,
 		EyeClosed,
 	}
