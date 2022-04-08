@@ -27,7 +27,7 @@ export class User {
   @Column({ unique: true })
   username: string;
 
-  @OneToOne(() => Avatar, { nullable: true })
+  @OneToOne(() => Avatar, { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'avatarId' })
   avatar?: Avatar;
 

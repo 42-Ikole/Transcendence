@@ -1,10 +1,10 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { IUser } from 'src/user/user.interface';
 import { AvatarService } from 'src/avatar/avatar.service';
-import { AvatarData } from 'src/orm/entities/avatar.entity';
+import { Avatar, AvatarData } from 'src/orm/entities/avatar.entity';
 
 @Injectable()
 export class UserService {
@@ -43,7 +43,11 @@ export class UserService {
   }
 
   async findById(id: number): Promise<User> {
-    return this.userRepository.findOne(id);
+    const user = await this.userRepository.findOne(id);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return user;
   }
 
   async findByIntraId(user: IUser): Promise<User | undefined> {
@@ -60,14 +64,29 @@ export class UserService {
       .losses;
   }
 
+  async getAvatarById(id: number) {
+    const user = await this.findById(id);
+    if (!user.avatarId) {
+      // TODO: Return default avatar
+      throw new NotFoundException();
+    }
+    return this.avatarService.getAvatarById(user.avatarId);
+  }
+
+
   ////////////
   // Update //
   ////////////
 
 	async addAvatar(id: number, file: AvatarData) {
-		const avatar = await this.avatarService.uploadAvatar(file);
-    console.log("update user with avatar:", avatar);
-		await this.userRepository.update(id, { avatarId: avatar.id });
+    const user = await this.findById(id);
+    let avatar: Avatar;
+    if (user.avatarId) {
+      avatar = await this.avatarService.updateAvatar(user.avatarId, file);
+    } else {
+      avatar = await this.avatarService.uploadAvatar(file);
+    }
+    await this.userRepository.update(id, { avatarId: avatar.id });
 		return avatar;
 	}
 

@@ -47,7 +47,7 @@
 </style>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
+import { defineComponent, type PropType } from "vue";
 import { mapState } from "pinia";
 import { useUserStore } from "@/stores/UserStore";
 import MatchHistory from "@/components/profile/MatchHistory.vue";
@@ -68,7 +68,7 @@ export default defineComponent({
       return this.profileData.status;
     },
     avatar() {
-      return this.profileData.avatar;
+      return `http://localhost:3000/user/avatar/${this.profileData.id}`;
     },
     statusStyling() {
       if (this.userStatus === "OFFLINE") {

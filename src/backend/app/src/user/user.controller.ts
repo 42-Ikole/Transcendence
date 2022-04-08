@@ -12,6 +12,8 @@ import {
   Patch,
   UseInterceptors,
   UploadedFile,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
@@ -20,6 +22,8 @@ import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { PrivateUser, PublicUser } from './user.types';
 import { FileInterceptor } from "@nestjs/platform-express";
+import { Response } from 'express';
+import { Readable } from 'stream';
 
 @ApiTags('user')
 @Controller('user')
@@ -81,6 +85,17 @@ export class UserController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadAvatar(@Req() request: RequestWithUser, @UploadedFile() file: Express.Multer.File) {
     return this.userService.addAvatar(request.user.id, { filename: file.originalname, data: file.buffer });
+  }
+
+  @Get('avatar/:id')
+  async getAvatar(@Param('id', ParseIntPipe) id: number, @Res({ passthrough: true }) response: Response) {
+    const file = await this.userService.getAvatarById(id);
+    const stream = Readable.from(file.data);
+		response.set({
+			'Content-Disposition': `inline; filename="${file.filename}"`,
+			'Content-Type': 'image'
+		});
+		return new StreamableFile(stream);
   }
 
   /////////////
