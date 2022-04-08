@@ -54,7 +54,7 @@ const router = createRouter({
 // Global redirect to login page if not authenticated
 // Uncomment to add forced redirect
 
-router.beforeEach((to, from) => {
+router.beforeEach((to) => {
   if (to.name === "login") {
     return true;
   }

@@ -1,10 +1,4 @@
-import {
-  Column,
-  Entity,
-  PrimaryGeneratedColumn,
-  OneToMany,
-  JoinColumn,
-} from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Match } from './match.entity';
 import { IsString, IsOptional, IsBoolean, IsIn } from 'class-validator';
 import { Exclude } from 'class-transformer';

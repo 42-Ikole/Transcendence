@@ -55,7 +55,6 @@ export default defineComponent({
         id: user.id,
       });
     },
-
   },
 });
 </script>
