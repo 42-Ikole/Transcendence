@@ -1,13 +1,15 @@
 <template>
-  <form method="post" action="http://localhost:3000/user/uploadAvatar" enctype="multipart/form-data">
+  <div class="container">
     <div>
-      <label for="file">Choose a file</label>
-      <input type="file" id="file" name="myFile">
+      <h2>Single File</h2>
+      <hr/>
+      <label>File
+        <input type="file" @change="handleFileUpload($event)"/>
+      </label>
+      <br>
+      <button @click="submitFile">Submit</button>
     </div>
-    <div>
-      <button type="submit">Submit</button>
-    </div>
-  </form>
+  </div>
 </template>
 
 <script lang="ts">
@@ -15,26 +17,30 @@ import { defineComponent } from "vue";
 import { mapState } from "pinia";
 import { useUserStore } from "@/stores/UserStore";
 import MatchHistory from "@/components/profile/MatchHistory.vue";
-import { makeApiCallJson } from "@/utils/ApiCall"
+import { makeApiCall } from "@/utils/ApiCall"
 import { Buffer } from 'buffer';
 
 export default defineComponent({
+  data() {
+    return {
+      file: "",
+    }
+  },
   methods: {
-    async uploadAvatar(filename: string, imageData: string) {
-      const avatar = {
-        filename: filename,
-        raw: Buffer.from(imageData, 'utf-8'),
-      };
-      await makeApiCallJson("/user/uploadAvatar", "POST", avatar);
+    async submitFile() {
+      const formData = new FormData();
+      console.log(this.file);
+      formData.append('file', this.file);
+      const response = await makeApiCall("/user/uploadAvatar", {
+        method: "POST",
+        body: formData,
+      });
+      if (response.ok) {
+        console.log(response);
+      }
     },
-	  updateAvatar(event) {
-		  const file = event.target.files[0];
-      const reader = new FileReader();
-		  reader.readAsBinaryString(file);
-		  reader.onloadend = () => {
-        // upload file -> reader.result
-        this.uploadAvatar(file.name, reader.result);
-		  }
+	  handleFileUpload(event) {
+		  this.file = event.target.files[0];
 	  }
   },
 });
