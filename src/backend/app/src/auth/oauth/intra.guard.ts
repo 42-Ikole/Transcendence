@@ -4,12 +4,15 @@ import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { AuthService } from '../auth.service';
 import { SessionUser } from '../auth.types';
 import { ConfigService } from '@nestjs/config';
+import { downloadAvatar } from './getAvatar';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class IntraStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
+    private httpService: HttpService,
   ) {
     super({
       clientID: configService.get('oauth.intra.CLIENT_ID'),
@@ -37,6 +40,7 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
   ) {
     const { username, id: intraId, image_url: avatar } = profile;
     const details = { username, intraId, avatar };
+    const imageData = await downloadAvatar(avatar, this.httpService);
     console.log('Intra User:', details);
     const user = await this.authService.validateUser(details);
     callback(null, { id: user.id, twoFactorPassed: !user.twoFactorEnabled });
