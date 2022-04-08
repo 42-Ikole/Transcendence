@@ -22,7 +22,8 @@ type SocketMap = Record<number, UserSocket>;
 @Injectable()
 export class SocketService {
   public pongServer: Server = null;
-  public statusServer: Server = null;
+	public statusServer: Server = null;
+	public chatServer: Server = null;
 
   public sockets: SocketMap = {}; // userId -> relatedSockets
 

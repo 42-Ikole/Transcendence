@@ -7,6 +7,7 @@ import { CookieService } from 'src/websocket/cookie.service';
 import { ChatService } from './chat.service';
 import { Message } from 'src/orm/entities/message.entity';
 import { Chat } from 'src/orm/entities/chat.entity';
+import { SocketService } from 'src/websocket/socket.service';
 
 @UsePipes(new ValidationPipe())
 @WebSocketGateway({
@@ -17,11 +18,15 @@ import { Chat } from 'src/orm/entities/chat.entity';
 	namespace: '/chat',
 })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
-	constructor(private chatService: ChatService, private cookieService: CookieService) {}
+	constructor(
+		private chatService: ChatService,
+		private cookieService: CookieService,
+		private socketService: SocketService,
+	) {}
 	@WebSocketServer() wss: Server;
 
 	afterInit(server: Server) {
-		console.log('chat gateway: OnInit');
+		this.socketService.chatServer = server;
 	}
 
 	handleDisconnect(client: SocketWithUser) {
@@ -80,8 +85,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			return ;
 		}
 		console.log(chat);
-		client.join(data.roomName);
+		client.join(chat.name);
 		this.chatService.userJoinsRoom(client.user, chat);
+		this.wss.to(chat.name).emit('userJoinedRoom', {user: client.user});
 	}
 
 	@SubscribeMessage('leaveRoom')
@@ -96,5 +102,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 		client.leave(data.roomName);
 		this.chatService.userLeavesRoom(client.user, chat);
+		this.wss.to(chat.name).emit('userLeftRoom', {user: client.user});
 	}
 }

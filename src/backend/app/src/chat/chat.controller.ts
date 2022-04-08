@@ -5,11 +5,15 @@ import { CreateChatDto } from "./chat.types";
 import { Chat } from "src/orm/entities/chat.entity";
 import { User } from "src/orm/entities/user.entity";
 import { Message } from "src/orm/entities/message.entity";
+import { SocketService } from "src/websocket/socket.service";
 
 @ApiTags('chat')
 @Controller('chat')
 export class ChatController {
-	constructor(private readonly chatService: ChatService) {}
+	constructor(
+		private readonly chatService: ChatService,
+		private socketService: SocketService,
+	) {}
 
 	@Get()
 	async findAll(): Promise<Chat[]> {
@@ -46,6 +50,9 @@ export class ChatController {
 
 	@Post()
 	async createChat(@Body() body: CreateChatDto): Promise<Chat> {
-		return await this.chatService.createChat(body);
+		const chat: Chat = await this.chatService.createChat(body);
+		this.socketService.chatServer.emit('createRoom', {ding: 'saus'});
+		console.log('emited naar createRoom');
+		return chat;
 	}
 }
