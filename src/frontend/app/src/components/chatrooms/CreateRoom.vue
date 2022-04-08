@@ -23,10 +23,10 @@
 					<input class="card-title"  style="margin: 0px 8px;" placeholder="Password" :type="passwordVisibility" v-model="pass" />
 					<button type="button" @click="toggleShowPassword" >
 						<i v-if="showPassword">
-							<EyeClosed />
+							<EyeOpen />
 						</i>
 						<i v-else>
-							<EyeOpen />
+							<EyeClosed />
 						</i>
 					</button>
 				</div>

@@ -19,7 +19,7 @@
 				<div class="card">
 					<div class="card-header d-flex justify-content-between align-items-center p-3">
 						<h5 class="mb-0"> {{ this.chat.name }} </h5>
-						<button type="button" class="btn btn-danger btn-sm" data-mdb-ripple-color="dark" style="line-height: 1;" @click="leaveChat">Leave chat</button>
+						<button type="button" class="btn btn-danger btn-sm" data-mdb-ripple-color="dark" style="line-height: 1;" @click="leaveRoom">Leave chat</button>
 					</div>
 					<div id="autoScrollBottom" class="card-body" style="height: 500px; overflow-y: scroll; padding-bottom: 25px;">
 						<div class="flex-row justify-content-start">
@@ -100,6 +100,13 @@ export default {
 		},
 		userLeavesChat(leaveData) {
 			console.log(`user left: ${leaveData}`); //debug
+			if (leaveData.chatName === this.chat.name) {
+				this.users = this.users.filter(item => item.id !== leaveData.user.id);
+			}
+		},
+		leaveRoom() {
+			this.socket.emit('leaveRoom', { roomName: this.chat.name });
+			this.$emit('roomLeft');
 		},
 		async refreshChat() {
 			const messagesResponse = await makeApiCall('/chat/messages/' + this.chat.name);

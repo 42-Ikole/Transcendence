@@ -12,10 +12,10 @@
 					<input class="input_pass" placeholder="Password" :type="passwordVisibility" v-model="typedPassword" />
 					<button class="button" type="button" @click="toggleShowPassword" >
 						<i v-if="showPassword">
-							<EyeClosed />
+							<EyeOpen />
 						</i>
 						<i v-else>
-							<EyeOpen />
+							<EyeClosed />
 						</i>
 					</button>
 				</div>
@@ -25,7 +25,7 @@
 		</div>
 	</div>
 	<div v-if="isJoining">
-		<Chatroom :chat="selectedChat" />
+		<Chatroom :chat="selectedChat" @roomLeft="setWaiting" />
 	</div>
 	<div v-if="isCreating">
 		<CreateRoom @roomCreated="setWaiting" />
@@ -58,6 +58,7 @@ interface DataObject {
 	selectedChatName: string;
 	typedPassword: string;
 	showPassword: boolean;
+	passwordIcon: any;
 }
 
 export default defineComponent({
