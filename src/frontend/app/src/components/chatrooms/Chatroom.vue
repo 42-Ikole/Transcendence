@@ -8,8 +8,8 @@
 					</div>
 					<div class="card-body" style="height: 500px; overflow-y: scroll;">
 						<div class="flex-row justify-content-start">
-							<li class="small">
-								getter voor users in deze chat
+							<li class="small" v-for="user in users">
+								{{ user.username }}
 							</li>
 						</div>
 					</div>
@@ -40,9 +40,9 @@
 	</div>
 </template>
 
-
 <script lang="ts">
 
+import { PublicUser } from '../../types/UserType.ts';
 import io from 'socket.io-client';
 import { useSocketStore } from '@/stores/SocketStore';
 import { mapState } from 'pinia';
@@ -51,7 +51,7 @@ import { makeApiCall } from '@/utils/ApiCall';
 
 interface DataObject {
 	myMessage: string;
-	users: any[];
+	users: PublicUser[];
 	messageToChat: SendChatMessage;
 	messages: any[];
 }
@@ -92,19 +92,23 @@ export default {
 				autoScroll.scrollTop = autoScroll.scrollHeight;
 			}
 		},
-		joinChat(user) {
+		userJoinsChat(user) {
 			console.log(`user joined: ${user}`); //debug
-			this.users.push(user);
+			//this.users.push(user);
 		},
-		leaveChat(user) {
+		userLeavesChat(user) {
 			console.log(`user left: ${user}`); //debug
-			this.users = this.users.filter((t) => t !== user);
 		},
-		async refreshMessages() {
-			const response = await makeApiCall('/chat/messages/' + this.chat.name);
-			if (response.ok) {
-				this.messages = await response.json();
-				console.log('this.messages: ', this.messages);
+		async refreshChat() {
+			const messagesResponse = await makeApiCall('/chat/messages/' + this.chat.name);
+			if (messagesResponse.ok) {
+				this.messages = await messagesResponse.json();
+				this.$refs.messageBox.focus();
+			}
+			const usersResponse = await makeApiCall('/chat/users/' + this.chat.name);
+			if (usersResponse.ok) {
+				this.users = await usersResponse.json();
+				console.log(this.users[0]);
 			}
 		},
 	},
@@ -112,11 +116,11 @@ export default {
 		this.socket.on('messageToClient', (message) => {
 			this.receivedMessage(message);
 		});
-		this.socket.on('userJoinedChat', (user) => {
-			this.joinChat(user);
+		this.socket.on('userJoinedRoom', (user) => {
+			this.userJoinsChat(user);
 		});
-		this.socket.on('userLeftChat', (user) => {
-			this.leaveChat(user);
+		this.socket.on('userLeftRoom', (user) => {
+			this.userLeavesChat(user);
 		});
 	},
 	computed: {
@@ -126,12 +130,11 @@ export default {
 	},
 	watch: {
 		chat(newVal, oldVal) {
-			this.refreshMessages();
+			this.refreshChat();
 		}
 	},
 	async mounted() {
-		await this.refreshMessages();
-		this.$refs.messageBox.focus();
+		await this.refreshChat();
 	},
 }
 
