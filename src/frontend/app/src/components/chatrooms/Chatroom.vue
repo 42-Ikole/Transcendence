@@ -100,6 +100,13 @@ export default {
 			console.log(`user left: ${user}`); //debug
 			this.users = this.users.filter((t) => t !== user);
 		},
+		async refreshMessages() {
+			const response = await makeApiCall('/chat/messages/' + this.chat.name);
+			if (response.ok) {
+				this.messages = await response.json();
+				console.log('this.messages: ', this.messages);
+			}
+		},
 	},
 	created() {
 		this.socket.on('messageToClient', (message) => {
@@ -117,12 +124,13 @@ export default {
 			socket: 'chat',
 		}),
 	},
-	async mounted() {
-		const response = await makeApiCall('/chat/' + this.chat.name);
-		if (response.ok) {
-			const chatResponse = await response.json();
-			this.messages = chatResponse.messages;
+	watch: {
+		chat(newVal, oldVal) {
+			this.refreshMessages();
 		}
+	},
+	async mounted() {
+		await this.refreshMessages();
 		this.$refs.messageBox.focus();
 	},
 }
