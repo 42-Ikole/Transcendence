@@ -23,7 +23,6 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
           return String(obj.id);
         },
         username: 'login',
-        image_url: 'image_url',
       },
     });
   }
@@ -39,8 +38,8 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
     callback: (error: any, user: SessionUser) => void,
   ) {
     const { username, id: intraId, image_url: avatar } = profile;
-    const details = { username, intraId, avatar };
-    const imageData = await downloadAvatar(avatar, this.httpService);
+    const details = { username, intraId };
+    // const imageData = await downloadAvatar(avatar, this.httpService);
     console.log('Intra User:', details);
     const user = await this.authService.validateUser(details);
     callback(null, { id: user.id, twoFactorPassed: !user.twoFactorEnabled });

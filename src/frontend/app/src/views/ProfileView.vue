@@ -11,9 +11,6 @@
   </div>
 </template>
 
-<style>
-</style>
-
 <script lang="ts">
 import { defineComponent } from "vue";
 import ProfileComponent from "@/components/profile/ProfileComponent.vue";

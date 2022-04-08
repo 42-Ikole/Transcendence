@@ -3,6 +3,7 @@ import { TypeORMSession } from './entities/session.entity';
 import { User } from './entities/user.entity';
 import { Match } from './entities/match.entity';
 import { Friend } from './entities/friend.entity';
+import { Avatar } from './entities/avatar.entity';
 
 export const config: PostgresConnectionOptions = {
   type: 'postgres',
@@ -11,6 +12,6 @@ export const config: PostgresConnectionOptions = {
   port: 5432,
   username: 'root',
   password: 'root',
-  entities: [User, Match, TypeORMSession, Friend],
+  entities: [User, Match, TypeORMSession, Friend, Avatar],
   synchronize: true,
 };

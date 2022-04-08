@@ -3,11 +3,14 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   OneToMany,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Match } from './match.entity';
 import { IsString, IsOptional, IsBoolean, IsIn, Equals, ValidateIf } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { Friend } from './friend.entity';
+import { Avatar } from './avatar.entity';
 
 //////     //////
 // User Entity //
@@ -24,8 +27,12 @@ export class User {
   @Column({ unique: true })
   username: string;
 
+  @OneToOne(() => Avatar, { nullable: true })
+  @JoinColumn({ name: 'avatarId' })
+  avatar?: Avatar;
+
   @Column({ nullable: true })
-  avatar: string;
+  avatarId?: number;
 
   @OneToMany(() => Match, (match) => match.winner)
   wins: Match[];
@@ -59,12 +66,11 @@ export class User {
 // can only have username and avatar, otherwise the update shouldn't occur from an endpoints
 export class PartialUser {
   @IsString()
-  @ValidateIf(obj => !obj.avatar || obj.username)
+  @IsOptional()
   username?: string;
 
-  @IsString()
-  @ValidateIf(obj => !obj.username || obj.avatar)
-  avatar?: string;
+  @Equals(undefined)
+  avatar?: Avatar;
 
   @Equals(undefined)
   intraId?: string;

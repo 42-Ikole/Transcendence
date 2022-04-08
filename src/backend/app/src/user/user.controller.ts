@@ -10,6 +10,8 @@ import {
   NotFoundException,
   ParseIntPipe,
   Patch,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
@@ -17,6 +19,7 @@ import { RequestWithUser } from 'src/auth/auth.types';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { PrivateUser, PublicUser } from './user.types';
+import { FileInterceptor } from "@nestjs/platform-express";
 
 @ApiTags('user')
 @Controller('user')
@@ -71,6 +74,13 @@ export class UserController {
   @Patch('update')
   async updateUser(@Req() request: RequestWithUser, @Body() user: PartialUser) {
     return await this.userService.update(request.user.id, user);
+  }
+
+  @Post('uploadAvatar')
+  // @UseGuards(AuthenticatedGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadAvatar(@Req() request: RequestWithUser, @UploadedFile() file: Express.Multer.File) {
+    return this.userService.addAvatar(request.user.id, { filename: file.originalname, data: file.buffer });
   }
 
   /////////////
