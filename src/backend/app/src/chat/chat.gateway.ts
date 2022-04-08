@@ -84,7 +84,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			// Send back error letting know it failed??
 			return ;
 		}
-		console.log(chat);
 		client.join(chat.name);
 		this.chatService.userJoinsRoom(client.user, chat);
 		this.wss.to(chat.name).emit('userJoinedRoom', {chatName: chat.name, user: client.user});
