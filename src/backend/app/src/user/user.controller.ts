@@ -90,7 +90,6 @@ export class UserController {
 
   @Get('avatar/:id')
   async getAvatar(@Param('id', ParseIntPipe) id: number, @Res({ passthrough: true }) response: Response) {
-	  console.log("jemoeder is een avatar aan het aanvragen");
 	try {
 		const file = await this.userService.getAvatarById(id);
 		const stream = Readable.from(file.data);

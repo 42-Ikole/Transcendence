@@ -1,9 +1,10 @@
 <template>
 <h2>Username</h2>
 <div class="input-group mt-3">
-	<span class="input-group-text" id="inputGroupPrepend">New Username</span>
-	<input type="text" @keyup.enter="updateUsername" v-model="newUsername" id="validationCustomUsername" aria-describedby="inputGroupPrepend" required>
-	<button class="btn btn-secondary btn-sm" type="submit" @click="updateUsername">Update</button>
+	<div class="input-group mb-3">
+		<input type="text" class="input-group-text form-control-lg" @keyup.enter="updateUsername" v-model="newUsername" :placeholder="username">
+		<button class="btn btn-success" type="button" id="button-addon2" @click="updateUsername">Save</button>
+	</div>
 </div>
 <div v-if="usernameInvalid" class="text-warning">
 	invalid username

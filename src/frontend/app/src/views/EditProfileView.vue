@@ -27,7 +27,6 @@ export default defineComponent({
 	},
 	methods: {
 		refreshUserData() {
-			console.log("updating...");
 			useUserStore().refreshUserData();
 		},
 	}

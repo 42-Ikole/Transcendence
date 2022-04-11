@@ -1,11 +1,11 @@
 <template>
     <div>
-      <h2>Change Avatar</h2>
-      <hr/>
+      <h2>Avatar</h2>
 	 	<div class="input-group">
-			<input class="form-control form-control-lg"  type="file" @change="handleFileUpload($event)" />
-			<button type="button" class="btn btn-success" @click="submitFile">Update Avatar</button>
+			<input class="form-control form-control-lg"  type="file" @change="handleFileUpload($event)"/>
+			<button type="button" class="btn btn-success" @click="submitFile" :disabled="canUploadFile">Save</button>
 		</div>
+		<p>{{status}}</p>
     </div>
 </template>
 
@@ -17,11 +17,22 @@ import MatchHistory from "@/components/profile/MatchHistory.vue";
 import { makeApiCall } from "@/utils/ApiCall"
 import { Buffer } from 'buffer';
 
+interface DataObject {
+	file: any;
+	status: string;
+}
+
 export default defineComponent({
-  data() {
+  data(): DataObject {
     return {
-      file: "",
+      file: null,
+	  status: "",
     }
+  },
+  computed: {
+	  canUploadFile() {
+		  return !this.file;
+	  }
   },
   methods: {
     async submitFile() {
@@ -35,9 +46,14 @@ export default defineComponent({
       if (response.ok) {
         console.log(response);
 		useUserStore().updateAvatar();
-      }
+		this.status = "Successfully updated avatar!";
+	  } else {
+		  this.status = "Couldn't update avatar!";
+	  }
+	  this.file = null;
     },
 	  handleFileUpload(event) {
+		  console.log("bro?");
 		  this.file = event.target.files[0];
 	  }
   },
