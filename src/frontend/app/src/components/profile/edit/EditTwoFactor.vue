@@ -14,7 +14,7 @@
           <input
             class="input-group-text"
             type="text"
-            @keyup.enter="updateUsername"
+            @keyup.enter="submitTwoFactor"
             v-model="code"
             id="validationCustomUsername"
             aria-describedby="inputGroupPrepend"
@@ -110,6 +110,10 @@ export default defineComponent({
     },
     async submitTwoFactor() {
       console.log("submitting");
+      if (!this.code) {
+        this.errorHappened = true;
+        return;
+      }
       const response = await makeApiCallJson("/2fa/enable", "POST", {
         twoFactorCode: this.code,
       });
