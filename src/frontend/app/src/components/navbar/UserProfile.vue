@@ -6,9 +6,8 @@
       data-bs-toggle="dropdown"
       data-bs-display="static"
       aria-expanded="false"
-	  :style="avatar"
-    >
-	</button>
+      :style="avatar"
+    ></button>
     <ul class="dropdown-menu dropdown-menu-end">
       <li>
         <button class="dropdown-item" type="button" @click="goToProfile">
@@ -16,7 +15,9 @@
         </button>
       </li>
       <li>
-        <button class="dropdown-item" type="button" @click="editProfile">Edit</button>
+        <button class="dropdown-item" type="button" @click="editProfile">
+          Edit
+        </button>
       </li>
       <li>
         <hr class="dropdown-divider" />
@@ -51,11 +52,11 @@ import LoggedOut from "@/components/Authentication/LoggedOut.vue";
 import makeApiCall from "@/utils/ApiCall";
 
 export default defineComponent({
-	data() {
+  data() {
     return {
-      url: ""
-    }
-	},
+      url: "",
+    };
+  },
   methods: {
     logout() {
       logoutUser(this.$router);

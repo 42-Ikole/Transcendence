@@ -15,7 +15,7 @@ import { SocketModule } from './websocket/socket.module';
 import { StatusModule } from './status/status.module';
 import { FriendModule } from './friend/friend.module';
 import { CookieModule } from './websocket/cookie.module';
-import { AvatarModule } from "./avatar/avatar.module";
+import { AvatarModule } from './avatar/avatar.module';
 
 @Module({
   imports: [

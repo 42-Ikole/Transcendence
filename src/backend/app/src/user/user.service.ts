@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
@@ -9,8 +13,8 @@ import { Avatar, AvatarData } from 'src/orm/entities/avatar.entity';
 @Injectable()
 export class UserService {
   constructor(
-	@InjectRepository(User) private userRepository: Repository<User>,
-	private readonly avatarService: AvatarService
+    @InjectRepository(User) private userRepository: Repository<User>,
+    private readonly avatarService: AvatarService,
   ) {}
 
   ////////////
@@ -73,12 +77,11 @@ export class UserService {
     return this.avatarService.getAvatarById(user.avatarId);
   }
 
-
   ////////////
   // Update //
   ////////////
 
-	async addAvatar(id: number, file: AvatarData) {
+  async addAvatar(id: number, file: AvatarData) {
     const user = await this.findById(id);
     let avatar: Avatar;
     if (user.avatarId) {
@@ -87,13 +90,13 @@ export class UserService {
       avatar = await this.avatarService.uploadAvatar(file);
     }
     await this.userRepository.update(id, { avatarId: avatar.id });
-		return avatar;
-	}
+    return avatar;
+  }
 
   async update(id: number, field: PartialUser) {
     console.log('part:', field);
     return await this.userRepository.update(id, field).catch((reason: any) => {
-      console.error("user update failure");
+      console.error('user update failure');
       throw new ConflictException();
     });
   }

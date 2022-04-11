@@ -22,7 +22,7 @@ export class AvatarService {
     const newFile = this.createAvatar(file);
     return await this.avatarRepository.save(newFile);
   }
- 
+
   async getAvatarById(id: number) {
     const file = await this.avatarRepository.findOne(id);
     if (!file) {

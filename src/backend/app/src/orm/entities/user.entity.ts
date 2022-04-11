@@ -7,7 +7,14 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Match } from './match.entity';
-import { IsString, IsOptional, IsBoolean, IsIn, Equals, ValidateIf } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsIn,
+  Equals,
+  ValidateIf,
+} from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { Friend } from './friend.entity';
 import { Avatar } from './avatar.entity';

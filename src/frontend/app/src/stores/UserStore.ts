@@ -38,8 +38,8 @@ export const useUserStore = defineStore("user", {
     return {
       state: "OFFLINE",
       authenticatedState: "OAUTH",
-	  profileData: null,
-	  avatarUrl: "http://localhost:3000/user/avatar",
+      profileData: null,
+      avatarUrl: "http://localhost:3000/user/avatar",
     };
   },
   getters: {
@@ -75,13 +75,13 @@ export const useUserStore = defineStore("user", {
       useFriendStore().init();
     },
     async refreshUserData() {
-	  this.profileData = await initUserData();
-	  this.updateAvatar();
-	},
-	updateAvatar() {
-		this.avatarUrl = `http://localhost:3000/user/avatar/${this.profileData.id}/${updateCount}`;
-		updateCount += 1;
-	},
+      this.profileData = await initUserData();
+      this.updateAvatar();
+    },
+    updateAvatar() {
+      this.avatarUrl = `http://localhost:3000/user/avatar/${this.profileData.id}/${updateCount}`;
+      updateCount += 1;
+    },
     logout() {
       this.setAuthState("OAUTH");
       this.setState("OFFLINE");
