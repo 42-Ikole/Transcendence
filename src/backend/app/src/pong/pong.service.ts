@@ -202,7 +202,11 @@ export class PongService {
     return !!this.challengers[client.user.id];
   }
 
-  addChallenger(client: SocketWithUser, target: SocketWithUser, defaultMode: boolean) {
+  addChallenger(
+    client: SocketWithUser,
+    target: SocketWithUser,
+    defaultMode: boolean,
+  ) {
     this.challengers[target.user.id] = {
       id: client.user.id,
       defaultMode,
