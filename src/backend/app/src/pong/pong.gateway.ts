@@ -196,7 +196,7 @@ export class PongGateway
       this.startNewGame(
         this.pongService.getChallenger(client),
         client,
-        this.pongService.getMode(),
+        this.pongService.getMode(client),
       );
     }
     this.pongService.deleteChallenger(client);
