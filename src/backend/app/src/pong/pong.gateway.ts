@@ -34,18 +34,18 @@ import { UserState } from 'src/status/status.types';
 
 /*
 Endpoints:
-  `requestMatch`
-  `movement`
-  `requestObserve`
-  `cancelObserve`
-Emits:
+`requestMatch`
+`movement`
+`requestObserve`
+`cancelObserve`
+  Emits:
   `endGame`
   `exception`
-*/
-
-@WebSocketGateway({
-  namespace: '/pong',
-  cors: {
+  */
+ 
+ @WebSocketGateway({
+   namespace: '/pong',
+   cors: {
     credentials: true,
     origin: ['http://localhost:8080', 'http://localhost:3000'],
   },
@@ -312,7 +312,9 @@ export class PongGateway
       movePlayer(gameRoom.gameState.playerTwo.bar, Array.from(data));
       checkSpecialMoves(gameRoom.gameState.playerTwo.specialMoves, Array.from(data));
     }
-    specialMoves(gameRoom.gameState);
+    if (gameRoom.gameState.default == false){
+      specialMoves(gameRoom.gameState);
+    }
   }
 
   /*

@@ -1,4 +1,5 @@
 import { Ball, GameState, Player, PongBar, SpecialMoves } from './pong.types';
+import { stat } from 'fs';
 
 /*
 Concept: all coordinates are in range [0, 1] and used in the frontend as a percentage relative to the screen size.
@@ -12,6 +13,7 @@ const PLAYER_SPEED = 0.01;
 const VERTICAL_FACTOR = 0.4;
 const BAR_SHRINK = 0.006;
 const BAR_CORRECTION  = 0.003;
+const SPEEDUP = 1.4;
 
 function newBall(): Ball {
   return {
@@ -92,36 +94,24 @@ export function movePlayer(bar: PongBar, directions: Array<string>) {
 
 export function specialMoves(state : GameState) {
   
+
   if (
-    state.playerOne.specialMoves.speedUp === true ||
-    state.playerTwo.specialMoves.speedUp === true
-    ) {
-    state.ball.direction.x < 0 ? -1.5 : 1.5
-  } else {
-    state.ball.direction.x < 0 ? -1 : 1; 
-  }
-  if (
-    (state.playerOne.specialMoves.grow === true &&
-      state.playerTwo.specialMoves.shrink === false) ||
-      (state.playerOne.specialMoves.shrink === false &&
+      ( state.playerOne.specialMoves.grow === false &&
+        state.playerTwo.specialMoves.shrink === true) ||
+      ( state.playerOne.specialMoves.shrink === true &&
+        state.playerTwo.specialMoves.grow === false)
+      ) {
+      state.ball.radius = 0.0075;
+    } else if (
+      ( state.playerOne.specialMoves.grow === true &&
+        state.playerTwo.specialMoves.shrink === false ) ||
+      ( state.playerOne.specialMoves.shrink === false &&
         state.playerTwo.specialMoves.grow === true)
-        ) {
-          state.ball.radius = 0.05;
-        } else {
+      ) {
+          state.ball.radius = 0.025;
+      } else {
           state.ball.radius = 0.015;
-        }
-        if (
-          (state.playerOne.specialMoves.grow === false &&
-            state.playerTwo.specialMoves.shrink === true) ||
-            (state.playerOne.specialMoves.shrink === true &&
-              state.playerTwo.specialMoves.grow === false)
-  ) {
-    state.ball.radius = 0.0075;
-    state.ball.direction.x < 0 ? -1.5 : 1.5
-  } else {
-    state.ball.radius = 0.015;
-    state.ball.direction.x < 0 ? -1 : 1; 
-  }
+      }
 }
 
 export function checkSpecialMoves(special : SpecialMoves, keys : Array<string>) {
@@ -129,7 +119,7 @@ export function checkSpecialMoves(special : SpecialMoves, keys : Array<string>) 
   special.grow = false;
   special.shrink = false;
   for(const item of keys) {
-    if (item === ' ') {
+    if (item === 'q') {
       special.speedUp = true;
     } else if (item === 'r') {
       special.grow = true;
@@ -176,7 +166,14 @@ function ballBarIntersection(ball: Ball, bar: PongBar, mode: boolean) {
 }
 
 function updateBallPosition(state: GameState) {
-  state.ball.position.x += state.ball.direction.x * BALL_SPEED;
+  if (
+      ( state.playerOne.specialMoves.speedUp === true || 
+        state.playerTwo.specialMoves.speedUp === true) &&
+        state.default === false) {
+          state.ball.position.x += (state.ball.direction.x < 0 ? -SPEEDUP : SPEEDUP) * BALL_SPEED;
+  } else {
+    state.ball.position.x += state.ball.direction.x * BALL_SPEED;
+  }
   state.ball.position.y += state.ball.direction.y * BALL_SPEED;
   if (state.ball.position.y <= 0 || state.ball.position.y >= 1) {
     state.ball.direction.y *= -1;

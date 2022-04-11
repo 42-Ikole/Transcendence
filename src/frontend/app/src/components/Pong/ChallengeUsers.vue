@@ -54,14 +54,7 @@ export default defineComponent({
         this.users = await response.json();
       }
     },
-<<<<<<< HEAD
-    displayUser(user: any) {
-      return `${user.username}`;
-    },
-    challenge(user: any, mode: boolean) {
-=======
     challenge(user: PublicUser) {
->>>>>>> main
       console.log("challenge:", user);
       useSocketStore().pong!.emit("requestMatch", {
         type: "challenge",
