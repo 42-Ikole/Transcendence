@@ -60,7 +60,7 @@ export default defineComponent({
         this.users = await response.json();
       }
     },
-    challenge(user: PublicUser) {
+    challenge(user: PublicUser, mode: boolean) {
       console.log("challenge:", user);
       useSocketStore().pong!.emit("requestMatch", {
         type: "challenge",
