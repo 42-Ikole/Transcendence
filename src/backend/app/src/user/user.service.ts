@@ -71,7 +71,6 @@ export class UserService {
   async getAvatarById(id: number) {
     const user = await this.findById(id);
     if (!user.avatarId) {
-      // TODO: Return default avatar
       throw new NotFoundException();
     }
     return this.avatarService.getAvatarById(user.avatarId);
@@ -95,8 +94,8 @@ export class UserService {
 
   async update(id: number, field: PartialUser) {
     console.log('part:', field);
-    return await this.userRepository.update(id, field).catch((reason: any) => {
-      console.error('user update failure');
+    return await this.userRepository.update(id, field).catch((_reason: any) => {
+      console.error('user update failure:', _reason);
       throw new ConflictException();
     });
   }

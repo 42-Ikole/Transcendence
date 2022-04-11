@@ -4,8 +4,6 @@ import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { AuthService } from '../auth.service';
 import { SessionUser } from '../auth.types';
 import { ConfigService } from '@nestjs/config';
-import { HttpService } from '@nestjs/axios';
-import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class IntraStrategy extends PassportStrategy(Strategy) {

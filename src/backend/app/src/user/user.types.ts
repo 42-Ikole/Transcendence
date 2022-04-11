@@ -1,5 +1,4 @@
 import { User } from 'src/orm/entities/user.entity';
-import { Avatar } from 'src/orm/entities/avatar.entity';
 
 // When requesting information about other users
 export class PublicUser {

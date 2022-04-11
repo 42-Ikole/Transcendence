@@ -54,7 +54,6 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
-import { mapState } from "pinia";
 import { useUserStore } from "@/stores/UserStore";
 import MatchHistory from "@/components/profile/MatchHistory.vue";
 import type { PublicUser } from "@/types/UserType";

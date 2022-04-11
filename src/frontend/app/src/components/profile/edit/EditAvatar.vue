@@ -22,11 +22,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { mapState } from "pinia";
 import { useUserStore } from "@/stores/UserStore";
-import MatchHistory from "@/components/profile/MatchHistory.vue";
 import { makeApiCall } from "@/utils/ApiCall";
-import { Buffer } from "buffer";
 
 interface DataObject {
   file: any;

@@ -46,10 +46,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { logoutUser } from "@/utils/Login";
-import { mapState } from "pinia";
 import { useUserStore } from "@/stores/UserStore";
-import LoggedOut from "@/components/Authentication/LoggedOut.vue";
-import makeApiCall from "@/utils/ApiCall";
 
 export default defineComponent({
   data() {
@@ -69,7 +66,6 @@ export default defineComponent({
     },
   },
   computed: {
-    ...mapState(useUserStore, ["avatarUpdated"]),
     avatar() {
       const url = useUserStore().avatarUrl;
       return `background-image: url(${url})`;
