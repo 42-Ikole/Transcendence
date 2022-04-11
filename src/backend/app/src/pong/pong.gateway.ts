@@ -20,6 +20,8 @@ import {
   movePlayer,
   newGameState,
   updateGamestate,
+  specialMoves,
+  checkSpecialMoves,
 } from './pong.game';
 import { PongService } from './pong.service';
 import { UserService } from 'src/user/user.service';
@@ -305,9 +307,12 @@ export class PongGateway
     }
     if (client.user.id === gameRoom.playerOne.userId) {
       movePlayer(gameRoom.gameState.playerOne.bar, Array.from(data));
+      checkSpecialMoves(gameRoom.gameState.playerOne.specialMoves, Array.from(data));
     } else if (client.user.id === gameRoom.playerTwo.userId) {
       movePlayer(gameRoom.gameState.playerTwo.bar, Array.from(data));
+      checkSpecialMoves(gameRoom.gameState.playerTwo.specialMoves, Array.from(data));
     }
+    specialMoves(gameRoom.gameState);
   }
 
   /*

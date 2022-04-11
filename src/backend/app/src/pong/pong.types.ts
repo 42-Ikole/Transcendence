@@ -9,10 +9,17 @@ export interface PongBar {
   height: number;
 }
 
+export interface SpecialMoves {
+  speedUp: boolean;
+  grow: boolean;
+  shrink: boolean;
+}
+
 export interface Player {
   bar: PongBar;
   username: string;
   score: number;
+  specialMoves: SpecialMoves;
 }
 
 export interface Ball {

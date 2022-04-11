@@ -170,4 +170,5 @@ src/pgadmin/volume_claims/
 
 # other
 warnings.txt
+todo.txt
 src/postgres/sql_scripts/
