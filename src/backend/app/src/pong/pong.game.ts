@@ -13,7 +13,7 @@ const PLAYER_SPEED = 0.01;
 const VERTICAL_FACTOR = 0.4;
 const BAR_SHRINK = 0.006;
 const BAR_CORRECTION  = 0.003;
-const SPEEDUP = 1.4;
+const SPEEDUP = 1.2;
 
 function newBall(): Ball {
   return {
@@ -93,8 +93,6 @@ export function movePlayer(bar: PongBar, directions: Array<string>) {
 }
 
 export function specialMoves(state : GameState) {
-  
-
   if (
       ( state.playerOne.specialMoves.grow === false &&
         state.playerTwo.specialMoves.shrink === true) ||
