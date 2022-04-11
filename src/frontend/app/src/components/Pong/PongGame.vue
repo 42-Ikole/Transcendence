@@ -89,6 +89,7 @@ export default defineComponent({
 
     keyDown(data: any) {
       this.PressedKeys.add(data.key);
+      console.log("->", data.key, "<-");
     },
 
     keyUp(data: any) {
