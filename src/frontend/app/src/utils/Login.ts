@@ -9,7 +9,7 @@ export function loginUser(provider: OAuthProvider) {
 }
 
 export async function logoutUser(router: Router) {
-  const response = await makeApiCall("/auth/logout", {
+  await makeApiCall("/auth/logout", {
     method: "DELETE",
   });
   const userStore = useUserStore();

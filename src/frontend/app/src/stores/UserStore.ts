@@ -3,6 +3,7 @@ import { useSocketStore } from "./SocketStore";
 import type { UserProfileData } from "@/types/UserType";
 import makeApiCall from "@/utils/ApiCall";
 import { canMakeConnection } from "@/utils/Login";
+import { useFriendStore } from "./FriendStore";
 
 export type UserState =
   | "OFFLINE"
@@ -68,6 +69,7 @@ export const useUserStore = defineStore("user", {
       this.setState("ONLINE");
       useSocketStore().init();
       await this.refreshUserData();
+      useFriendStore().init();
     },
     async refreshUserData() {
 	  this.profileData = await initUserData();
