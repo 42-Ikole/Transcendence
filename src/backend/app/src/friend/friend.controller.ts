@@ -6,16 +6,12 @@ import {
   Delete,
   Post,
   Body,
-  BadRequestException,
   Param,
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
 import { RequestWithUser } from 'src/auth/auth.types';
-import { StatusService } from 'src/status/status.service';
-import { IdDto } from 'src/types/param.validation';
-import { UserService } from 'src/user/user.service';
 import { FriendService } from './friend.service';
 import { FriendDto } from './friend.types';
 
@@ -61,6 +57,16 @@ export class FriendController {
     console.log('Accept Friend:', request.user.id, '-', targetId);
     const accept = new FriendDto(targetId, request.user.id, 'FRIEND');
     return await this.friendService.acceptFriendRequest(accept);
+  }
+
+  @Delete('request/cancel/:id')
+  async cancelFriendRequest(
+    @Req() request: RequestWithUser,
+    @Param('id', ParseIntPipe) targetId: number,
+  ) {
+    console.log('Cancel Friend Request:', request.user.id, '-', targetId);
+    const cancel = new FriendDto(request.user.id, targetId, 'REQUEST');
+    return await this.friendService.cancelFriendRequest(cancel);
   }
 
   /*

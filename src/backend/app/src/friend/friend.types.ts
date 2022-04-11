@@ -1,4 +1,4 @@
-import { IsIn, IsInt, IsString } from 'class-validator';
+import { IsIn, IsInt } from 'class-validator';
 
 export type FriendRelationType = 'FRIEND' | 'REQUEST' | 'BLOCK';
 const FRIEND_RELATION_TYPES: FriendRelationType[] = [

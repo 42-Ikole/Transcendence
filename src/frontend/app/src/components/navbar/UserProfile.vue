@@ -44,9 +44,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { logoutUser } from "@/utils/Login";
-import { mapState } from "pinia";
-import LoggedOut from "@/components/Authentication/LoggedOut.vue";
-import makeApiCall from "@/utils/ApiCall";
 
 export default defineComponent({
   methods: {
