@@ -1,4 +1,11 @@
-import { IsIn, IsInt, IsNumber, IsString, ValidateIf } from 'class-validator';
+import {
+  IsIn,
+  IsInt,
+  IsNumber,
+  IsString,
+  ValidateIf,
+  IsBoolean,
+} from 'class-validator';
 import { Socket } from 'socket.io';
 import { User } from 'src/orm/entities/user.entity';
 
@@ -16,6 +23,9 @@ export class RequestMatchDto {
   @IsNumber()
   @ValidateIf((object, value) => value !== null)
   targetId: number | null;
+
+  @IsBoolean()
+  default: boolean;
 }
 
 export class ObserveGameDto {

@@ -12,8 +12,17 @@
         </div>
         <div class="col-md-4">
           <div class="card-body">
-            <button class="btn btn-outline-light" @click="challenge(user)">
+            <button
+              class="btn btn-outline-light"
+              @click="challenge(user, false)"
+            >
               Challenge
+            </button>
+            <button
+              class="btn btn-outline-light"
+              @click="challenge(user, true)"
+            >
+              Challenge [Default mode]
             </button>
           </div>
         </div>
@@ -51,11 +60,12 @@ export default defineComponent({
         this.users = await response.json();
       }
     },
-    challenge(user: PublicUser) {
+    challenge(user: PublicUser, mode: boolean) {
       console.log("challenge:", user);
       useSocketStore().pong!.emit("requestMatch", {
         type: "challenge",
         targetId: user.id,
+        default: mode,
       });
     },
   },
