@@ -4,6 +4,11 @@
       <div class="col-md-5">
         <!-- <div class="profileImg" v-bind:class="statusStyling"></div> -->
         <img class="profileImg" v-bind:class="statusStyling" :src="avatar">
+		<h2><i class="icon-big"><Trophy /></i> Achievements</h2>
+		<hr />
+		<ul class="text-white">
+		<li>Created an account!</li>
+		</ul>
       </div>
       <div class="col-md-7">
         <h1>{{ userName }}</h1>
@@ -52,6 +57,7 @@ import { useUserStore } from "@/stores/UserStore";
 import MatchHistory from "@/components/profile/MatchHistory.vue";
 import type { PublicUser } from "@/types/UserType";
 import { useUserStore } from "@/stores/UserStore";
+import  Trophy  from "@/components/icons/iconTrophy.vue"
 
 export default defineComponent({
   props: {
@@ -83,6 +89,7 @@ export default defineComponent({
   },
   components: {
     MatchHistory,
+	Trophy,
   },
 });
 </script>
