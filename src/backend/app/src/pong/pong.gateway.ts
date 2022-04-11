@@ -218,13 +218,13 @@ export class PongGateway
 
   // Check if there is another client ready to play, otherwise set client as waiting/searching
   matchMaking(client: SocketWithUser, mode: boolean) {
-    if (!this.pongService.canMatch()) {
+    if (!this.pongService.canMatch(mode)) {
       console.log(client.user.username, 'is searching');
-      this.pongService.enterMatchmakingQueue(client);
+      this.pongService.enterMatchmakingQueue(client, mode);
       this.setStateIfOnline(client.user.id, 'SEARCHING');
       return;
     }
-    const matchedUser = this.pongService.getMatch();
+    const matchedUser = this.pongService.getMatch(mode);
     if (matchedUser.id === client.id) {
       console.error('client matched with itself');
       return;

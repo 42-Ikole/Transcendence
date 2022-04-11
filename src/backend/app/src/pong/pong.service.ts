@@ -5,6 +5,11 @@ import { CookieService } from 'src/websocket/cookie.service';
 import { SocketService } from 'src/websocket/socket.service';
 import { StatusService } from 'src/status/status.service';
 
+interface Challenger {
+  id: number;
+  defaultMode: boolean;
+}
+
 @Injectable()
 export class PongService {
   constructor(
@@ -14,10 +19,10 @@ export class PongService {
   ) {}
 
   private waitingUser: SocketWithUser | null = null;
+  private waitingDefaultUser: SocketWithUser | null = null;
   private gameRooms: Record<string, GameRoom> = {}; // roomName -> extra room Data
   private disconnectedUsers: Record<number, string> = {}; // userId -> roomName
-  private challengers: Record<number, number> = {}; // challengedUserId -> challengerUserId
-  private default: boolean;
+  private challengers: Record<number, Challenger> = {}; // challengedUserId -> challengerUserId
 
   addClient(client: SocketWithUser) {
     this.socketService.addSocket(client.user.id, 'pong', client);
@@ -73,15 +78,27 @@ export class PongService {
     }
   }
 
-  enterMatchmakingQueue(client: SocketWithUser) {
+  enterMatchmakingQueue(client: SocketWithUser, defaultMode: boolean) {
+    if (defaultMode) {
+      this.waitingDefaultUser = client;
+      return;
+    }
     this.waitingUser = client;
   }
 
-  canMatch(): boolean {
+  canMatch(defaultMode: boolean): boolean {
+    if (defaultMode) {
+      return this.waitingDefaultUser !== null;
+    }
     return this.waitingUser !== null;
   }
 
-  getMatch() {
+  getMatch(defaultMode: boolean) {
+    if (defaultMode) {
+      const waiting = this.waitingDefaultUser;
+      this.waitingDefaultUser = null;
+      return waiting;
+    }
     const waiting = this.waitingUser;
     this.waitingUser = null;
     return waiting;
@@ -185,13 +202,11 @@ export class PongService {
     return !!this.challengers[client.user.id];
   }
 
-  addChallenger(client: SocketWithUser, target: SocketWithUser, mode) {
-    this.challengers[target.user.id] = client.user.id;
-    this.default = mode;
-  }
-
-  getMode(): boolean {
-    return this.default;
+  addChallenger(client: SocketWithUser, target: SocketWithUser, defaultMode: boolean) {
+    this.challengers[target.user.id] = {
+      id: client.user.id,
+      defaultMode,
+    };
   }
 
   // Return true IF:
@@ -199,7 +214,7 @@ export class PongService {
   //  - the challenger still exists
   //  - the challenger is still searching
   hasChallenger(client: SocketWithUser): boolean {
-    const challengerId = this.challengers[client.user.id];
+    const challengerId = this.challengers[client.user.id].id;
     return (
       !!this.challengers[client.user.id] &&
       !!this.socketService.userExistsType(challengerId, 'pong') &&
@@ -212,7 +227,11 @@ export class PongService {
   }
 
   getChallenger(client: SocketWithUser) {
-    const id = this.challengers[client.user.id];
+    const id = this.challengers[client.user.id].id;
     return this.socketService.sockets[id].pong;
+  }
+
+  getMode(client: SocketWithUser): boolean {
+    return this.challengers[client.user.id].defaultMode;
   }
 }
