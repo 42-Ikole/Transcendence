@@ -88,7 +88,7 @@ export class UserController {
     return this.userService.addAvatar(request.user.id, { filename: file.originalname, data: file.buffer });
   }
 
-  @Get('avatar/:id')
+  @Get('avatar/:id/:hahagetrektbitch')
   async getAvatar(@Param('id', ParseIntPipe) id: number, @Res({ passthrough: true }) response: Response) {
 	try {
 		const file = await this.userService.getAvatarById(id);
@@ -106,11 +106,6 @@ export class UserController {
 		});
 		return new StreamableFile(file);
 	}
-  }
-
-  @Get('avatar/:id/updated')
-  async getUpdatedAvatar(@Param('id', ParseIntPipe) id: number, @Res({ passthrough: true }) response: Response) {
-	return this.getAvatar(id, response);
   }
 
   /////////////

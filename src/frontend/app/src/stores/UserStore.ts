@@ -13,6 +13,9 @@ export type UserState =
   | "PLAYING"
   | "OBSERVING"
   | "CHALLENGED";
+
+let updateCount = 0;
+
 export type AuthenticatedState = "AUTHENTICATED" | "2FA" | "OAUTH";
 
 interface UserStore {
@@ -73,14 +76,11 @@ export const useUserStore = defineStore("user", {
     },
     async refreshUserData() {
 	  this.profileData = await initUserData();
-	  this.avatarUrl = `http://localhost:3000/user/avatar/${this.profileData.id}`;
+	  this.updateAvatar();
 	},
 	updateAvatar() {
-		if (this.avatarUrl === `http://localhost:3000/user/avatar/${this.profileData.id}`) {
-			this.avatarUrl += "/updated";
-		} else {
-			this.avatarUrl = `http://localhost:3000/user/avatar/${this.profileData.id}`;
-		}
+		this.avatarUrl = `http://localhost:3000/user/avatar/${this.profileData.id}/${updateCount}`;
+		updateCount += 1;
 	},
     logout() {
       this.setAuthState("OAUTH");
