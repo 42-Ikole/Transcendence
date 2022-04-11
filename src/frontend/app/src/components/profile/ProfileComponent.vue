@@ -58,7 +58,7 @@ import { mapState } from "pinia";
 import { useUserStore } from "@/stores/UserStore";
 import MatchHistory from "@/components/profile/MatchHistory.vue";
 import type { PublicUser } from "@/types/UserType";
-import Trophy from "@/components/icons/iconTrophy.vue";
+import Trophy from "@/components/icons/IconTrophy.vue";
 
 export default defineComponent({
   props: {
