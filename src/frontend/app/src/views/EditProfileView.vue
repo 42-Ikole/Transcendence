@@ -1,12 +1,14 @@
 <template>
-<div class="mb-3">
-	<EditUsername @update="refreshUserData" />
-</div>
-<div class="mb-3">
-	<EditTwoFactor @update="refreshUserData" />
-</div>
-<div class="mb-3">
-	<EditAvatar />
+<div class="container">
+	<div class="mb-3">
+		<EditUsername @update="refreshUserData" />
+	</div>
+	<div class="mb-3">
+		<EditTwoFactor @update="refreshUserData" />
+	</div>
+	<div class="mb-3">
+		<EditAvatar />
+	</div>
 </div>
 </template>
 

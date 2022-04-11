@@ -18,6 +18,7 @@ interface UserStore {
   state: UserState;
   authenticatedState: AuthenticatedState;
   profileData: UserProfileData | null;
+  avatarUrl: string;
 }
 
 async function initUserData(): Promise<UserProfileData> {
@@ -33,7 +34,8 @@ export const useUserStore = defineStore("user", {
     return {
       state: "OFFLINE",
       authenticatedState: "OAUTH",
-      profileData: null,
+	  profileData: null,
+	  avatarUrl: "http://localhost:3000/user/avatar",
     };
   },
   getters: {
@@ -68,8 +70,16 @@ export const useUserStore = defineStore("user", {
       await this.refreshUserData();
     },
     async refreshUserData() {
-      this.profileData = await initUserData();
-    },
+	  this.profileData = await initUserData();
+	  this.avatarUrl = `http://localhost:3000/user/avatar/${this.profileData.id}`;
+	},
+	updateAvatar() {
+		if (this.avatarUrl === `http://localhost:3000/user/avatar/${this.profileData.id}`) {
+			this.avatarUrl += "/updated";
+		} else {
+			this.avatarUrl = `http://localhost:3000/user/avatar/${this.profileData.id}`;
+		}
+	},
     logout() {
       this.setAuthState("OAUTH");
       this.setState("OFFLINE");

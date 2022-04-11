@@ -1,6 +1,6 @@
 <template>
 <div>
-	<h3>Two Factor Authentication</h3>
+	<h2>Two Factor Authentication</h2>
 	<div v-if="twoFactorEnabled">
 			<button class="btn btn-outline-light btn-sm" @click="disableTwoFactor">Disable</button>
 	</div>

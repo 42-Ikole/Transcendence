@@ -51,6 +51,7 @@ import { mapState } from "pinia";
 import { useUserStore } from "@/stores/UserStore";
 import MatchHistory from "@/components/profile/MatchHistory.vue";
 import type { PublicUser } from "@/types/UserType";
+import { useUserStore } from "@/stores/UserStore";
 
 export default defineComponent({
   props: {
@@ -67,7 +68,7 @@ export default defineComponent({
       return this.profileData.status;
     },
     avatar() {
-      return `http://localhost:3000/user/avatar/${this.profileData.id}`;
+      return useUserStore().avatarUrl;
     },
     statusStyling() {
       if (this.userStatus === "OFFLINE") {

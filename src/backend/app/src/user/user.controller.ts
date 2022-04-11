@@ -110,6 +110,11 @@ export class UserController {
 	}
   }
 
+  @Get('avatar/:id/updated')
+  async getUpdatedAvatar(@Param('id', ParseIntPipe) id: number, @Res({ passthrough: true }) response: Response) {
+	return this.getAvatar(id, response);
+  }
+
   /////////////
   // Getters //
   /////////////

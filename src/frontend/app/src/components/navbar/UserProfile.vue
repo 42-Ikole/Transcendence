@@ -51,7 +51,11 @@ import LoggedOut from "@/components/Authentication/LoggedOut.vue";
 import makeApiCall from "@/utils/ApiCall";
 
 export default defineComponent({
-
+	data() {
+    return {
+      url: ""
+    }
+	},
   methods: {
     logout() {
       logoutUser(this.$router);
@@ -64,10 +68,11 @@ export default defineComponent({
     },
   },
   computed: {
-	  avatar() {
-		  const id = useUserStore().profileData!.id;
-		return `background-image: url(http://localhost:3000/user/avatar/${id})`;
-	},
-  }
+    ...mapState(useUserStore, ["avatarUpdated"]),
+    avatar() {
+      const url = useUserStore().avatarUrl;
+      return `background-image: url(${url})`;
+    },
+  },
 });
 </script>

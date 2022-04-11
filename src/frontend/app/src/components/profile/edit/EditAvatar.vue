@@ -1,15 +1,12 @@
 <template>
-  <div class="container">
     <div>
-      <h2>Single File</h2>
+      <h2>Change Avatar</h2>
       <hr/>
-      <label>File
-        <input type="file" @change="handleFileUpload($event)"/>
-      </label>
-      <br>
-      <button @click="submitFile">Submit</button>
+	 	<div class="input-group">
+			<input class="form-control form-control-lg"  type="file" @change="handleFileUpload($event)" />
+			<button type="button" class="btn btn-success" @click="submitFile">Update Avatar</button>
+		</div>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
@@ -37,6 +34,7 @@ export default defineComponent({
       });
       if (response.ok) {
         console.log(response);
+		useUserStore().updateAvatar();
       }
     },
 	  handleFileUpload(event) {
