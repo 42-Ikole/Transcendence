@@ -2,11 +2,13 @@
   <div class="btn-group">
     <button
       type="button"
-      class="buttonImage dropdown-toggle"
+      class="buttonImage"
       data-bs-toggle="dropdown"
       data-bs-display="static"
       aria-expanded="false"
-    ></button>
+	  :style="avatar"
+    >
+	</button>
     <ul class="dropdown-menu dropdown-menu-end">
       <li>
         <button class="dropdown-item" type="button" @click="goToProfile">
@@ -30,7 +32,6 @@
 
 <style>
 .buttonImage {
-  background: #f0f0f0 url("@/assets/profileplaceholder.jpeg");
   background-repeat: no-repeat;
   background-size: cover;
   border-radius: 50px;
@@ -45,10 +46,12 @@
 import { defineComponent } from "vue";
 import { logoutUser } from "@/utils/Login";
 import { mapState } from "pinia";
+import { useUserStore } from "@/stores/UserStore";
 import LoggedOut from "@/components/Authentication/LoggedOut.vue";
 import makeApiCall from "@/utils/ApiCall";
 
 export default defineComponent({
+
   methods: {
     logout() {
       logoutUser(this.$router);
@@ -60,5 +63,11 @@ export default defineComponent({
       this.$router.push("/profile/edit");
     },
   },
+  computed: {
+	  avatar() {
+		  const id = useUserStore().profileData!.id;
+		return `background-image: url(http://localhost:3000/user/avatar/${id})`;
+	},
+  }
 });
 </script>

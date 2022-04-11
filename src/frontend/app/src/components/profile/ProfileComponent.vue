@@ -17,7 +17,6 @@
 
 <style>
 .profileImg {
-  background: #f0f0f0 url("@/assets/profileplaceholder.jpeg");
   background-repeat: no-repeat;
   background-size: cover;
   border-radius: 50%;
