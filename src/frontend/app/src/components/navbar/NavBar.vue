@@ -13,8 +13,10 @@
     </div>
     <div class="mx-auto order-0">
       <div class="navbar-brand mx-auto">
-        <img src="/src/assets/pongHub.png" alt="ponghub" id="navbarLogo" />
-      </div>
+	  	<a href="https://github.com/K1ngmar/Transcendence"  target="_blank">
+        	<img src="/src/assets/pongHub.png" alt="ponghub" id="navbarLogo" />
+		</a>
+	  </div>
       <button
         class="navbar-toggler"
         type="button"
