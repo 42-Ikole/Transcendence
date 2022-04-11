@@ -190,7 +190,7 @@ export class PongService {
     this.default = mode;
   }
 
-  getMode(client: SocketWithUser): boolean {
+  getMode(): boolean {
     return this.default;
   }
 

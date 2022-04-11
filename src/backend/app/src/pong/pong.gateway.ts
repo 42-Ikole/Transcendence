@@ -42,10 +42,10 @@ Endpoints:
   `endGame`
   `exception`
   */
- 
- @WebSocketGateway({
-   namespace: '/pong',
-   cors: {
+
+@WebSocketGateway({
+  namespace: '/pong',
+  cors: {
     credentials: true,
     origin: ['http://localhost:8080', 'http://localhost:3000'],
   },
@@ -193,7 +193,11 @@ export class PongGateway
       client.emit('rejectChallenge', 'challenger not found');
       this.setStateIfOnline(client.user.id, 'ONLINE');
     } else {
-      this.startNewGame(this.pongService.getChallenger(client), client, this.pongService.getMode(client));
+      this.startNewGame(
+        this.pongService.getChallenger(client),
+        client,
+        this.pongService.getMode(),
+      );
     }
     this.pongService.deleteChallenger(client);
   }
@@ -251,7 +255,11 @@ export class PongGateway
 
   // Create a new unique room for these clients to play in
   // Set client's state to PLAYING
-  async startNewGame(clientOne: SocketWithUser, clientTwo: SocketWithUser, mode : boolean) {
+  async startNewGame(
+    clientOne: SocketWithUser,
+    clientTwo: SocketWithUser,
+    mode: boolean,
+  ) {
     const roomName = this.pongService.generateRoomName();
     this.joinRoom(clientOne, roomName);
     this.joinRoom(clientTwo, roomName);
@@ -262,7 +270,7 @@ export class PongGateway
     const gameState = newGameState(
       clientOne.user.username,
       clientTwo.user.username,
-      mode
+      mode,
     );
     const intervalId = this.startGameLoop(roomName, gameState);
     this.pongService.addGameRoom(roomName, {
@@ -307,12 +315,18 @@ export class PongGateway
     }
     if (client.user.id === gameRoom.playerOne.userId) {
       movePlayer(gameRoom.gameState.playerOne.bar, Array.from(data));
-      checkSpecialMoves(gameRoom.gameState.playerOne.specialMoves, Array.from(data));
+      checkSpecialMoves(
+        gameRoom.gameState.playerOne.specialMoves,
+        Array.from(data),
+      );
     } else if (client.user.id === gameRoom.playerTwo.userId) {
       movePlayer(gameRoom.gameState.playerTwo.bar, Array.from(data));
-      checkSpecialMoves(gameRoom.gameState.playerTwo.specialMoves, Array.from(data));
+      checkSpecialMoves(
+        gameRoom.gameState.playerTwo.specialMoves,
+        Array.from(data),
+      );
     }
-    if (gameRoom.gameState.default == false){
+    if (gameRoom.gameState.default == false) {
       specialMoves(gameRoom.gameState);
     }
   }
