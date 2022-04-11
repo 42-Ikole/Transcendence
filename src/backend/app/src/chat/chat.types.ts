@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, IsOptional, IsIn } from "class-validator";
+import { IsString, IsNotEmpty, IsOptional, IsIn, IsInt } from "class-validator";
+import { User } from "src/orm/entities/user.entity";
 
 const CHATROOM_TYPES = ["private", "protected", "public"];
 
@@ -9,11 +10,15 @@ export class CreateChatDto {
 
 	@IsString()
 	@IsOptional()
-	password: string;
+	password?: string;
 
 	@IsString()
 	@IsIn(CHATROOM_TYPES)
 	type: string;
+}
+
+export class CreateChatInterface extends CreateChatDto {
+	owner: User;
 }
 
 export class IncomingMessageDtO {

@@ -103,4 +103,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.chatService.userLeavesRoom(client.user, chat);
 		this.wss.to(chat.name).emit('userLeftRoom', {chatName: chat.name, user: client.user});
 	}
+
+	@SubscribeMessage('debug')
+	async findAllForUser(
+		@MessageBody() data,
+		@ConnectedSocket() client: SocketWithUser
+	): Promise<void> {
+		const chats: Chat[] = await this.chatService.findAllForUser(client.user);
+		console.log(chats);
+		return ;
+	}
 }

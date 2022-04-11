@@ -1,5 +1,5 @@
 import { Injectable, ConflictException, NotFoundException } from "@nestjs/common";
-import { CreateChatDto, IncomingMessageDtO } from "./chat.types";
+import { CreateChatDto, IncomingMessageDtO, CreateChatInterface } from "./chat.types";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Chat } from "src/orm/entities/chat.entity";
@@ -27,7 +27,17 @@ export class ChatService {
 		});
 	}
 
-	async createChat(param: CreateChatDto): Promise<Chat> {
+	async findAllForUser(user: User, relations = []): Promise<Chat[]> {
+		console.log("finding rooms for user:", user.username);
+		return await this.chatRepository.find({
+			where: [
+				{type: "protected"},
+				{type: "public"},
+			]
+		})
+	}
+
+	async createChat(param: CreateChatInterface): Promise<Chat> {
 		const existingChat = await this.findByName(param.name);
 		if (existingChat !== undefined)
 			throw new ConflictException();

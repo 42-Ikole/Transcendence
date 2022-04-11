@@ -1,14 +1,17 @@
 import { ApiTags, ApiParam } from "@nestjs/swagger";
-import { Controller, Get, Post, Body, Param, NotFoundException } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, NotFoundException, UseGuards, Req } from "@nestjs/common";
 import { ChatService } from "./chat.service";
-import { CreateChatDto } from "./chat.types";
+import { CreateChatDto, CreateChatInterface } from "./chat.types";
 import { Chat } from "src/orm/entities/chat.entity";
 import { User } from "src/orm/entities/user.entity";
 import { Message } from "src/orm/entities/message.entity";
 import { SocketService } from "src/websocket/socket.service";
+import { AuthenticatedGuard } from "src/auth/auth.guard";
+import { RequestWithUser } from "../auth/auth.types";
 
 @ApiTags('chat')
 @Controller('chat')
+@UseGuards(AuthenticatedGuard)
 export class ChatController {
 	constructor(
 		private readonly chatService: ChatService,
@@ -49,8 +52,12 @@ export class ChatController {
 	}
 
 	@Post()
-	async createChat(@Body() body: CreateChatDto): Promise<Chat> {
-		const chat: Chat = await this.chatService.createChat(body);
+	async createChat(@Req() request: RequestWithUser, @Body() body: CreateChatDto): Promise<Chat> {
+		const createChatInterface: CreateChatInterface = {
+			...body,
+			owner: request.user,
+		};
+		const chat: Chat = await this.chatService.createChat(createChatInterface);
 		this.socketService.chatServer.emit('createRoom', {ding: 'saus'});
 		console.log('emited naar createRoom');
 		return chat;
