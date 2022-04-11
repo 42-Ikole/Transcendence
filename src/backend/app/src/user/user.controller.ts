@@ -24,6 +24,8 @@ import { PrivateUser, PublicUser } from './user.types';
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Response } from 'express';
 import { Readable } from 'stream';
+import { createReadStream } from 'fs';
+import { join } from 'path';
 
 @ApiTags('user')
 @Controller('user')
@@ -89,13 +91,23 @@ export class UserController {
 
   @Get('avatar/:id')
   async getAvatar(@Param('id', ParseIntPipe) id: number, @Res({ passthrough: true }) response: Response) {
-    const file = await this.userService.getAvatarById(id);
-    const stream = Readable.from(file.data);
+	  console.log("jemoeder is een avatar aan het aanvragen");
+	try {
+		const file = await this.userService.getAvatarById(id);
+		const stream = Readable.from(file.data);
+			response.set({
+				'Content-Disposition': `inline; filename="${file.filename}"`,
+				'Content-Type': 'image'
+			});
+			return new StreamableFile(stream);
+	} catch (error) {
+		const file = createReadStream(join(process.cwd(), 'src/avatar/default_avatar.jpeg'));
 		response.set({
-			'Content-Disposition': `inline; filename="${file.filename}"`,
-			'Content-Type': 'image'
+		'Content-Type': 'image/jpeg',
+		'Content-Disposition': 'inline; filename="default avatar"',
 		});
-		return new StreamableFile(stream);
+		return new StreamableFile(file);
+	}
   }
 
   /////////////

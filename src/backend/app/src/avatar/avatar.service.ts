@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Avatar, AvatarData } from 'src/orm/entities/avatar.entity';
+import { read, createReadStream } from 'fs';
 
 @Injectable()
 export class AvatarService {
