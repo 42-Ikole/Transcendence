@@ -15,7 +15,7 @@
             <TwoFactorApp />
           </div>
           <div v-else>
-            <LoginApp />
+            <LoggedIn />
           </div>
         </div>
         <p class="footnote text-white-50">By the New Coders on the Block</p>
@@ -25,16 +25,16 @@
 </template>
 
 <script lang="ts">
-import { useUserStore, type AuthenticatedState } from "@/stores/UserStore";
+import { useUserStore } from "@/stores/UserStore";
 import { mapState } from "pinia";
 import { defineComponent } from "vue";
-import LoginApp from "@/components/Authentication/LoginApp.vue";
+import LoggedIn from "@/components/Authentication/LoggedIn.vue";
 import TwoFactorApp from "@/components/Authentication/TwoFactorApp.vue";
 import LoggedOut from "@/components/Authentication/LoggedOut.vue";
 
 export default defineComponent({
   components: {
-    LoginApp,
+    LoggedIn,
     LoggedOut,
     TwoFactorApp,
   },

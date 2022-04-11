@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Friend } from 'src/orm/entities/friend.entity';
@@ -30,6 +29,13 @@ export class FriendService {
   async acceptFriendRequest(friend: FriendDto) {
     const result = await this.updateType(friend);
     this.emitUpdate(friend);
+    return result;
+  }
+
+  async cancelFriendRequest(cancel: FriendDto) {
+    const entity = await this.findExactOrFail(cancel);
+    const result = await this.friendRepository.remove(entity);
+    this.emitUpdate(cancel);
     return result;
   }
 

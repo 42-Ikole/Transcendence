@@ -19,7 +19,7 @@ export default defineComponent({
       useUserStore().login();
     },
     async resetConnection() {
-      const response = await makeApiCall("/status/reset-connection", {
+      await makeApiCall("/status/reset-connection", {
         method: "DELETE",
       });
       this.retry();

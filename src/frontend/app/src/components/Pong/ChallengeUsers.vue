@@ -8,7 +8,7 @@
     <div class="card bg-dark mt-2" style="max-width: 500px">
       <div class="row g-0">
         <div class="col-md-6">
-          <h5 class="card-title text-center">{{ displayUser(user) }}</h5>
+          <h5 class="card-title text-center">{{ user.username }}</h5>
         </div>
         <div class="col-md-4">
           <div class="card-body">
@@ -33,11 +33,12 @@
 
 <script lang="ts">
 import { useSocketStore } from "@/stores/SocketStore";
+import type { PublicUser } from "@/types/UserType";
 import makeApiCall from "@/utils/ApiCall";
 import { defineComponent } from "vue";
 
 interface DataObject {
-  users: any[];
+  users: PublicUser[];
 }
 
 export default defineComponent({
@@ -53,10 +54,14 @@ export default defineComponent({
         this.users = await response.json();
       }
     },
+<<<<<<< HEAD
     displayUser(user: any) {
       return `${user.username}`;
     },
     challenge(user: any, mode: boolean) {
+=======
+    challenge(user: PublicUser) {
+>>>>>>> main
       console.log("challenge:", user);
       useSocketStore().pong!.emit("requestMatch", {
         type: "challenge",
