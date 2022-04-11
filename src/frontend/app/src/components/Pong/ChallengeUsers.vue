@@ -12,10 +12,16 @@
         </div>
         <div class="col-md-4">
           <div class="card-body">
-            <button class="btn btn-outline-light" @click="challenge(user, false)">
+            <button
+              class="btn btn-outline-light"
+              @click="challenge(user, false)"
+            >
               Challenge
             </button>
-            <button class="btn btn-outline-light" @click="challenge(user, true)">
+            <button
+              class="btn btn-outline-light"
+              @click="challenge(user, true)"
+            >
               Challenge [Default mode]
             </button>
           </div>

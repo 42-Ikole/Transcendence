@@ -168,9 +168,9 @@ function ballBarIntersection(ball: Ball, bar: PongBar, mode: boolean) {
 
 function updateBallPosition(state: GameState) {
   if (
-    ( state.playerOne.specialMoves.speedUp === true ||
+    (state.playerOne.specialMoves.speedUp === true ||
       state.playerTwo.specialMoves.speedUp === true) &&
-      state.default === false
+    state.default === false
   ) {
     state.ball.position.x += state.ball.direction.x * SPEEDUP * BALL_SPEED;
   } else {

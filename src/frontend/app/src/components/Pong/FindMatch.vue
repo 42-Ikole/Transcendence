@@ -1,8 +1,14 @@
 <template>
-  <button class="btn btn-outline-light btn-lg px-5 me-2" @click="requestMatch(false)">
+  <button
+    class="btn btn-outline-light btn-lg px-5 me-2"
+    @click="requestMatch(false)"
+  >
     Find Match
   </button>
-  <button class="btn btn-outline-light btn-lg px-5 me-2" @click="requestMatch(true)">
+  <button
+    class="btn btn-outline-light btn-lg px-5 me-2"
+    @click="requestMatch(true)"
+  >
     Find Match [Default Mode]
   </button>
 </template>
@@ -22,6 +28,4 @@ export default defineComponent({
     },
   },
 });
-
-
 </script>
