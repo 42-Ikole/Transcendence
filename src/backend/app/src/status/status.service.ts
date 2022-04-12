@@ -35,6 +35,7 @@ export class StatusService {
       newState: state,
     };
     if (this.socketService.userExistsType(id, 'status')) {
+      this.socketService.statusServer.to(`statusUpdate_${id}`).emit(`statusUpdate_${id}`, updatedState);
       this.socketService.sockets[id].status.emit('statusUpdate', updatedState);
     }
     this.socketService.statusServer.emit('friendUpdate');

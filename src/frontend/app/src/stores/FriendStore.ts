@@ -56,7 +56,13 @@ export const useFriendStore = defineStore("friend", {
     },
     init() {
       this.refresh();
+      this.listenToUpdates();
+    },
+    listenToUpdates() {
       useSocketStore().status!.on("friendUpdate", this.refresh);
+    },
+    stopListening() {
+      useSocketStore().status!.removeListener("friendUpdate", this.refresh);
     },
     async refresh() {
       await this.refreshFriends();
