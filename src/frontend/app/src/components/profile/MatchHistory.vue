@@ -6,7 +6,7 @@
 
   <div class="row">
     <div v-for="match in filteredMatches" :key="match.id" class="col-sm-6">
-      <MatchCard :match="match" />
+      <MatchCard :match="match" :userId="this.userId" />
     </div>
     <button v-if="showLess" class="btn btn-outline-light m-2" @click="showLess = !showLess">Show More </button>
     <button v-else class="btn btn-outline-light m-2" @click="showLess = !showLess">Show Less </button>

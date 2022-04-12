@@ -63,10 +63,14 @@ data() : blubData {
       type: Object as PropType<Match>,
       required: true,
     },
+	userId: {
+      type: Number,
+      required: true,
+    },
   },
   computed: {
     isWinner() {
-      return this.match.winner.id === useUserStore().profileData!.id;
+      return this.match.winner.id === this.userId;
     },
     matchWonClass() {
       return this.isWinner ? "match-won" : "match-lost";
