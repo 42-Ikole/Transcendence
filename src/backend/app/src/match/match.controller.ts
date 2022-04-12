@@ -8,15 +8,6 @@ import { MatchService } from 'src/match/match.service';
 export class MatchController {
   constructor(private readonly matchService: MatchService) {}
 
-  ////////////
-  // Create //
-  ////////////
-
-  @Post('create')
-  async createMatch(@Body() match: Match): Promise<Match> {
-    return this.matchService.createMatch(match);
-  }
-
   /////////////
   // Getters //
   /////////////

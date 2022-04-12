@@ -31,6 +31,7 @@ import { WsExceptionFilter } from 'src/websocket/websocket.exception.filter';
 import { SocketService } from '../websocket/socket.service';
 import { StatusService } from 'src/status/status.service';
 import { UserState } from 'src/status/status.types';
+import { ModeType } from 'src/match/match.interface';
 
 /*
 Endpoints:
@@ -151,6 +152,7 @@ export class PongGateway
       gameRoom.gameState[winner].score,
       gameRoom[loser].userId,
       gameRoom.gameState[loser].score,
+      gameRoom.gameState.default ? "DEFAULT" : "SPECIAL",
     );
   }
 
@@ -159,6 +161,7 @@ export class PongGateway
     winnerScore: number,
     loserId: number,
     loserScore: number,
+    mode: ModeType,
   ) {
     const winner = await this.userService.findById(winnerId);
     const loser = await this.userService.findById(loserId);
@@ -167,6 +170,7 @@ export class PongGateway
       winnerScore,
       loser,
       loserScore,
+      mode,
     });
   }
 
@@ -294,20 +298,23 @@ export class PongGateway
       clientTwo.user.username,
       mode,
     );
-    const intervalId = this.startGameLoop(roomName, gameState);
-    this.pongService.addGameRoom(roomName, {
-      intervalId,
-      playerOne: {
-        userId: clientOne.user.id,
-        disconnected: false,
-      },
-      playerTwo: {
-        userId: clientTwo.user.id,
-        disconnected: false,
-      },
-      observers: new Set<number>(),
-      gameState,
-    });
+    // discuss: timeout for starting game
+    setTimeout(() => {
+      const intervalId = this.startGameLoop(roomName, gameState);
+      this.pongService.addGameRoom(roomName, {
+        intervalId,
+        playerOne: {
+          userId: clientOne.user.id,
+          disconnected: false,
+        },
+        playerTwo: {
+          userId: clientTwo.user.id,
+          disconnected: false,
+        },
+        observers: new Set<number>(),
+        gameState,
+      });
+    }, 100);
   }
 
   joinRoom(client: SocketWithUser, roomName: string) {
