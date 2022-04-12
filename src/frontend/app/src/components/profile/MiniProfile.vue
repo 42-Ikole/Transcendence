@@ -1,6 +1,6 @@
 <template>
   <RouterLink :to="profileLink">
-    <img class="MiniProfile" :src="avatar">
+    <div class="MiniProfile" :style="avatar"></div>
 	<p class="text-white mp-name">
 		{{this.user.username}}
 	</p>
@@ -27,7 +27,7 @@ export default defineComponent({
       return `/profile/${this.user.id}`;
     },
 	avatar () {
-		return `http://localhost:3000/user/avatar/${this.user.id}/420`;
+		return `background-image: url(http://localhost:3000/user/avatar/${this.user.id}/420)`;
 	},
   },
 });

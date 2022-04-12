@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-md-5">
         <!-- <div class="profileImg" v-bind:class="statusStyling"></div> -->
-        <img class="profileImg" v-bind:class="statusStyling" :src="avatar" />
+        <div class="profileImg" v-bind:class="statusStyling" :style="avatar"></div>
         <h2>
           <i class="icon-big"><Trophy /></i> Achievements
         </h2>
@@ -77,7 +77,7 @@ export default defineComponent({
       return this.profileData.status;
     },
     avatar () {
-		return `http://localhost:3000/user/avatar/${this.profileData.id}/1337`;
+		return `background-image: url(http://localhost:3000/user/avatar/${this.profileData.id}/1337)`;
 	},
     statusStyling() {
       if (this.userStatus === "OFFLINE") {
