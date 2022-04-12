@@ -13,7 +13,7 @@
         </ul>
       </div>
       <div class="col-md-7">
-        <h1>{{ userName }}</h1>
+        <h1>{{ this.profileData.username }}</h1>
         <p class="status" v-bind:class="statusStyling">{{ userStatus }}</p>
         <hr />
         <MatchHistory :userId="userId" />
@@ -76,9 +76,9 @@ export default defineComponent({
     userStatus() {
       return this.profileData.status;
     },
-    avatar() {
-      return useUserStore().avatarUrl;
-    },
+    avatar () {
+		return `http://localhost:3000/user/avatar/${this.profileData.id}/1337`;
+	},
     statusStyling() {
       if (this.userStatus === "OFFLINE") {
         return "status-offline";

@@ -5,14 +5,13 @@
   </button>
 
   <div class="row">
-    <div v-for="match in filteredMatches.slice().reverse()" :key="match.id" class="col-sm-6">
+    <div v-for="match in filteredMatches" :key="match.id" class="col-sm-6">
       <MatchCard :match="match" />
     </div>
     <button v-if="showLess" class="btn btn-outline-light m-2" @click="showLess = !showLess">Show More </button>
     <button v-else class="btn btn-outline-light m-2" @click="showLess = !showLess">Show Less </button>
   </div>
 </template>
-
 
 <script lang="ts">
 import { defineComponent } from "vue";
@@ -46,9 +45,9 @@ export default defineComponent({
   computed: {
     filteredMatches() {
       if (this.showLess) {
-        return this.matches.slice(0, 2);
+        return this.matches.slice().reverse().slice(0, 2);
       }
-      return this.matches;
+      return this.matches.slice().reverse();
     },
   },
   methods: {
