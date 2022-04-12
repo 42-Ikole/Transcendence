@@ -1,7 +1,13 @@
 import { IsString, IsNotEmpty, IsOptional, IsIn, IsInt } from "class-validator";
 import { User } from "src/orm/entities/user.entity";
+import { Chat } from "src/orm/entities/chat.entity";
 
 const CHATROOM_TYPES = ["private", "protected", "public"];
+
+export interface AllChatsDto {
+	joinedChats: Chat[];
+	otherChats: Chat[];
+}
 
 export class CreateChatDto {
 	@IsString()
@@ -19,6 +25,7 @@ export class CreateChatDto {
 
 export class CreateChatInterface extends CreateChatDto {
 	owner: User;
+	members: User[];
 }
 
 export class IncomingMessageDtO {
