@@ -5,7 +5,7 @@
   <div v-else v-for="user in friends" :key="user.id">
     <p>
       {{ user.username }}
-      <button class="btn btn-outline-light btn-sm" @click="unfriend(user)">
+      <button class="btn btn-outline-light btn-sm" @click="unfriendUser(user)">
         Unfriend
       </button>
     </p>
@@ -17,7 +17,7 @@ import { defineComponent } from "vue";
 import { mapState } from "pinia";
 import { useFriendStore } from "@/stores/FriendStore";
 import type { PublicUser } from "@/types/UserType";
-import { makeApiCall } from "@/utils/ApiCall";
+import { unfriend } from "@/utils/Friends";
 
 export default defineComponent({
   computed: {
@@ -27,10 +27,8 @@ export default defineComponent({
     },
   },
   methods: {
-    unfriend(user: PublicUser) {
-      makeApiCall(`/friend/unfriend/${user.id}`, {
-        method: "DELETE",
-      });
+    unfriendUser(user: PublicUser) {
+      unfriend(user);
     },
   },
 });

@@ -10,6 +10,7 @@ export type UserState =
   | "ONLINE"
   | "CONNECTION_DENIED"
   | "SEARCHING"
+  | "CHALLENGING"
   | "PLAYING"
   | "OBSERVING"
   | "CHALLENGED";

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { SocketWithUser } from 'src/websocket/websocket.types';
 import { GameDto, GameRoom } from './pong.types';
 import { CookieService } from 'src/websocket/cookie.service';
@@ -222,7 +222,7 @@ export class PongService {
     return (
       !!this.challengers[client.user.id] &&
       !!this.socketService.userExistsType(challengerId, 'pong') &&
-      this.statusService.getState(challengerId) === 'SEARCHING'
+      this.statusService.getState(challengerId) === 'CHALLENGING'
     );
   }
 
@@ -237,5 +237,15 @@ export class PongService {
 
   getMode(client: SocketWithUser): boolean {
     return this.challengers[client.user.id].defaultMode;
+  }
+
+  getChallengeData(id: number) {
+    if (!this.challengers[id]) {
+      throw new NotFoundException();
+    }
+    return {
+      id: this.challengers[id].id,
+      defaultMode: this.challengers[id].defaultMode,
+    };
   }
 }

@@ -12,28 +12,15 @@
       <!-- TODO: some kind of searching/loading component -->
       <p>Searching...</p>
     </div>
+    <div v-else-if="isChallenging">
+      <p>Waiting for challenge reply...</p>
+    </div>
     <div v-else-if="showScoreScreen">
       <ScoreScreen :game-state="gameState" />
       <button @click="showScoreScreen = false">Continue</button>
     </div>
     <div v-else-if="isChallenged">
       <ChallengedRequest />
-    </div>
-    <div v-else>
-      <div class="row">
-        <div class="col-lg-3">
-          <h3>Ranked:</h3>
-          <FindMatch />
-        </div>
-        <div class="col-lg-3">
-          <h3>Spectate:</h3>
-          <ActiveGames />
-        </div>
-        <div class="col-lg-3">
-          <h3>Challenge:</h3>
-          <ChallengeUsers />
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -57,6 +44,7 @@ import type { GameState } from "@/components/Pong/PongTypes";
 import ActiveGames from "../components/Pong/ActiveGames.vue";
 import ChallengeUsers from "../components/Pong/ChallengeUsers.vue";
 import ChallengedRequest from "../components/Pong/ChallengedRequest.vue";
+import { useFriendStore } from "@/stores/FriendStore";
 
 export default defineComponent({
   data() {
@@ -87,6 +75,9 @@ export default defineComponent({
     isChallenged() {
       return useUserStore().state === "CHALLENGED";
     },
+    isChallenging() {
+      return useUserStore().state === "CHALLENGING";
+    }
   },
   methods: {
     endGame(data: GameState) {
@@ -96,9 +87,11 @@ export default defineComponent({
   },
   mounted() {
     useSocketStore().pong!.on("endGame", this.endGame);
+    useFriendStore().stopListening();
   },
   unmounted() {
     useSocketStore().pong!.removeListener("endGame", this.endGame);
+    useFriendStore().init();
   },
 });
 </script>

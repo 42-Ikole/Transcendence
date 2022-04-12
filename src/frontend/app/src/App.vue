@@ -25,7 +25,7 @@ import { mapState } from "pinia";
 import ConnectionDenied from "./components/Authentication/ConnectionDenied.vue";
 import PongView from "./views/PongView.vue";
 
-const PONG_STATES = ["SEARCHING" ,"PLAYING", ,"OBSERVING", ,"CHALLENGED"];
+const PONG_STATES = ["SEARCHING" ,"PLAYING", ,"OBSERVING", ,"CHALLENGED", "CHALLENGING"];
 
 export default defineComponent({
   components: {
