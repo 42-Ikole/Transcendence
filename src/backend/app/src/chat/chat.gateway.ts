@@ -81,11 +81,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 		// Verify password
 		const success: boolean = await this.chatService.matchPassword(data.roomName, data.password);
+		const chat: Chat = await this.chatService.findByName(data.roomName, ['members']);
+		if (this.chatService.userIsInChat(client.user, chat)) {
+			client.emit('joinRoomSuccess');
+			return ;
+		}
 		if (!success) {
 			client.emit('joinRoomFailure');
 			return ;
 		}
-		const chat: Chat = await this.chatService.findByName(data.roomName, ['members']);
 		if (chat === undefined) {
 			client.emit('joinRoomFailure');
 			return ;
