@@ -9,15 +9,13 @@
       <PongGame :observing="isObserving" />
     </div>
     <div v-else-if="isSearching">
-      <!-- TODO: some kind of searching/loading component -->
-      <p>Searching...</p>
+      <SearchingComponent />
     </div>
     <div v-else-if="isChallenging">
-      <p>Waiting for challenge reply...</p>
+      <ChallengingComponent />
     </div>
-    <div v-else-if="showScoreScreen">
+    <div v-else-if="isViewingScoreScreen">
       <ScoreScreen :game-state="gameState" />
-      <button @click="showScoreScreen = false">Continue</button>
     </div>
     <div v-else-if="isChallenged">
       <ChallengedRequest />
@@ -45,12 +43,19 @@ import ActiveGames from "../components/Pong/ActiveGames.vue";
 import ChallengeUsers from "../components/Pong/ChallengeUsers.vue";
 import ChallengedRequest from "../components/Pong/ChallengedRequest.vue";
 import { useFriendStore } from "@/stores/FriendStore";
+import ChallengingComponent from "../components/Pong/ChallengingComponent.vue";
+import SearchingComponent from "../components/Pong/SearchingComponent.vue";
+
+interface DataObject {
+  showScoreScreen: boolean;
+  gameState: GameState | undefined;
+}
 
 export default defineComponent({
-  data() {
+  data(): DataObject {
     return {
       showScoreScreen: false,
-      gameState: undefined as GameState | undefined,
+      gameState: undefined,
     };
   },
   components: {
@@ -60,7 +65,9 @@ export default defineComponent({
     ActiveGames,
     ChallengeUsers,
     ChallengedRequest,
-  },
+    ChallengingComponent,
+    SearchingComponent
+},
   computed: {
     isPlaying() {
       const userStore = useUserStore();
@@ -77,6 +84,9 @@ export default defineComponent({
     },
     isChallenging() {
       return useUserStore().state === "CHALLENGING";
+    },
+    isViewingScoreScreen() {
+      return useUserStore().state === "VIEWING_SCORE_SCREEN";
     }
   },
   methods: {

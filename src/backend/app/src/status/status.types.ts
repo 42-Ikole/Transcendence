@@ -9,8 +9,10 @@ export type UserState =
   | 'OBSERVING'
   | 'CHALLENGED'
   | 'CHALLENGING'
+  | 'VIEWING_SCORE_SCREEN'
   | 'CONNECTION_DENIED';
 
+  // TODO: remove array
 export const USER_STATES: UserState[] = [
   'OFFLINE',
   'ONLINE',

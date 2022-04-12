@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="text-center">
     <p> User [{{ username }}] challenged you </p>
     <p> Game Mode: {{ gameMode }} </p>
     <p>
-      <button @click="accept">Accept</button>
-      <button @click="reject">Reject</button>
+      <button class="btn btn-outline-light" @click="accept">Accept</button>
+      <button class="btn btn-outline-light" @click="reject">Reject</button>
     </p>
   </div>
 </template>

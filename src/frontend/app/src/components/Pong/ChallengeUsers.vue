@@ -38,7 +38,6 @@
 </style>
 
 <script lang="ts">
-import { useSocketStore } from "@/stores/SocketStore";
 import type { PublicUser } from "@/types/UserType";
 import makeApiCall from "@/utils/ApiCall";
 import { defineComponent } from "vue";

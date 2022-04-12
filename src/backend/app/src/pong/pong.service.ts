@@ -23,6 +23,7 @@ export class PongService {
   private gameRooms: Record<string, GameRoom> = {}; // roomName -> extra room Data
   private disconnectedUsers: Record<number, string> = {}; // userId -> roomName
   private challengers: Record<number, Challenger> = {}; // challengedUserId -> challengerUserId
+  private challenged: Record<number, number> = {}; // challengerUserId -> challengedUserId
 
   addClient(client: SocketWithUser) {
     this.socketService.addSocket(client.user.id, 'pong', client);
@@ -38,6 +39,7 @@ export class PongService {
       this.waitingUser = null;
     }
     delete this.challengers[client.user.id];
+    delete this.challenged[client.user.id];
   }
 
   isPlaying(client: SocketWithUser) {
@@ -198,6 +200,14 @@ export class PongService {
     this.gameRooms[client.gameRoom].observers.delete(client.user.id);
   }
 
+  cancelMatchmaking(client: SocketWithUser) {
+    if (this.waitingUser && client.user.id === this.waitingUser.user.id) {
+      this.waitingUser = null;
+    } else if (this.waitingDefaultUser && client.user.id === this.waitingDefaultUser.user.id) {
+      this.waitingDefaultUser = null;
+    }
+  }
+
   isChallenged(client: SocketWithUser) {
     return !!this.challengers[client.user.id];
   }
@@ -211,6 +221,7 @@ export class PongService {
       id: client.user.id,
       defaultMode,
     };
+    this.challenged[client.user.id] = target.user.id;
   }
 
   // Return true IF:
@@ -226,12 +237,30 @@ export class PongService {
     );
   }
 
+  isChallenger(client: SocketWithUser): boolean {
+    return !!this.challenged[client.user.id];
+  }
+
   deleteChallenger(client: SocketWithUser) {
     delete this.challengers[client.user.id];
   }
 
+  deleteChallenge(challenger: SocketWithUser, challenged: SocketWithUser) {
+    if (challenger) {
+      delete this.challenged[challenger.user.id];
+    }
+    if (challenged) {
+      delete this.challengers[challenged.user.id];
+    }
+  }
+
   getChallenger(client: SocketWithUser) {
     const id = this.challengers[client.user.id].id;
+    return this.socketService.sockets[id].pong;
+  }
+
+  getChallenged(client: SocketWithUser) {
+    const id = this.challenged[client.user.id];
     return this.socketService.sockets[id].pong;
   }
 
