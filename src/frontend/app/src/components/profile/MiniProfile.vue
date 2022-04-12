@@ -42,6 +42,7 @@ a:link {
 .mp-name {
 	font-weight: bold;
 	overflow: hidden;
+	white-space: nowrap;
 }
 
 .MiniProfile {
