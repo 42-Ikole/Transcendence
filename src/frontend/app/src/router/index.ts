@@ -3,9 +3,9 @@ import HomeView from "@/views/HomeView.vue";
 import AboutView from "@/views/AboutView.vue";
 import LoginView from "@/views/LoginView.vue";
 import { isLoggedIn } from "@/utils/Login";
-import Enable2FaView from "@/views/Enable2FaView.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import PongView from "@/views/PongView.vue";
+import EditProfileView from "@/views/EditProfileView.vue";
 import FriendListView from "@/views/FriendListView.vue";
 
 const routes = [
@@ -25,14 +25,14 @@ const routes = [
     component: LoginView,
   },
   {
-    path: "/2fa",
-    name: "2fa",
-    component: Enable2FaView,
-  },
-  {
-    path: "/profile",
+    path: "/profile/:id?",
     name: "profile",
     component: ProfileView,
+  },
+  {
+    path: "/profile/edit",
+    name: "profile-edit",
+    component: EditProfileView,
   },
   {
     path: "/pong",
