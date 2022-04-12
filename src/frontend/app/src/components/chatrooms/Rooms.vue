@@ -119,9 +119,11 @@ export default defineComponent({
 		joinRoomSuccessfully() {
 			this.selectedChat = this.findChatByName(this.selectedChatName);
 			this.state = State.JOINING;
+			this.typedPassword = '';
+			this.selectedChatName = '';
 		},
 		joinRoomFailed() {
-
+			
 		},
 		findChatByName(name: string) : Chat {
 			for (let chat of this.chats.joinedChats) {
@@ -134,6 +136,9 @@ export default defineComponent({
 					return chat;
 				}
 			}
+		},
+		refreshChatList() {
+			this.getAllChats();
 		}
 	},
 	created() {
@@ -142,6 +147,9 @@ export default defineComponent({
 		});
 		this.socket.on('joinRoomFailure', () => {
 			this.joinRoomFailed();
+		});
+		this.socket.on('createRoom', () => {
+			this.refreshChatList();
 		});
 	},
 	async mounted() {
