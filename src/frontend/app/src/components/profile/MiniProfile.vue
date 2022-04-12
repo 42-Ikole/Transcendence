@@ -1,6 +1,9 @@
 <template>
   <RouterLink :to="profileLink">
     <img class="MiniProfile" :src="avatar">
+	<p class="text-white mp-name">
+		{{this.user.username}}
+	</p>
   </RouterLink>
 </template>
 
@@ -31,6 +34,15 @@ export default defineComponent({
 </script>
 
 <style>
+
+a:link {
+	text-decoration: none;
+}
+
+.mp-name {
+	font-weight: bold;
+	overflow: hidden;
+}
 
 .MiniProfile {
   background-repeat: no-repeat;

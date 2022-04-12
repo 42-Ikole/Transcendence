@@ -1,7 +1,7 @@
 <template>
-  <h2>Match history:</h2>
+  <h2>Match history</h2>
   <button class="btn btn-outline-light m-2" @click="refresh">
-    Refresh Matches
+    <IRefresh /> Refresh Matches
   </button>
 
   <div class="row">
@@ -19,6 +19,7 @@ import { defineComponent } from "vue";
 import MatchCard from "@/components/Pong/MatchCard.vue";
 import { makeApiCall } from "@/utils/ApiCall";
 import type { Match } from "@/types/MatchType";
+import IRefresh from "@/components/icons/IconRefresh.vue";
 
 interface DataObject {
   matches: Match[];
@@ -28,6 +29,7 @@ interface DataObject {
 export default defineComponent({
   components: {
     MatchCard,
+	IRefresh,
   },
   data(): DataObject {
     return {
