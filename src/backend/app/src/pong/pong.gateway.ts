@@ -33,6 +33,8 @@ import { StatusService } from 'src/status/status.service';
 import { UserState } from 'src/status/status.types';
 import { ModeType } from 'src/match/match.interface';
 
+type PlayerIndex = 'playerOne' | 'playerTwo';
+
 /*
 Endpoints:
 `requestMatch`
@@ -127,26 +129,34 @@ export class PongGateway
     this.socketService.pongServer.socketsLeave(roomName);
   }
 
-  endGame(roomName: string) {
-    console.log('game ended:', roomName);
+  endGame(roomName: string, winner: PlayerIndex, loser: PlayerIndex) {
+    console.log('game ended:', roomName, "winner:", winner, "loser:", loser);
     const gameRoom = this.pongService.getGameRoom(roomName);
     this.setStateIfOnline(gameRoom.playerOne.userId, 'VIEWING_SCORE_SCREEN');
     this.setStateIfOnline(gameRoom.playerTwo.userId, 'VIEWING_SCORE_SCREEN');
-    this.addMatchHistory(roomName);
+    this.addMatchHistory(roomName, winner, loser);
     this.deleteGame(roomName);
   }
 
-  addMatchHistory(roomName: string) {
+  getWinner(roomName: string): PlayerIndex {
     const gameRoom = this.pongService.getGameRoom(roomName);
-    type PlayerIndex = 'playerOne' | 'playerTwo';
-    let winner: PlayerIndex = 'playerTwo';
-    let loser: PlayerIndex = 'playerOne';
-    if (
-      gameRoom.gameState.playerOne.score > gameRoom.gameState.playerTwo.score
-    ) {
-      winner = 'playerOne';
-      loser = 'playerTwo';
+    if (gameRoom.gameState.playerOne.score > gameRoom.gameState.playerTwo.score) {
+      return 'playerOne';
     }
+    return 'playerTwo';
+  }
+
+  getLoser(roomName: string): PlayerIndex {
+    const gameRoom = this.pongService.getGameRoom(roomName);
+    if (gameRoom.gameState.playerOne.score > gameRoom.gameState.playerTwo.score) {
+      return 'playerTwo';
+    }
+    return 'playerOne';
+  }
+
+  addMatchHistory(roomName: string, winner: PlayerIndex, loser: PlayerIndex) {
+    const gameRoom = this.pongService.getGameRoom(roomName);
+
     this.createMatchHistory(
       gameRoom[winner].userId,
       gameRoom.gameState[winner].score,
@@ -172,6 +182,19 @@ export class PongGateway
       loserScore,
       mode,
     });
+  }
+
+  @SubscribeMessage('surrenderMatch')
+  surrenderMatch(client: SocketWithUser) {
+    if (!this.pongService.isPlaying(client)) {
+      return;
+    }
+    const gameRoom = this.pongService.getGameRoom(client.gameRoom);
+    if (client.user.id === gameRoom.playerOne.userId) {
+      this.endGame(client.gameRoom, 'playerTwo', 'playerOne');
+      return;
+    }
+    this.endGame(client.gameRoom, 'playerOne', 'playerTwo');
   }
 
   /*
@@ -326,7 +349,7 @@ export class PongGateway
     const intervalId = setInterval(() => {
       updateGamestate(gameState);
       if (gameHasEnded(gameState)) {
-        this.endGame(roomName);
+        this.endGame(roomName, this.getWinner(roomName), this.getLoser(roomName));
       } else {
         this.socketService.pongServer
           .to(roomName)

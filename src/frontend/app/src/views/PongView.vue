@@ -3,6 +3,7 @@
     <h1>PongHub Hub</h1>
     <hr />
     <div v-if="isPlaying">
+      <button class="btn btn-outline-light" @click="surrenderMatch">Surrender</button>
       <PongGame :observing="isObserving" />
     </div>
     <div v-else-if="isObserving">
@@ -97,6 +98,9 @@ export default defineComponent({
     },
     cancelObserve() {
       useSocketStore().pong!.emit("cancelObserve");
+    },
+    surrenderMatch() {
+      useSocketStore().pong!.emit('surrenderMatch');
     }
   },
   mounted() {
