@@ -66,10 +66,15 @@ export class StatusGateway
   }
 
   // Subscribe to `statusUpdate_${UID}` message
+  // Also emits the current status immediately after joining room
   @SubscribeMessage('subscribeStatusUpdate')
   @UsePipes(new ValidationPipe())
   subscribeStatus(client: SocketWithUser, @MessageBody() body: UserIdDto) {
     client.join(`statusUpdate_${body.id}`);
+    client.emit(`statusUpdate_${body.id}`, {
+      id: body.id,
+      newState: this.statusService.getState(body.id),
+    });
   }
 
   @SubscribeMessage('unsubscribeStatusUpdate')

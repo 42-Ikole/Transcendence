@@ -9,11 +9,11 @@ function eventName(id: number) {
 }
 
 export function trackUserStatus(id: number, listener: (...args: any[]) => void) {
-	socketStore.status!.emit(SUBSCRIBE_EVENT, { id });
 	socketStore.status!.on(eventName(id), listener);
+	socketStore.status!.emit(SUBSCRIBE_EVENT, { id });
 }
 
 export function stopTrackingUserStatus(id: number, listener: (...args: any[]) => void) {
-	socketStore.status!.emit(UNSUBSCRIBE_EVENT, { id });
 	socketStore.status!.removeListener(eventName(id), listener);
+	socketStore.status!.emit(UNSUBSCRIBE_EVENT, { id });
 }

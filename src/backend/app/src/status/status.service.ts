@@ -38,8 +38,6 @@ export class StatusService {
       this.socketService.statusServer.to(`statusUpdate_${id}`).emit(`statusUpdate_${id}`, updatedState);
       this.socketService.sockets[id].status.emit('statusUpdate', updatedState);
     }
-    this.socketService.statusServer.emit('friendUpdate');
-    this.socketService.statusServer.emit('friendStatusUpdate', updatedState);
   }
 
   getStates(): UserStatusMap {
