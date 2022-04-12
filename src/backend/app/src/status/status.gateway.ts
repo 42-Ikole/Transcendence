@@ -3,12 +3,16 @@ import {
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
+  MessageBody,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { SocketService } from 'src/websocket/socket.service';
 import { SocketWithUser } from 'src/websocket/websocket.types';
 import { CookieService } from 'src/websocket/cookie.service';
 import { StatusService } from './status.service';
+import { UsePipes, ValidationPipe } from '@nestjs/common';
+import { UserIdDto } from './status.types';
 
 /*
 Responsibilities:
@@ -59,5 +63,23 @@ export class StatusGateway
     }
     this.statusService.updateUserState(client.user.id, 'OFFLINE');
     this.socketService.deleteSocket(client.user.id);
+  }
+
+  // Subscribe to `statusUpdate_${UID}` message
+  // Also emits the current status immediately after joining room
+  @SubscribeMessage('subscribeStatusUpdate')
+  @UsePipes(new ValidationPipe())
+  subscribeStatus(client: SocketWithUser, @MessageBody() body: UserIdDto) {
+    client.join(`statusUpdate_${body.id}`);
+    client.emit(`statusUpdate_${body.id}`, {
+      id: body.id,
+      newState: this.statusService.getState(body.id),
+    });
+  }
+
+  @SubscribeMessage('unsubscribeStatusUpdate')
+  @UsePipes(new ValidationPipe())
+  unsubscribeStatus(client: SocketWithUser, @MessageBody() body: UserIdDto) {
+    client.leave(`statusUpdate_${body.id}`);
   }
 }

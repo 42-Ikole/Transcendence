@@ -1,3 +1,5 @@
+import { IsInt } from "class-validator";
+
 // NULL or MISSING === OFFLINE
 export type UserState =
   | 'OFFLINE'
@@ -18,3 +20,8 @@ export const USER_STATES: UserState[] = [
   'CHALLENGED',
   'CONNECTION_DENIED',
 ];
+
+export class UserIdDto {
+  @IsInt()
+  id: number;
+}

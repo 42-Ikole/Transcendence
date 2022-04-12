@@ -33,12 +33,8 @@ export const useSocketStore = defineStore("socket", {
       this.status.on("statusUpdate", (update: StatusUpdate) => {
         useUserStore().setState(update.newState);
       });
-      this.status.on("friendStatusUpdate", (update: StatusUpdate) => {
-        console.log("other user:", update);
-      });
     },
     initPongSocket() {
-      console.log("init pong...");
       this.pong = io(PONG_WS_ADDR, { withCredentials: true });
       this.pong.on("exception", (error: string) => {
         console.error("Received Exception:", error);
