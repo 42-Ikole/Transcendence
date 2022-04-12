@@ -86,11 +86,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			return ;
 		}
 		const chat: Chat = await this.chatService.findByName(data.roomName, ['members']);
-		if (chat === undefined || this.chatService.userIsInChat(client.user, chat)) {
+		if (chat === undefined) {
 			client.emit('joinRoomFailure');
 			return ;
 		}
 		client.emit('joinRoomSuccess');
+		if (this.chatService.userIsInChat(client.user, chat)) {
+			return ;
+		}
 		client.join(chat.name);
 		this.chatService.userJoinsRoom(client.user, chat);
 		this.wss.to(chat.name).emit('userJoinedRoom', {chatName: chat.name, user: client.user});
