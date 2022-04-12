@@ -6,6 +6,7 @@
       <PongGame :observing="isObserving" />
     </div>
     <div v-else-if="isObserving">
+      <button class="btn btn-outline-light" @click="cancelObserve">Leave</button>
       <PongGame :observing="isObserving" />
     </div>
     <div v-else-if="isSearching">
@@ -94,6 +95,9 @@ export default defineComponent({
       this.gameState = data;
       this.showScoreScreen = true;
     },
+    cancelObserve() {
+      useSocketStore().pong!.emit("cancelObserve");
+    }
   },
   mounted() {
     useSocketStore().pong!.on("endGame", this.endGame);

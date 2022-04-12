@@ -197,7 +197,9 @@ export class PongService {
   cancelObserve(client: SocketWithUser) {
     client.leave(client.gameRoom);
     client.gameRoom = null;
-    this.gameRooms[client.gameRoom].observers.delete(client.user.id);
+    if (this.gameRooms[client.gameRoom]) {
+      this.gameRooms[client.gameRoom].observers.delete(client.user.id);
+    }
   }
 
   cancelMatchmaking(client: SocketWithUser) {

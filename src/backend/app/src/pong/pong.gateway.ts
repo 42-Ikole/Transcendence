@@ -378,6 +378,7 @@ export class PongGateway
 
   @SubscribeMessage('cancelObserve')
   cancelObserve(client: SocketWithUser) {
+    console.log(client.user.id, "stops observing");
     this.pongService.cancelObserve(client);
     this.setStateIfOnline(client.user.id, 'ONLINE');
   }
