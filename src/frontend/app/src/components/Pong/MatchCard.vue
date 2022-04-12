@@ -14,7 +14,7 @@
           <h3 class="text-white text-end"> {{ this.match.loserScore }} </h3>
         </div>
       </div>
-      <p class="card-text col-sm text-center">{{ match.createdDate }}</p>
+      <p class="card-text col-sm text-center">{{ this.matchDate }}</p>
     </div>
   </div>
 </template>
@@ -44,7 +44,17 @@ import MiniProfile from "@/components/profile/MiniProfile.vue";
 import type { Match } from "@/types/MatchType";
 import { useUserStore } from "@/stores/UserStore";
 
+interface blubData {
+	matchDate: string;
+}
 export default defineComponent({
+
+
+data() : blubData {
+    return {
+      matchDate: (new Date(Date.parse(this.match.createdDate))).toDateString(),
+    };
+  },
   components: {
     MiniProfile,
   },
