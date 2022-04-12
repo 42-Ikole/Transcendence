@@ -1,7 +1,8 @@
 import { defineStore } from "pinia";
 import io from "socket.io-client";
 import type { Socket } from "socket.io-client";
-import { useUserStore, type UserState } from "./UserStore";
+import { useUserStore } from "./UserStore";
+import type { StatusUpdate } from "@/types/StatusTypes";
 
 const PONG_WS_ADDR = "http://localhost:3000/pong";
 const STATUS_WS_ADDR = "http://localhost:3000/status";
@@ -11,10 +12,6 @@ interface SocketStore {
   pong: Socket | null;
 }
 
-interface StatusUpdate {
-  userId: number;
-  newState: UserState;
-}
 
 export const useSocketStore = defineStore("socket", {
   state: (): SocketStore => {

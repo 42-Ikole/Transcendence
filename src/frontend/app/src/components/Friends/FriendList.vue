@@ -4,10 +4,7 @@
   </div>
   <div v-else v-for="user in friends" :key="user.id">
     <p>
-      {{ user.username }}
-      <button class="btn btn-outline-light btn-sm" @click="unfriendUser(user)">
-        Unfriend
-      </button>
+      <ChatUserDropdown :user="user" />
     </p>
   </div>
 </template>
@@ -18,18 +15,20 @@ import { mapState } from "pinia";
 import { useFriendStore } from "@/stores/FriendStore";
 import type { PublicUser } from "@/types/UserType";
 import { unfriend } from "@/utils/Friends";
+import ChatUserDropdown from "../ChatDropdown/ChatUserDropdown.vue";
 
 export default defineComponent({
-  computed: {
-    ...mapState(useFriendStore, ["friends"]),
-    noFriends(): boolean {
-      return this.friends.length === 0;
+    computed: {
+        ...mapState(useFriendStore, ["friends"]),
+        noFriends(): boolean {
+            return this.friends.length === 0;
+        },
     },
-  },
-  methods: {
-    unfriendUser(user: PublicUser) {
-      unfriend(user);
+    methods: {
+        unfriendUser(user: PublicUser) {
+            unfriend(user);
+        },
     },
-  },
+    components: { ChatUserDropdown }
 });
 </script>
