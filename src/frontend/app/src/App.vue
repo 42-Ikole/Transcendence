@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { useUserStore, type AuthenticatedState } from "@/stores/UserStore";
+import { useUserStore } from "@/stores/UserStore";
 import { defineComponent } from "vue";
 import { RouterView } from "vue-router";
 import NavBar from "@/components/navbar/NavBar.vue";

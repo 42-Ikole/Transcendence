@@ -20,6 +20,8 @@ import {
   movePlayer,
   newGameState,
   updateGamestate,
+  specialMoves,
+  checkSpecialMoves,
 } from './pong.game';
 import { PongService } from './pong.service';
 import { UserService } from 'src/user/user.service';
@@ -32,14 +34,14 @@ import { UserState } from 'src/status/status.types';
 
 /*
 Endpoints:
-  `requestMatch`
-  `movement`
-  `requestObserve`
-  `cancelObserve`
-Emits:
+`requestMatch`
+`movement`
+`requestObserve`
+`cancelObserve`
+  Emits:
   `endGame`
   `exception`
-*/
+  */
 
 @WebSocketGateway({
   namespace: '/pong',
@@ -178,10 +180,10 @@ export class PongGateway
     @MessageBody() data: RequestMatchDto,
   ) {
     if (data.type === 'matchmaking') {
-      this.matchMaking(client);
+      this.matchMaking(client, data.default);
     } else {
       console.log('Challenge:', data);
-      this.challenge(client, data.targetId);
+      this.challenge(client, data.targetId, data.default);
     }
   }
 
@@ -191,7 +193,11 @@ export class PongGateway
       client.emit('rejectChallenge', 'challenger not found');
       this.setStateIfOnline(client.user.id, 'ONLINE');
     } else {
-      this.startNewGame(this.pongService.getChallenger(client), client);
+      this.startNewGame(
+        this.pongService.getChallenger(client),
+        client,
+        this.pongService.getMode(client),
+      );
     }
     this.pongService.deleteChallenger(client);
   }
@@ -211,22 +217,22 @@ export class PongGateway
   }
 
   // Check if there is another client ready to play, otherwise set client as waiting/searching
-  matchMaking(client: SocketWithUser) {
-    if (!this.pongService.canMatch()) {
+  matchMaking(client: SocketWithUser, mode: boolean) {
+    if (!this.pongService.canMatch(mode)) {
       console.log(client.user.username, 'is searching');
-      this.pongService.enterMatchmakingQueue(client);
+      this.pongService.enterMatchmakingQueue(client, mode);
       this.setStateIfOnline(client.user.id, 'SEARCHING');
       return;
     }
-    const matchedUser = this.pongService.getMatch();
+    const matchedUser = this.pongService.getMatch(mode);
     if (matchedUser.id === client.id) {
       console.error('client matched with itself');
       return;
     }
-    this.startNewGame(matchedUser, client);
+    this.startNewGame(matchedUser, client, mode);
   }
 
-  challenge(client: SocketWithUser, targetId: number) {
+  challenge(client: SocketWithUser, targetId: number, mode: boolean) {
     const target = this.pongService.getClientFromId(targetId);
     if (!target) {
       client.emit(
@@ -241,7 +247,7 @@ export class PongGateway
       client.emit('rejectChallenge', 'target is not available');
       return;
     }
-    this.pongService.addChallenger(client, target);
+    this.pongService.addChallenger(client, target, mode);
     this.setStateIfOnline(client.user.id, 'CHALLENGING');
     this.setStateIfOnline(target.user.id, 'CHALLENGED');
     target.emit('requestChallenge', { source: client.user });
@@ -249,7 +255,11 @@ export class PongGateway
 
   // Create a new unique room for these clients to play in
   // Set client's state to PLAYING
-  async startNewGame(clientOne: SocketWithUser, clientTwo: SocketWithUser) {
+  async startNewGame(
+    clientOne: SocketWithUser,
+    clientTwo: SocketWithUser,
+    mode: boolean,
+  ) {
     const roomName = this.pongService.generateRoomName();
     this.joinRoom(clientOne, roomName);
     this.joinRoom(clientTwo, roomName);
@@ -260,6 +270,7 @@ export class PongGateway
     const gameState = newGameState(
       clientOne.user.username,
       clientTwo.user.username,
+      mode,
     );
     const intervalId = this.startGameLoop(roomName, gameState);
     this.pongService.addGameRoom(roomName, {
@@ -304,8 +315,19 @@ export class PongGateway
     }
     if (client.user.id === gameRoom.playerOne.userId) {
       movePlayer(gameRoom.gameState.playerOne.bar, Array.from(data));
+      checkSpecialMoves(
+        gameRoom.gameState.playerOne.specialMoves,
+        Array.from(data),
+      );
     } else if (client.user.id === gameRoom.playerTwo.userId) {
       movePlayer(gameRoom.gameState.playerTwo.bar, Array.from(data));
+      checkSpecialMoves(
+        gameRoom.gameState.playerTwo.specialMoves,
+        Array.from(data),
+      );
+    }
+    if (gameRoom.gameState.default == false) {
+      specialMoves(gameRoom.gameState);
     }
   }
 

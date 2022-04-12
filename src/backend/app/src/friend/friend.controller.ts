@@ -6,16 +6,12 @@ import {
   Delete,
   Post,
   Body,
-  BadRequestException,
   Param,
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
 import { RequestWithUser } from 'src/auth/auth.types';
-import { StatusService } from 'src/status/status.service';
-import { IdDto } from 'src/types/param.validation';
-import { UserService } from 'src/user/user.service';
 import { FriendService } from './friend.service';
 import { FriendDto } from './friend.types';
 

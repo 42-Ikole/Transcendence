@@ -8,12 +8,21 @@
     <div class="card bg-dark mt-2" style="max-width: 500px">
       <div class="row g-0">
         <div class="col-md-6">
-          <h5 class="card-title text-center">{{ displayUser(user) }}</h5>
+          <h5 class="card-title text-center">{{ user.username }}</h5>
         </div>
         <div class="col-md-4">
           <div class="card-body">
-            <button class="btn btn-outline-light" @click="challenge(user)">
+            <button
+              class="btn btn-outline-light"
+              @click="challenge(user, false)"
+            >
               Challenge
+            </button>
+            <button
+              class="btn btn-outline-light"
+              @click="challenge(user, true)"
+            >
+              Challenge [Default mode]
             </button>
           </div>
         </div>
@@ -30,12 +39,13 @@
 
 <script lang="ts">
 import { useSocketStore } from "@/stores/SocketStore";
+import type { PublicUser } from "@/types/UserType";
 import makeApiCall from "@/utils/ApiCall";
 import { defineComponent } from "vue";
 import { challengeUser } from "@/utils/Pong";
 
 interface DataObject {
-  users: any[];
+  users: PublicUser[];
 }
 
 export default defineComponent({
@@ -51,12 +61,9 @@ export default defineComponent({
         this.users = await response.json();
       }
     },
-    displayUser(user: any) {
-      return `${user.username}`;
-    },
-    challenge(user: any) {
+    challenge(user: PublicUser, mode: boolean) {
       console.log("challenge:", user);
-      challengeUser(user.id);
+      challengeUser(user.id, mode);
     },
   },
   mounted() {

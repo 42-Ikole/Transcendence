@@ -20,12 +20,11 @@
 <script lang="ts">
 import { useSocketStore } from "@/stores/SocketStore";
 import { useUserStore } from "@/stores/UserStore";
-import { useFriendStore } from "@/stores/FriendStore";
-import type { PublicUser, UserProfileData } from "@/types/UserType";
+import type { PublicUser } from "@/types/UserType";
 import makeApiCall, { makeApiCallJson } from "@/utils/ApiCall";
 import { mapState } from "pinia";
-import { defineComponent, type PropType } from "vue";
 import { block, sendFriendRequest } from "@/utils/Friends";
+import { defineComponent } from "vue";
 
 interface DataObject {
   users: PublicUser[];

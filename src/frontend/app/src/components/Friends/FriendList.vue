@@ -1,16 +1,4 @@
 <template>
-  <div v-for="user in friendRequests" :key="user.id">
-    <p>
-      Friend Request: {{ user.username }}
-      <button class="btn btn-outline-light btn-sm" @click="accept(user)">
-        Accept
-      </button>
-      <button class="btn btn-outline-light btn-sm" @click="reject(user)">
-        Reject
-      </button>
-    </p>
-  </div>
-
   <div v-if="noFriends">
     <p>You have no friends... :(</p>
   </div>
@@ -29,12 +17,11 @@ import { defineComponent } from "vue";
 import { mapState } from "pinia";
 import { useFriendStore } from "@/stores/FriendStore";
 import type { PublicUser } from "@/types/UserType";
-import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
 import { unfriend } from "@/utils/Friends";
 
 export default defineComponent({
   computed: {
-    ...mapState(useFriendStore, ["friends", "friendRequests"]),
+    ...mapState(useFriendStore, ["friends"]),
     noFriends(): boolean {
       return this.friends.length === 0;
     },
@@ -42,17 +29,6 @@ export default defineComponent({
   methods: {
     unfriendUser(user: PublicUser) {
       unfriend(user);
-    },
-    accept(user: PublicUser) {
-      this.makeCall(user, "accept");
-    },
-    reject(user: PublicUser) {
-      this.makeCall(user, "reject");
-    },
-    makeCall(user: PublicUser, type: "reject" | "accept") {
-      makeApiCallJson(`friend/request/${type}`, "POST", {
-        id: user.id,
-      });
     },
   },
 });

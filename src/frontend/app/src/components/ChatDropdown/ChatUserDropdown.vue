@@ -51,7 +51,7 @@ export default defineComponent({
       this.$router.push(`/profile/${this.user.id}`);
     },
     sendChallenge() {
-      challengeUser(this.user.id);
+      challengeUser(this.user.id, false);
     },
     blockUser() {
       block(this.user);
