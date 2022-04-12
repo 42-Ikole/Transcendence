@@ -103,12 +103,7 @@ export default defineComponent({
 		async joinRoom() {
 			for (let chat of this.chats) {
 				if (chat.name === this.selectedChatName) {
-					// mark gaat deze check doen op beckham.
-					if (chat.type !== 'protected' || this.typedPassword === chat.password) { 
-						this.selectedChat = chat;
-						this.socket.emit("joinRoom", { roomName: this.selectedChatName });
-						this.state = State.JOINING;
-					}
+					this.socket.emit("joinRoom", { roomName: this.selectedChatName, password: this.typedPassword });
 				}
 			}
 		},
@@ -124,7 +119,22 @@ export default defineComponent({
 			if (response.ok) {
 				this.chats = await response.json();
 			}
-		}
+		},
+		joinRoomSuccessfully() {
+			this.selectedChat = chat;
+			this.state = State.JOINING;
+		},
+		joinRoomFailed() {
+
+		},
+	},
+	created() {
+		this.socket.on('joinRoomSuccess', () => {
+			this.joinRoomSuccessfully();
+		});
+		this.socket.on('joinRoomFailure', () => {
+			this.joinRoomFailed();
+		});
 	},
 	async mounted() {
 		await this.getAllChats();
