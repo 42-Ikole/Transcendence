@@ -1,5 +1,5 @@
 import { ApiTags, ApiParam } from "@nestjs/swagger";
-import { Controller, Get, Post, Body, Param, NotFoundException, UseGuards, Req } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, NotFoundException, UseGuards, Req, ConflictException } from "@nestjs/common";
 import { ChatService } from "./chat.service";
 import { CreateChatDto, CreateChatInterface, AllChatsDto } from "./chat.types";
 import { Chat } from "src/orm/entities/chat.entity";
@@ -63,6 +63,10 @@ export class ChatController {
 			owner: request.user,
 			members: [request.user],
 		};
+		const valid: boolean = this.chatService.isValidRoomname(createChatInterface.name);
+		if(!valid) {
+			throw new ConflictException();
+		}
 		// Add the chat to the database.
 		const chat: Chat = await this.chatService.createChat(createChatInterface);
 		// Broadcast the new room to everyone.

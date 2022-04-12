@@ -97,4 +97,18 @@ export class ChatService {
 		}
 		return false;
 	}
+
+	isValidRoomname(name: string): boolean {
+		const len = name.length;
+		for (let i = 0; i < len; i++) {
+			const char = name.charCodeAt(i);
+			if (!(char > 47 && char < 58) && !(char > 64 && char < 91) && !(char > 96 && char < 123) && !(char == 95)) {
+				return false;
+			}
+			if (i == 0 && char == 95) {
+				return false;
+			}
+		}
+		return true;
+	}
 }
