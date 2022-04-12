@@ -5,7 +5,7 @@
   </button>
 
   <div class="row">
-    <div v-for="match in filteredMatches" :key="match.id" class="col-sm-6">
+    <div v-for="match in filteredMatches.slice().reverse()" :key="match.id" class="col-sm-6">
       <MatchCard :match="match" />
     </div>
     <button v-if="showLess" class="btn btn-outline-light m-2" @click="showLess = !showLess">Show More </button>

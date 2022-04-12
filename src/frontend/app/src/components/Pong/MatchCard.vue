@@ -20,6 +20,11 @@
 </template>
 
 <style>
+
+.card {
+	margin-bottom: 2rem;
+}
+
 .match-won {
   background-color: #088c12 !important;
 }
