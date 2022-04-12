@@ -1,7 +1,7 @@
 import { WebSocketGateway, SubscribeMessage, MessageBody, ConnectedSocket, WebSocketServer, OnGatewayInit, OnGatewayDisconnect, OnGatewayConnection } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { ValidationPipe, UsePipes } from '@nestjs/common';
-import { IncomingMessageDtO, ChatRoomDto } from './chat.types';
+import { IncomingMessageDtO, ChatRoomDto, AllChatsDto } from './chat.types';
 import { SocketWithUser } from 'src/websocket/websocket.types';
 import { CookieService } from 'src/websocket/cookie.service';
 import { ChatService } from './chat.service';
@@ -79,6 +79,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@MessageBody() data: ChatRoomDto,
 		@ConnectedSocket() client: SocketWithUser
 	): Promise<void> {
+
+		// Verify password?
+
 		const chat: Chat = await this.chatService.findByName(data.roomName, ['members']);
 		if (chat === undefined || this.chatService.userIsInChat(client.user, chat)) {
 			// Send back error letting know it failed??
@@ -109,7 +112,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@MessageBody() data,
 		@ConnectedSocket() client: SocketWithUser
 	): Promise<void> {
-		const chats: Chat[] = await this.chatService.findAllForUser(client.user);
+		const chats: AllChatsDto = await this.chatService.findAllForUser(client.user);
 		console.log(chats);
 		return ;
 	}
