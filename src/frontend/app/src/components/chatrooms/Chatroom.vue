@@ -8,9 +8,15 @@
 					</div>
 					<div class="card-body" style="height: 500px; overflow-y: scroll;">
 						<div class="flex-row justify-content-start">
-							<li class="small" v-for="user in users">
+							<div class="small" v-for="user in users">
+								<a v-if="isOnline">
+									<OnlineStatus fill="green" />
+								</a>
+								<a v-else>
+									<OnlineStatus fill="red" />
+								</a>
 								{{ user.username }}
-							</li>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -42,21 +48,24 @@
 
 <script lang="ts">
 
+import { defineComponent } from 'vue';
 import { PublicUser } from '../../types/UserType.ts';
 import io from 'socket.io-client';
 import { useSocketStore } from '@/stores/SocketStore';
 import { mapState } from 'pinia';
 import { Chat, SendChatMessage } from './Chatrooms.types.ts';
 import { makeApiCall } from '@/utils/ApiCall';
+import OnlineStatus from '../icons/IconChatOnlineStatus.vue';
 
 interface DataObject {
 	myMessage: string;
 	users: PublicUser[];
 	messageToChat: SendChatMessage;
 	messages: any[];
+	userOnline: boolean;
 }
 
-export default {
+export default defineComponent({
 	props: {
 		chat: {
 			type: Object as PropType<Chat>,
@@ -73,6 +82,7 @@ export default {
 				message: '',
 			},
 			messages: [],
+			userOnline: true,
 		};
 	},
 	methods: {
@@ -93,13 +103,11 @@ export default {
 			}
 		},
 		userJoinsChat(joinData) {
-			console.log(`user joined: ${joinData}`); //debug
 			if (joinData.chatName === this.chat.name) {
 				this.users.push(joinData.user);
 			}
 		},
 		userLeavesChat(leaveData) {
-			console.log(`user left: ${leaveData}`); //debug
 			if (leaveData.chatName === this.chat.name) {
 				this.users = this.users.filter(item => item.id !== leaveData.user.id);
 			}
@@ -136,6 +144,9 @@ export default {
 		...mapState(useSocketStore, {
 			socket: 'chat',
 		}),
+		isOnline() {
+			return this.userOnline;
+		},
 	},
 	watch: {
 		chat(newVal, oldVal) {
@@ -145,6 +156,9 @@ export default {
 	async mounted() {
 		await this.refreshChat();
 	},
-}
+	components: {
+		OnlineStatus,
+	},
+})
 
 </script>
