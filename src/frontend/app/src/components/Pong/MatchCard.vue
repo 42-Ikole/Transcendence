@@ -4,14 +4,14 @@
       <div class="row">
         <div class="col-sm-4">
           <MiniProfile :user="winner" />
-          <h3 class="text-white text-start"> {{ userScore }} </h3>
+          <h3 class="text-white text-start"> {{ this.match.winnerScore }} </h3>
         </div>
         <div class="col-sm-auto">
           <h2 class="text-white texter-center">VS</h2>
         </div>
         <div class="col-sm-4 ms-auto">
           <MiniProfile :user="loser" />
-          <h3 class="text-white text-end"> {{ opponentScore }} </h3>
+          <h3 class="text-white text-end"> {{ this.match.loserScore }} </h3>
         </div>
       </div>
       <p class="card-text col-sm text-center">{{ match.createdDate }}</p>
@@ -57,12 +57,6 @@ export default defineComponent({
   computed: {
     isWinner() {
       return this.match.winner.id === useUserStore().profileData!.id;
-    },
-    userScore() {
-      return this.isWinner ? this.match.winnerScore : this.match.loserScore;
-    },
-    opponentScore() {
-      return this.isWinner ? this.match.loserScore : this.match.winnerScore;
     },
     matchWonClass() {
       return this.isWinner ? "match-won" : "match-lost";
