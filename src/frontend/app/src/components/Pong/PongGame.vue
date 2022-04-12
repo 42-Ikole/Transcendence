@@ -1,4 +1,7 @@
 <template>
+  <div v-if="isSpecialMode" class="hotkeys">
+    <p> Hotkeys : grow [R], shrink: [F]</p>
+  </div>
   <div class="text-center">
     <h2 class="p1-score inline">{{ playerOneScore }}</h2>
     <h2 class="inline">:</h2>
@@ -30,6 +33,7 @@ export default defineComponent({
       playerOneScore: 0,
       playerTwoScore: 0,
       PressedKeys: new Set<string>(),
+      isSpecialMode: true,
     };
   },
   computed: {
@@ -51,6 +55,7 @@ export default defineComponent({
 
     updateObserver(data: GameState) {
       this.render(data);
+      this.isSpecialMode = !data.default;
       this.playerOneScore = data.playerOne.score;
       this.playerTwoScore = data.playerTwo.score;
     },
@@ -155,5 +160,9 @@ export default defineComponent({
 
 .inline {
   display: inline !important;
+}
+
+.hotkeys {
+  position: absolute;
 }
 </style>
