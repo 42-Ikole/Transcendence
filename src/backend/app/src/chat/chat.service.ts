@@ -1,5 +1,5 @@
-import { Injectable, ConflictException, NotFoundException } from "@nestjs/common";
-import { CreateChatDto, IncomingMessageDtO, CreateChatInterface } from "./chat.types";
+import { Injectable, ConflictException } from "@nestjs/common";
+import { IncomingMessageDtO, CreateChatInterface, AllChatsDto } from "./chat.types";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Chat } from "src/orm/entities/chat.entity";
@@ -27,14 +27,22 @@ export class ChatService {
 		});
 	}
 
-	async findAllForUser(user: User, relations = []): Promise<Chat[]> {
+	async findAllForUser(user: User): Promise<AllChatsDto> {
 		console.log("finding rooms for user:", user.username);
-		return await this.chatRepository.find({
-			where: [
-				{type: "protected"},
-				{type: "public"},
-			]
-		})
+		const chats = await this.chatRepository.find({
+			relations: ['members'],
+		});
+		let allChats: AllChatsDto = {joinedChats: [], otherChats: []};
+		for (let chat of chats) {
+			if (this.userIsInChat(user, chat)) {
+				allChats.joinedChats.push(chat);
+			} else {
+				if (chat.type !== 'private') {
+					allChats.otherChats.push(chat);
+				}
+			}
+		}
+		return allChats;
 	}
 
 	async createChat(param: CreateChatInterface): Promise<Chat> {
@@ -56,9 +64,9 @@ export class ChatService {
 	}
 
 	async userJoinsRoom(user: User, chat: Chat): Promise<void> {
-		// Alleen pushen als niet al erin.
+		// Only let a user join if they're not in the room already.
 		if (this.userIsInChat(user, chat)) {
-			console.log("User zit al in chat");
+			console.log("User was not added.");
 			return ;
 		}
 		chat.members.push(user);
@@ -67,11 +75,13 @@ export class ChatService {
 	}
 
 	async userLeavesRoom(user: User, chat: Chat): Promise<void> {
+		// Remove the user from the members list.
 		chat.members = chat.members.filter(item => item.id != user.id);
 		await this.chatRepository.save(chat);
 	}
 
 	userIsInChat(user: User, chat: Chat): Boolean {
+		// Look through the members and see if the user is in there.
 		for (let member of chat.members) {
 			if (member.id === user.id) {
 				return true;
