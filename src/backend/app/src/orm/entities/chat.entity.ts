@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinTable, Unique } from 'typeorm';
 import { User } from './user.entity';
 import { Message } from './message.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class Chat {
@@ -17,7 +18,8 @@ export class Chat {
 	@JoinTable()
   admins: User[];
 
-  @Column({ default: null })
+	@Column({ default: null })
+	@Exclude()
   password: string;
 
   @OneToMany(() => Message, (msg) => msg.chatRoom, {
@@ -25,7 +27,7 @@ export class Chat {
   })
 	messages: Message[];
 	
-	@ManyToMany(() => User)
+	@ManyToMany(() => User, (user) => user.chats)
 	@JoinTable()
 	members: User[];
 
