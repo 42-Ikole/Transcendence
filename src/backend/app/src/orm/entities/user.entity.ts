@@ -4,12 +4,14 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   JoinColumn,
+	ManyToMany,
 } from 'typeorm';
 import { Match } from './match.entity';
 import { IsString, IsOptional, IsBoolean, IsIn } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { Friend } from './friend.entity';
 import { USER_STATES } from 'src/status/status.types';
+import { Chat } from './chat.entity';
 
 //////     //////
 // User Entity //
@@ -43,7 +45,10 @@ export class User {
   relatedUsers: Friend[];
 
   @Column({ default: 'OFFLINE' })
-  status: string;
+	status: string;
+
+	@ManyToMany(() => Chat, (chat) => chat.members)
+	chats: Chat[];
 
   // Two Factor
   @Column({ nullable: true })
