@@ -50,7 +50,6 @@
 import { defineComponent } from "vue";
 import PongGame from "@/components/Pong/PongGame.vue";
 import FindMatch from "@/components/Pong/FindMatch.vue";
-import { mapState } from "pinia";
 import { useUserStore } from "@/stores/UserStore";
 import { useSocketStore } from "@/stores/SocketStore";
 import ScoreScreen from "../components/Pong/ScoreScreen.vue";
