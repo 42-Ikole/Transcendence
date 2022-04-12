@@ -77,19 +77,20 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@MessageBody() data: ChatRoomDto,
 		@ConnectedSocket() client: SocketWithUser
 	): Promise<void> {
+		// If user is already in the room, skip password check
 
 		// Verify password
 		const success: boolean = await this.chatService.matchPassword(data.roomName, data.password);
 		if (!success) {
-			client.emit('roomJoinFailure');
+			client.emit('joinRoomFailure');
 			return ;
 		}
-		client.emit('roomJoinSuccess');
 		const chat: Chat = await this.chatService.findByName(data.roomName, ['members']);
 		if (chat === undefined || this.chatService.userIsInChat(client.user, chat)) {
-			client.emit('roomJoinFailure');
+			client.emit('joinRoomFailure');
 			return ;
 		}
+		client.emit('joinRoomSuccess');
 		client.join(chat.name);
 		this.chatService.userJoinsRoom(client.user, chat);
 		this.wss.to(chat.name).emit('userJoinedRoom', {chatName: chat.name, user: client.user});
