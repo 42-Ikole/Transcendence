@@ -42,4 +42,8 @@ export class ChatRoomDto {
 	@IsString()
 	@IsNotEmpty()
 	roomName: string;
+
+	@IsString()
+	@IsOptional()
+	password: string;
 }

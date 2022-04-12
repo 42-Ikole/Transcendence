@@ -1,7 +1,7 @@
 import { ApiTags, ApiParam } from "@nestjs/swagger";
 import { Controller, Get, Post, Body, Param, NotFoundException, UseGuards, Req } from "@nestjs/common";
 import { ChatService } from "./chat.service";
-import { CreateChatDto, CreateChatInterface } from "./chat.types";
+import { CreateChatDto, CreateChatInterface, AllChatsDto } from "./chat.types";
 import { Chat } from "src/orm/entities/chat.entity";
 import { User } from "src/orm/entities/user.entity";
 import { Message } from "src/orm/entities/message.entity";
@@ -19,11 +19,10 @@ export class ChatController {
 	) {}
 
 	@Get()
-	async findAll(): Promise<Chat[]> {
+	async findAll(@Req() request: RequestWithUser): Promise<AllChatsDto> {
 		// Get all basic information about the chat rooms.
 
-		// TO DO: filter only rooms that should be seen, and split into two categories.
-		return await this.chatService.findAll();
+		return await this.chatService.findAll(request.user);
 	}
 
 	@Get('/messages/:name')

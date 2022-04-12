@@ -49,11 +49,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 		console.log('chat gateway: OnConnection');
 		console.log('client id:', client.id);
-		const chats: Chat[] = await this.chatService.findAll(['members']);
-		for (let chat of chats) {
-			if (this.chatService.userIsInChat(client.user, chat)) {
-				client.join(chat.name);
-			}
+		const chats: AllChatsDto = await this.chatService.findAll(client.user);
+		for (let chat of chats.joinedChats) {
+			client.join(chat.name);
 		}
 	}
 
@@ -80,11 +78,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@ConnectedSocket() client: SocketWithUser
 	): Promise<void> {
 
-		// Verify password?
-
+		// Verify password
+		const success: boolean = await this.chatService.matchPassword(data.roomName, data.password);
+		if (!success) {
+			client.emit('roomJoinFailure');
+			return ;
+		}
+		client.emit('roomJoinSuccess');
 		const chat: Chat = await this.chatService.findByName(data.roomName, ['members']);
 		if (chat === undefined || this.chatService.userIsInChat(client.user, chat)) {
-			// Send back error letting know it failed??
+			client.emit('roomJoinFailure');
 			return ;
 		}
 		client.join(chat.name);
@@ -98,22 +101,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		@ConnectedSocket() client: SocketWithUser
 	): Promise<void> {
 		const chat: Chat = await this.chatService.findByName(data.roomName, ['members']);
-		if (chat === undefined) {
-			// Send back error?
+		if (chat === undefined || !this.chatService.userIsInChat(client.user, chat)) {
 			return ;
 		}
 		client.leave(data.roomName);
 		this.chatService.userLeavesRoom(client.user, chat);
 		this.wss.to(chat.name).emit('userLeftRoom', {chatName: chat.name, user: client.user});
-	}
-
-	@SubscribeMessage('debug')
-	async findAllForUser(
-		@MessageBody() data,
-		@ConnectedSocket() client: SocketWithUser
-	): Promise<void> {
-		const chats: AllChatsDto = await this.chatService.findAllForUser(client.user);
-		console.log(chats);
-		return ;
 	}
 }

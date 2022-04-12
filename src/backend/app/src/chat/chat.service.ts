@@ -1,4 +1,4 @@
-import { Injectable, ConflictException } from "@nestjs/common";
+import { Injectable, ConflictException, NotFoundException } from "@nestjs/common";
 import { IncomingMessageDtO, CreateChatInterface, AllChatsDto } from "./chat.types";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -13,21 +13,7 @@ export class ChatService {
 		@InjectRepository(Message) private messageRepository: Repository<Message>,
 	) {}
 
-	async findAll(relations = []): Promise<Chat[]> {
-		return await this.chatRepository.find({
-			relations: relations,
-		});
-	}
-
-	async findByName(name: string, relations = []): Promise<Chat> {
-		console.log("Relations = ", relations);
-		return await this.chatRepository.findOne({
-			where: [{name: name}],
-			relations: relations,
-		});
-	}
-
-	async findAllForUser(user: User): Promise<AllChatsDto> {
+	async findAll(user: User): Promise<AllChatsDto> {
 		console.log("finding rooms for user:", user.username);
 		const chats = await this.chatRepository.find({
 			relations: ['members'],
@@ -43,6 +29,28 @@ export class ChatService {
 			}
 		}
 		return allChats;
+	}
+
+	async matchPassword(roomName: string, password: string): Promise<boolean> {
+		const chat = await this.chatRepository.findOne({
+			select: ['password', 'type'],
+			where: [{name: roomName}],
+		});
+		if (chat === undefined) {
+			throw new NotFoundException();
+		}
+		if (chat.type !== 'protected') {
+			return true;
+		}
+		return (chat.password === password);
+	}
+
+	async findByName(name: string, relations = []): Promise<Chat> {
+		console.log("Relations = ", relations);
+		return await this.chatRepository.findOne({
+			where: [{name: name}],
+			relations: relations,
+		});
 	}
 
 	async createChat(param: CreateChatInterface): Promise<Chat> {
