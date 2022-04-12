@@ -1,26 +1,29 @@
 <template>
 	<div class="container py-5" v-if="isWaiting">
 		<div class="card-header justify-content-between align-items-center p-3" style="width: 30%; background-color: #dee;">
-			<h3>Listed chatrooms:</h3>
-			<form class="form-check" v-for="chat in filterPrivateChats" :key="chat.id">
-				<input class="form-check-input" type="radio" v-bind:value="chat.name" v-model="selectedChatName" />
-				<label class="form-check-label" for=selectedChatName> {{ chat.name }} </label>
-				<a v-if="chat.type === 'protected'" >
-					<ChatLockIcon />
-				</a>
-				<a v-else-if="chat.type === 'private'" >
-					<ChatPrivateIcon />
-				</a>
-				<div v-if="selectedChatName === chat.name && chat.type === 'protected'">
-					<input class="input_pass" placeholder="Password" :type="passwordVisibility" v-model="typedPassword" />
-					<button class="button" type="button" @click="toggleShowPassword" >
-						<i v-if="showPassword">
-							<EyeOpen />
-						</i>
-						<i v-else>
-							<EyeClosed />
-						</i>
-					</button>
+			<form class="form-check" style="padding-bottom: 20px;" v-for="allChats in chats">
+				<h3 v-if="allChats === chats.joinedChats">Your chatrooms:</h3>
+				<h3 v-else>Other chatrooms:</h3>
+				<div class="form-check" v-for="chat in allChats">
+					<input class="form-check-input" type="radio" v-bind:value="chat.name" v-model="selectedChatName" />
+					<label class="form-check-label" for=selectedChatName> {{ chat.name }} </label>
+					<a v-if="chat.type === 'protected'" >
+						<ChatLockIcon />
+					</a>
+					<a v-else-if="chat.type === 'private'" >
+						<ChatPrivateIcon />
+					</a>
+					<div v-if="selectedChatName === chat.name && chat.type === 'protected'">
+						<input class="input_pass" placeholder="Password" :type="passwordVisibility" v-model="typedPassword" />
+						<button class="button" type="button" @click="toggleShowPassword" >
+							<i v-if="showPassword">
+								<EyeOpen />
+							</i>
+							<i v-else>
+								<EyeClosed />
+							</i>
+						</button>
+					</div>
 				</div>
 			</form>
 			<button class="btn btn-info btn-sm float-end" @click="createRoom">Create room</button>
@@ -41,7 +44,7 @@ import CreateRoom from './CreateRoom.vue';
 import Chatroom from './Chatroom.vue';
 import { defineComponent } from 'vue';
 import { makeApiCall } from '@/utils/ApiCall';
-import { Chat } from './Chatrooms.types.ts';
+import { Chat, AllChats } from './Chatrooms.types.ts';
 import { useSocketStore } from '@/stores/SocketStore';
 import { mapState } from 'pinia';
 import ChatLockIcon from '../icons/IconChatLock.vue';
@@ -57,7 +60,7 @@ enum State {
 
 interface DataObject {
 	state: State;
-	chats: Chat[];
+	chats: AllChats;
 	selectedChat: Chat;
 	selectedChatName: string;
 	typedPassword: string;
@@ -86,9 +89,6 @@ export default defineComponent({
 		isJoining() {
 			return this.state === State.JOINING;
 		},
-		filterPrivateChats() {
-			return this.chats;
-		},
 		passwordVisibility() {
 			return this.showPassword ? 'text' : 'password';
 		},
@@ -101,11 +101,7 @@ export default defineComponent({
 			this.state = State.CREATING;
 		},
 		async joinRoom() {
-			for (let chat of this.chats) {
-				if (chat.name === this.selectedChatName) {
-					this.socket.emit("joinRoom", { roomName: this.selectedChatName, password: this.typedPassword });
-				}
-			}
+			this.socket.emit("joinRoom", { roomName: this.selectedChatName, password: this.typedPassword });
 		},
 		toggleShowPassword() {
 			this.showPassword = !this.showPassword;
@@ -121,12 +117,24 @@ export default defineComponent({
 			}
 		},
 		joinRoomSuccessfully() {
-			this.selectedChat = chat;
+			this.selectedChat = this.findChatByName(this.selectedChatName);
 			this.state = State.JOINING;
 		},
 		joinRoomFailed() {
 
 		},
+		findChatByName(name: string) : Chat {
+			for (let chat of this.chats.joinedChats) {
+				if (chat.name === name) {
+					return chat;
+				}
+			}
+			for (let chat of this.chats.otherChats) {
+				if (chat.name === name) {
+					return chat;
+				}
+			}
+		}
 	},
 	created() {
 		this.socket.on('joinRoomSuccess', () => {
