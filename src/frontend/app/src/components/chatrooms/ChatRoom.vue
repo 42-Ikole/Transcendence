@@ -44,7 +44,7 @@
                 v-for="message in this.messages"
                 :key="message.author"
               >
-                <p class="chat-autho">{{ message.author.username }}:</p>
+                <p class="chat-author">{{ message.author.username }}:</p>
                 {{ message.message }}
               </div>
             </div>
