@@ -4,12 +4,10 @@ import { User } from 'src/orm/entities/user.entity';
 export class PublicUser {
   id: number;
   username: string;
-  avatar: string;
   status: string;
   constructor(user: User) {
     this.id = user.id;
     this.username = user.username;
-    this.avatar = user.avatar;
     this.status = user.status;
   }
 }
