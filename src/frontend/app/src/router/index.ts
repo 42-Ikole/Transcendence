@@ -3,7 +3,7 @@ import HomeView from "@/views/HomeView.vue";
 import AboutView from "@/views/AboutView.vue";
 import LoginView from "@/views/LoginView.vue";
 import { isLoggedIn } from "@/utils/Login";
-import RoomsView from "@/components/chatrooms/Rooms.vue";
+import RoomsView from "@/components/chatrooms/RoomsList.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import PongView from "@/views/PongView.vue";
 import EditProfileView from "@/views/EditProfileView.vue";
@@ -24,12 +24,12 @@ const routes = [
     path: "/login",
     name: "login",
     component: LoginView,
-	},
-	{
+  },
+  {
     path: "/chatrooms",
     name: "chatrooms",
     component: RoomsView,
-	},
+  },
   {
     path: "/profile/:id?",
     name: "profile",
