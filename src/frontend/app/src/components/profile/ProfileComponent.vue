@@ -61,6 +61,7 @@ import { defineComponent, type PropType } from "vue";
 import MatchHistory from "@/components/profile/MatchHistory.vue";
 import type { PublicUser } from "@/types/UserType";
 import Trophy from "@/components/icons/IconTrophy.vue";
+import { makeAvatarUrl } from "@/stores/UserStore";
 
 export default defineComponent({
   props: {
@@ -80,7 +81,8 @@ export default defineComponent({
       return this.profileData.status;
     },
     avatar() {
-      return `background-image: url(http://localhost:3000/user/avatar/${this.profileData.id}/1337)`;
+      const url = makeAvatarUrl(this.profileData.id);
+      return `background-image: url(${url})`;
     },
     statusStyling() {
       if (this.userStatus === "OFFLINE") {
