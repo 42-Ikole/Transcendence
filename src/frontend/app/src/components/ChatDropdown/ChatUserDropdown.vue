@@ -5,7 +5,7 @@
       type="button"
       data-bs-toggle="dropdown"
       aria-expanded="false"
-			:class="onlineOutline"
+      :class="onlineOutline"
     >
       {{ user.username }}
     </button>
@@ -13,7 +13,7 @@
       <li>
         <h6 class="dropdown-header">{{ status }}</h6>
       </li>
-			 <li>
+      <li>
         <hr class="dropdown-divider" />
       </li>
       <li>
@@ -36,9 +36,9 @@
             Send Challenge
           </button>
         </li>
-		 <li>
-			<hr class="dropdown-divider" />
-		</li>
+        <li>
+          <hr class="dropdown-divider" />
+        </li>
         <li v-if="!isBlocked">
           <button @click="blockUser" class="dropdown-item" type="button">
             Block
@@ -64,9 +64,9 @@
               Unfriend
             </button>
           </li>
-		   <li>
-			<hr class="dropdown-divider" />
-		</li>
+          <li>
+            <hr class="dropdown-divider" />
+          </li>
           <li v-if="isAdmin">
             <button @click="muteUser" class="dropdown-item" type="button">
               Mute
@@ -102,7 +102,6 @@ import { challengeUser } from "@/utils/Pong";
 import { sendFriendRequest, unfriend, unblock, block } from "@/utils/Friends";
 import { stopTrackingUserStatus, trackUserStatus } from "@/utils/StatusTracker";
 import type { StatusUpdate } from "@/types/StatusTypes";
-import IconChatOnlineStatus from "../icons/IconChatOnlineStatus.vue";
 
 export default defineComponent({
   props: {
@@ -136,10 +135,12 @@ export default defineComponent({
     isOnline() {
       return this.status === "ONLINE";
     },
-		onlineOutline() {
-			console.log("online", this.status === "ONLINE");
-			return (this.status === "ONLINE" ? "btn-outline-success" : "btn-outline-danger");
-		},
+    onlineOutline() {
+      console.log("online", this.status === "ONLINE");
+      return this.status === "ONLINE"
+        ? "btn-outline-success"
+        : "btn-outline-danger";
+    },
     isOffline() {
       return this.status === "OFFLINE";
     },
@@ -203,6 +204,5 @@ export default defineComponent({
   unmounted() {
     stopTrackingUserStatus(this.user.id, this.trackState);
   },
-  components: { IconChatOnlineStatus },
 });
 </script>

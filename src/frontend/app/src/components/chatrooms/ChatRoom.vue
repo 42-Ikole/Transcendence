@@ -1,8 +1,8 @@
 <template>
-  <div class="container py-5" style="height: 550px;">
-    <div class="row d-flex justify-content-center"	>
+  <div class="container py-5" style="height: 550px">
+    <div class="row d-flex justify-content-center">
       <div class="chatroomSidebar col-lg-3">
-        <div class="card" style="height: 100%;">
+        <div class="card" style="height: 100%">
           <div
             class="card-header d-flex justify-content-between align-items-center p-3"
           >
@@ -44,15 +44,13 @@
                 v-for="message in this.messages"
                 :key="message.author"
               >
-                <p class="chat-autho">{{ message.author.username }}:</p> {{ message.message }}
+                <p class="chat-autho">{{ message.author.username }}:</p>
+                {{ message.message }}
               </div>
             </div>
           </div>
           <div class="card-footer d-flex justify-content-start p-3">
-            <form
-			  class="input-group"
-              @submit.prevent="sendMessage"
-            >
+            <form class="input-group" @submit.prevent="sendMessage">
               <input
                 class="form-control form-control-lg"
                 type="text"
@@ -74,21 +72,19 @@
 </template>
 
 <style>
-
 .chatroomSidebar {
-	width: 20%;
-	background-color: #ff8e00;
+  width: 20%;
+  background-color: #ff8e00;
 }
 
 .cr-name {
-	font-weight: bold;
-	text-decoration: underline;
+  font-weight: bold;
+  text-decoration: underline;
 }
 
 .chat-author {
-	display: inline-block;
+  display: inline-block;
 }
-
 </style>
 
 <script lang="ts">
