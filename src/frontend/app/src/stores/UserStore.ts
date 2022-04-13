@@ -5,10 +5,13 @@ import makeApiCall from "@/utils/ApiCall";
 import { canMakeConnection } from "@/utils/Login";
 import { useFriendStore } from "./FriendStore";
 
+let updateCount = 0;
+
 interface UserStore {
   state: UserState;
   authenticatedState: AuthenticatedState;
   profileData: UserProfileData | null;
+  avatarUrl: string;
 }
 
 async function initUserData(): Promise<UserProfileData> {
@@ -25,6 +28,7 @@ export const useUserStore = defineStore("user", {
       state: "OFFLINE",
       authenticatedState: "OAUTH",
       profileData: null,
+      avatarUrl: "http://localhost:3000/user/avatar",
     };
   },
   getters: {
@@ -36,6 +40,9 @@ export const useUserStore = defineStore("user", {
     setState(state: UserState) {
       console.log("New UserState:", state);
       this.state = state;
+      if (this.profileData) {
+        this.profileData.status = state;
+      }
     },
     setAuthState(state: AuthenticatedState) {
       console.log("New Auth State:", state);
@@ -58,6 +65,11 @@ export const useUserStore = defineStore("user", {
     },
     async refreshUserData() {
       this.profileData = await initUserData();
+      this.updateAvatar();
+    },
+    updateAvatar() {
+      this.avatarUrl = `http://localhost:3000/user/avatar/${this.profileData.id}/${updateCount}`;
+      updateCount += 1;
     },
     logout() {
       this.setAuthState("OAUTH");

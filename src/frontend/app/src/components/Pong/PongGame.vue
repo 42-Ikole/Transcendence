@@ -4,7 +4,9 @@
     <h2 class="inline">:</h2>
     <h2 class="inline p2-score">{{ playerTwoScore }}</h2>
   </div>
-  <canvas class="game" ref="game" width="600" height="480"> </canvas>
+  <div class="game-bg">
+    <canvas class="game" ref="game" width="600" height="480"> </canvas>
+  </div>
 </template>
 
 <script lang="ts">
@@ -125,24 +127,26 @@ export default defineComponent({
 </script>
 
 <style>
+.game-bg {
+  background-image: url("@/assets/new\ coders.png");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 .game {
-  width: 60vw;
+  width: 80vw;
   height: 80vh;
   border-top: 5px solid black;
   border-bottom: 5px solid black;
   border-left: 8px solid #b52b24;
   border-right: 8px solid #32a852;
   display: block;
-  background-color: white;
   margin: auto;
+  background-color: rgba(0, 0, 0, 0.3);
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  background-image: url("@/assets/new\ coders.png");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
 }
 
 .p1-score {

@@ -1,9 +1,16 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Match } from './match.entity';
-import { IsString, IsOptional, IsBoolean, IsIn } from 'class-validator';
+import { IsString, IsOptional, Equals } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { Friend } from './friend.entity';
-import { USER_STATES } from 'src/status/status.types';
+import { Avatar } from './avatar.entity';
 
 //////     //////
 // User Entity //
@@ -17,11 +24,15 @@ export class User {
   @Column()
   intraId: string;
 
-  @Column()
+  @Column({ unique: true })
   username: string;
 
+  @OneToOne(() => Avatar, { nullable: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'avatarId' })
+  avatar?: Avatar;
+
   @Column({ nullable: true })
-  avatar: string;
+  avatarId?: number;
 
   @OneToMany(() => Match, (match) => match.winner)
   wins: Match[];
@@ -52,25 +63,24 @@ export class User {
 // Partial User //
 //////      //////
 
+// can only have username and avatar, otherwise the update shouldn't occur from an endpoints
 export class PartialUser {
   @IsString()
   @IsOptional()
   username?: string;
 
-  @IsString()
-  @IsOptional()
-  avatar?: string;
+  @Equals(undefined)
+  avatar?: Avatar;
 
-  @IsString()
-  @IsIn(USER_STATES)
-  @IsOptional()
+  @Equals(undefined)
+  intraId?: string;
+
+  @Equals(undefined)
   status?: string;
 
-  @IsString()
-  @IsOptional()
+  @Equals(undefined)
   twoFactorSecret?: string;
 
-  @IsBoolean()
-  @IsOptional()
+  @Equals(undefined)
   twoFactorEnabled?: boolean;
 }

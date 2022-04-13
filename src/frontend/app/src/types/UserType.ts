@@ -13,7 +13,6 @@ export type AuthenticatedState = "AUTHENTICATED" | "2FA" | "OAUTH";
 export interface PublicUser {
   id: number;
   username: string;
-  avatar: string;
   status: string;
 }
 
