@@ -14,7 +14,6 @@ interface SocketStore {
   chat: Socket | null;
 }
 
-
 export const useSocketStore = defineStore("socket", {
   state: (): SocketStore => {
     return {

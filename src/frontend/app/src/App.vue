@@ -2,9 +2,7 @@
   <div v-if="connectionDenied">
     <ConnectionDenied />
   </div>
-  <div v-else-if="isChallenging">
-    Challenging user...
-  </div>
+  <div v-else-if="isChallenging">Challenging user...</div>
   <div v-else>
     <header>
       <div v-if="isAuthenticated">

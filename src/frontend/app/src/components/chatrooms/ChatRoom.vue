@@ -80,7 +80,6 @@ import { useSocketStore } from "@/stores/SocketStore";
 import { mapState } from "pinia";
 import { Chat, SendChatMessage } from "./Chatrooms.types.ts";
 import { makeApiCall } from "@/utils/ApiCall";
-import OnlineStatus from "../icons/IconChatOnlineStatus.vue";
 import ChatUserDropdown from "../ChatDropdown/ChatUserDropdown.vue";
 
 interface DataObject {
@@ -179,8 +178,7 @@ export default defineComponent({
     this.socket.removeListener("leaveRoomSuccess", this.switchToRoomList);
   },
   components: {
-    OnlineStatus,
-    ChatUserDropdown
-},
+    ChatUserDropdown,
+  },
 });
 </script>

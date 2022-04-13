@@ -17,7 +17,6 @@ import { defineComponent } from "vue";
 import { mapState } from "pinia";
 import { useFriendStore } from "@/stores/FriendStore";
 import type { PublicUser } from "@/types/UserType";
-import { makeApiCall } from "@/utils/ApiCall";
 import { unblock } from "@/utils/Friends";
 
 export default defineComponent({

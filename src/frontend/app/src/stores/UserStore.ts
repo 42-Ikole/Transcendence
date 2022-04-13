@@ -1,6 +1,10 @@
 import { defineStore } from "pinia";
 import { useSocketStore } from "./SocketStore";
-import type { AuthenticatedState, UserProfileData, UserState } from "@/types/UserType";
+import type {
+  AuthenticatedState,
+  UserProfileData,
+  UserState,
+} from "@/types/UserType";
 import makeApiCall from "@/utils/ApiCall";
 import { canMakeConnection } from "@/utils/Login";
 import { useFriendStore } from "./FriendStore";

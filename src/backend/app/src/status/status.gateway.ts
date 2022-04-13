@@ -70,7 +70,10 @@ export class StatusGateway
   // Also emits the current status immediately after joining room
   @SubscribeMessage('subscribeStatusUpdate')
   @UsePipes(new ValidationPipe())
-  subscribeStatus(@ConnectedSocket() client: SocketWithUser, @MessageBody() body: UserIdDto) {
+  subscribeStatus(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() body: UserIdDto,
+  ) {
     client.join(`statusUpdate_${body.id}`);
     client.emit(`statusUpdate_${body.id}`, {
       id: body.id,
@@ -80,7 +83,10 @@ export class StatusGateway
 
   @SubscribeMessage('unsubscribeStatusUpdate')
   @UsePipes(new ValidationPipe())
-  unsubscribeStatus(@ConnectedSocket() client: SocketWithUser, @MessageBody() body: UserIdDto) {
+  unsubscribeStatus(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() body: UserIdDto,
+  ) {
     client.leave(`statusUpdate_${body.id}`);
   }
 }

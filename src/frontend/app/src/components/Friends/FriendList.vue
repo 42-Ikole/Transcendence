@@ -18,17 +18,17 @@ import { unfriend } from "@/utils/Friends";
 import ChatUserDropdown from "../ChatDropdown/ChatUserDropdown.vue";
 
 export default defineComponent({
-    computed: {
-        ...mapState(useFriendStore, ["friends"]),
-        noFriends(): boolean {
-            return this.friends.length === 0;
-        },
+  computed: {
+    ...mapState(useFriendStore, ["friends"]),
+    noFriends(): boolean {
+      return this.friends.length === 0;
     },
-    methods: {
-        unfriendUser(user: PublicUser) {
-            unfriend(user);
-        },
+  },
+  methods: {
+    unfriendUser(user: PublicUser) {
+      unfriend(user);
     },
-    components: { ChatUserDropdown }
+  },
+  components: { ChatUserDropdown },
 });
 </script>
