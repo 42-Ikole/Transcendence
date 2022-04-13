@@ -25,6 +25,7 @@ import { Response } from 'express';
 import { Readable } from 'stream';
 import { createReadStream } from 'fs';
 import { join } from 'path';
+import { imageFileFilter } from 'src/avatar/avatar.utils';
 
 @ApiTags('user')
 @Controller('user')
@@ -83,7 +84,10 @@ export class UserController {
 
   @Post('uploadAvatar')
   @UseGuards(AuthenticatedGuard)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      fileFilter: imageFileFilter,
+    }))
   async uploadAvatar(
     @Req() request: RequestWithUser,
     @UploadedFile() file: Express.Multer.File,

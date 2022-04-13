@@ -5,6 +5,7 @@
       <input
         class="form-control form-control-lg"
         type="file"
+        accept="image/*"
         @change="handleFileUpload($event)"
       />
       <button
@@ -60,8 +61,7 @@ export default defineComponent({
       }
       this.file = null;
     },
-    handleFileUpload(event) {
-      console.log("bro?");
+    handleFileUpload(event: any) {
       this.file = event.target.files[0];
     },
   },
