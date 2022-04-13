@@ -4,14 +4,14 @@
       <div class="row">
         <div class="col-sm-4">
           <MiniProfile :user="winner" />
-          <h3 class="text-white text-start"> {{ this.match.winnerScore }} </h3>
+          <h3 class="text-white text-start">{{ this.match.winnerScore }}</h3>
         </div>
         <div class="col-sm-auto">
           <h2 class="text-white texter-center">VS</h2>
         </div>
         <div class="col-sm-4 ms-auto">
           <MiniProfile :user="loser" />
-          <h3 class="text-white text-end"> {{ this.match.loserScore }} </h3>
+          <h3 class="text-white text-end">{{ this.match.loserScore }}</h3>
         </div>
       </div>
       <p class="card-text col-sm text-center">{{ this.matchDate }}</p>
@@ -20,9 +20,8 @@
 </template>
 
 <style>
-
 .card {
-	margin-bottom: 2rem;
+  margin-bottom: 2rem;
 }
 
 .match-won {
@@ -42,17 +41,14 @@
 import { defineComponent, PropType } from "vue";
 import MiniProfile from "@/components/profile/MiniProfile.vue";
 import type { Match } from "@/types/MatchType";
-import { useUserStore } from "@/stores/UserStore";
 
 interface blubData {
-	matchDate: string;
+  matchDate: string;
 }
 export default defineComponent({
-
-
-data() : blubData {
+  data(): blubData {
     return {
-      matchDate: (new Date(Date.parse(this.match.createdDate))).toDateString(),
+      matchDate: new Date(Date.parse(this.match.createdDate)).toDateString(),
     };
   },
   components: {
@@ -63,7 +59,7 @@ data() : blubData {
       type: Object as PropType<Match>,
       required: true,
     },
-	userId: {
+    userId: {
       type: Number,
       required: true,
     },
@@ -81,6 +77,6 @@ data() : blubData {
     loser() {
       return this.match.loser;
     },
-  }
+  },
 });
 </script>

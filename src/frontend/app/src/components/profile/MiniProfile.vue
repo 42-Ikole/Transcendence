@@ -1,9 +1,9 @@
 <template>
   <RouterLink :to="profileLink">
     <div class="MiniProfile" :style="avatar"></div>
-	<p class="text-white mp-name">
-		{{this.user.username}}
-	</p>
+    <p class="text-white mp-name">
+      {{ this.user.username }}
+    </p>
   </RouterLink>
 </template>
 
@@ -26,23 +26,22 @@ export default defineComponent({
     profileLink() {
       return `/profile/${this.user.id}`;
     },
-	avatar () {
-		return `background-image: url(http://localhost:3000/user/avatar/${this.user.id}/420)`;
-	},
+    avatar() {
+      return `background-image: url(http://localhost:3000/user/avatar/${this.user.id}/420)`;
+    },
   },
 });
 </script>
 
 <style>
-
 a:link {
-	text-decoration: none;
+  text-decoration: none;
 }
 
 .mp-name {
-	font-weight: bold;
-	overflow: hidden;
-	white-space: nowrap;
+  font-weight: bold;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .MiniProfile {

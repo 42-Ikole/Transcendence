@@ -4,13 +4,11 @@ import {
   Get,
   Param,
   Post,
-  Req,
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Match } from 'src/orm/entities/match.entity';
 import { MatchService } from 'src/match/match.service';
-import { RequestWithUser } from 'src/auth/auth.types';
 
 @ApiTags('match')
 @Controller('match')

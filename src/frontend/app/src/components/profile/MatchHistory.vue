@@ -8,8 +8,20 @@
     <div v-for="match in filteredMatches" :key="match.id" class="col-sm-6">
       <MatchCard :match="match" :userId="this.userId" />
     </div>
-    <button v-if="showLess" class="btn btn-outline-light m-2" @click="showLess = !showLess">Show More </button>
-    <button v-else class="btn btn-outline-light m-2" @click="showLess = !showLess">Show Less </button>
+    <button
+      v-if="showLess"
+      class="btn btn-outline-light m-2"
+      @click="showLess = !showLess"
+    >
+      Show More
+    </button>
+    <button
+      v-else
+      class="btn btn-outline-light m-2"
+      @click="showLess = !showLess"
+    >
+      Show Less
+    </button>
   </div>
 </template>
 
@@ -23,12 +35,12 @@ import IRefresh from "@/components/icons/IconRefresh.vue";
 interface DataObject {
   matches: Match[];
   showLess: boolean;
-};
+}
 
 export default defineComponent({
   components: {
     MatchCard,
-	IRefresh,
+    IRefresh,
   },
   data(): DataObject {
     return {
