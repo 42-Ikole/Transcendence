@@ -110,10 +110,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	): Promise<void> {
 		const chat: Chat = await this.chatService.findByName(data.roomName, ['members']);
 		if (chat === undefined || !this.chatService.userIsInChat(client.user, chat)) {
+			client.emit('leaveRoomSuccess');
 			return ;
 		}
 		client.leave(data.roomName);
-		this.chatService.userLeavesRoom(client.user, chat);
+		await this.chatService.userLeavesRoom(client.user, chat);
+		client.emit('leaveRoomSuccess');
 		this.wss.to(chat.name).emit('userLeftRoom', {chatName: chat.name, user: client.user});
 	}
 }
