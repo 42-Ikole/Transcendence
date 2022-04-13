@@ -4,7 +4,7 @@
   </div>
   <div v-else v-for="user in friends" :key="user.id">
     <p>
-      <ChatUserDropdown :user="user" />
+      <ChatUserDropdown :user="user" :show-chat-options="false" />
     </p>
   </div>
 </template>

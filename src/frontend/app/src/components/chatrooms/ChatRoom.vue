@@ -11,10 +11,7 @@
           <div class="card-body" style="height: 500px; overflow-y: scroll">
             <div class="flex-row justify-content-start">
               <div class="small" v-for="user in users" :key="user.username">
-                <OnlineStatus :fill="isOnline ? 'green' : 'red'" />
-                <a style="padding-left: 5px">
-                  {{ user.username }}
-                </a>
+                <ChatUserDropdown :user="user" :show-chat-options="true" />
               </div>
             </div>
           </div>
@@ -84,13 +81,13 @@ import { mapState } from "pinia";
 import { Chat, SendChatMessage } from "./Chatrooms.types.ts";
 import { makeApiCall } from "@/utils/ApiCall";
 import OnlineStatus from "../icons/IconChatOnlineStatus.vue";
+import ChatUserDropdown from "../ChatDropdown/ChatUserDropdown.vue";
 
 interface DataObject {
   myMessage: string;
   users: PublicUser[];
   messageToChat: SendChatMessage;
   messages: any[];
-  userOnline: boolean;
 }
 
 export default defineComponent({
@@ -109,7 +106,6 @@ export default defineComponent({
         message: "",
       },
       messages: [],
-      userOnline: true,
     };
   },
   methods: {
@@ -161,9 +157,6 @@ export default defineComponent({
     ...mapState(useSocketStore, {
       socket: "chat",
     }),
-    isOnline() {
-      return this.userOnline;
-    },
   },
   async mounted() {
     console.log("mounted");
@@ -187,6 +180,7 @@ export default defineComponent({
   },
   components: {
     OnlineStatus,
-  },
+    ChatUserDropdown
+},
 });
 </script>
