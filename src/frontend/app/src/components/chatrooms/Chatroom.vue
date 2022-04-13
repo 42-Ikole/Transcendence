@@ -112,9 +112,11 @@ export default defineComponent({
 				this.users = this.users.filter(item => item.id !== leaveData.user.id);
 			}
 		},
+		switchToRoomList() {
+			this.$emit('roomLeft');
+		},
 		leaveRoom() {
 			this.socket.emit('leaveRoom', { roomName: this.chat.name });
-			this.$emit('roomLeft');
 		},
 		async refreshChat() {
 			const messagesResponse = await makeApiCall('/chat/messages/' + this.chat.name);
@@ -139,6 +141,9 @@ export default defineComponent({
 		this.socket.on('userLeftRoom', (leaveData) => {
 			this.userLeavesChat(leaveData);
 		});
+		this.socket.on('leaveRoomSuccess', () => {
+			this.switchToRoomList();
+		})
 	},
 	computed: {
 		...mapState(useSocketStore, {
@@ -147,11 +152,6 @@ export default defineComponent({
 		isOnline() {
 			return this.userOnline;
 		},
-	},
-	watch: {
-		chat(newVal, oldVal) {
-			this.refreshChat();
-		}
 	},
 	async mounted() {
 		await this.refreshChat();
