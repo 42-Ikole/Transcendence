@@ -38,10 +38,10 @@
 </style>
 
 <script lang="ts">
-import { useSocketStore } from "@/stores/SocketStore";
 import type { PublicUser } from "@/types/UserType";
 import makeApiCall from "@/utils/ApiCall";
 import { defineComponent } from "vue";
+import { challengeUser } from "@/utils/Pong";
 
 interface DataObject {
   users: PublicUser[];
@@ -62,11 +62,7 @@ export default defineComponent({
     },
     challenge(user: PublicUser, mode: boolean) {
       console.log("challenge:", user);
-      useSocketStore().pong!.emit("requestMatch", {
-        type: "challenge",
-        targetId: user.id,
-        default: mode,
-      });
+      challengeUser(user.id, mode);
     },
   },
   mounted() {

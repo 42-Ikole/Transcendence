@@ -54,9 +54,24 @@ export const useFriendStore = defineStore("friend", {
           return appearsInList(id, this.blockedByUsers);
       }
     },
+    hasNoRelation(id: number): boolean {
+      return (
+        !this.isPartOfSet(id, "FRIENDS") &&
+        !this.isPartOfSet(id, "FRIEND_REQUESTS") &&
+        !this.isPartOfSet(id, "SENT_REQUESTS") &&
+        !this.isPartOfSet(id, "BLOCKED") &&
+        !this.isPartOfSet(id, "BLOCKED_BY")
+      );
+    },
     init() {
       this.refresh();
+      this.listenToUpdates();
+    },
+    listenToUpdates() {
       useSocketStore().status!.on("friendUpdate", this.refresh);
+    },
+    stopListening() {
+      useSocketStore().status!.removeListener("friendUpdate", this.refresh);
     },
     async refresh() {
       await this.refreshFriends();

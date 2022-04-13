@@ -17,10 +17,6 @@ export async function logoutUser(router: Router) {
   userStore.logout();
 }
 
-export async function getUserInfo() {
-  return useUserStore().$state;
-}
-
 export async function canMakeConnection(): Promise<boolean> {
   const response = await makeApiCall("/status/can-connect");
   if (!response.ok || (await response.text()) !== "OK") {
