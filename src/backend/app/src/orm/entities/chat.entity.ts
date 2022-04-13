@@ -8,7 +8,7 @@ export class Chat {
   @PrimaryGeneratedColumn()
   id: number;
 
-	@Column()
+	@Column({ unique: true })
 	name: string;
 
   @ManyToOne(() => User, (user) => user.id)
