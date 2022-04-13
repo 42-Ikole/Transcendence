@@ -4,11 +4,13 @@ import type { Socket } from "socket.io-client";
 import { useUserStore, type UserState } from "./UserStore";
 
 const PONG_WS_ADDR = "http://localhost:3000/pong";
+const CHAT_WS_ADDR = "http://localhost:3000/chat";
 const STATUS_WS_ADDR = "http://localhost:3000/status";
 
 interface SocketStore {
   status: Socket | null;
   pong: Socket | null;
+  chat: Socket | null;
 }
 
 interface StatusUpdate {
@@ -21,12 +23,14 @@ export const useSocketStore = defineStore("socket", {
     return {
       status: null,
       pong: null,
+      chat: null,
     };
   },
   actions: {
     init() {
-      this.initStatusSocket();
       this.initPongSocket();
+      this.initChatSocket();
+      this.initStatusSocket();
     },
     initStatusSocket() {
       this.status = io(STATUS_WS_ADDR, { withCredentials: true });
@@ -42,6 +46,11 @@ export const useSocketStore = defineStore("socket", {
       this.pong = io(PONG_WS_ADDR, { withCredentials: true });
       this.pong.on("exception", (error: string) => {
         console.error("Received Exception:", error);
+      });
+    },
+    initChatSocket() {
+      this.chat = io(CHAT_WS_ADDR, {
+        withCredentials: true,
       });
     },
     disconnectSockets() {
