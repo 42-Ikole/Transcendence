@@ -133,20 +133,23 @@ export default defineComponent({
 		},
 	},
 	async mounted() {
-		await this.refreshChat();
-		this.socket.emit('requestMessages', this.chat.name);
-		this.socket.on('messageToClient', (message) => {
-			this.receivedMessage(message);
-		});
-		this.socket.on('userJoinedRoom', (joinData) => {
-			this.userJoinsChat(joinData);
-		});
-		this.socket.on('userLeftRoom', (leaveData) => {
-			this.userLeavesChat(leaveData);
-		});
+		console.log("mounted");
+		this.socket.on('subscribeToChatSuccess', this.refreshChat);
+		this.socket.on('messageToClient', this.receivedMessage);
+		this.socket.on('userJoinedRoom', this.userJoinsChat);
+		this.socket.on('userLeftRoom', this.userLeavesChat);
 		this.socket.on('leaveRoomSuccess', this.switchToRoomList);
+		this.socket.emit('subscribeToChat', { roomName: this.chat.name });
+		this.socket.on('subscribeToChatFailure', () => {
+			console.log("failed");
+		});
 	},
 	unmounted() {
+		this.socket.emit('unsubscribeToChat', { roomName: this.chat.name });
+		this.socket.removeListener('subscribeToChatSuccess', this.refreshChat);
+		this.socket.removeListener('messageToClient', this.receivedMessage);
+		this.socket.removeListener('userJoinedRoom', this.userJoinsChat);
+		this.socket.removeListener('userLeftRoom', this.userLeavesChat);
 		this.socket.removeListener('leaveRoomSuccess', this.switchToRoomList);
 	},
 	components: {
