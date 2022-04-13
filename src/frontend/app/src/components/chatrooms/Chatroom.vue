@@ -9,13 +9,10 @@
 					<div class="card-body" style="height: 500px; overflow-y: scroll;">
 						<div class="flex-row justify-content-start">
 							<div class="small" v-for="user in users">
-								<a v-if="isOnline">
-									<OnlineStatus fill="green" />
+								<OnlineStatus :fill="isOnline ? 'green' : 'red'" />
+								<a style="padding-left: 5px;">
+									{{ user.username }}
 								</a>
-								<a v-else>
-									<OnlineStatus fill="red" />
-								</a>
-								{{ user.username }}
 							</div>
 						</div>
 					</div>
@@ -73,7 +70,6 @@ export default defineComponent({
 		},
 	},
 	data(): DataObject {
-		console.log(this.chat); //debug
 		return {
 			myMessage: '',
 			users: [],
@@ -89,12 +85,10 @@ export default defineComponent({
 		sendMessage() {
 			this.messageToChat.chatName = this.chat.name;
 			this.messageToChat.message = this.myMessage;
-			console.log(`send: ${this.myMessage} roomname: ${this.chat.name}`); //debug
 			this.socket.emit('messageToChat', this.messageToChat);
 			this.myMessage = '';
 		},
 		receivedMessage(message) {
-			console.log(`recv: ${message}`); //debug
 			if (this.chat.name === message.chatName) {
 				this.messages.push(message.message);
 
@@ -127,7 +121,6 @@ export default defineComponent({
 			const usersResponse = await makeApiCall('/chat/users/' + this.chat.name);
 			if (usersResponse.ok) {
 				this.users = await usersResponse.json();
-				console.log(this.users[0]);
 			}
 		},
 	},
