@@ -1,13 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { IUser } from 'src/user/user.interface';
+import { AvatarService } from 'src/avatar/avatar.service';
+import { Avatar, AvatarData } from 'src/orm/entities/avatar.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    private readonly avatarService: AvatarService,
   ) {}
 
   ////////////
@@ -40,7 +47,11 @@ export class UserService {
   }
 
   async findById(id: number): Promise<User> {
-    return this.userRepository.findOne(id);
+    const user = await this.userRepository.findOne(id);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return user;
   }
 
   async findByIntraId(user: IUser): Promise<User | undefined> {
@@ -57,13 +68,36 @@ export class UserService {
       .losses;
   }
 
+  async getAvatarById(id: number) {
+    const user = await this.findById(id);
+    if (!user.avatarId) {
+      throw new NotFoundException();
+    }
+    return this.avatarService.getAvatarById(user.avatarId);
+  }
+
   ////////////
   // Update //
   ////////////
 
+  async addAvatar(id: number, file: AvatarData) {
+    const user = await this.findById(id);
+    let avatar: Avatar;
+    if (user.avatarId) {
+      avatar = await this.avatarService.updateAvatar(user.avatarId, file);
+    } else {
+      avatar = await this.avatarService.uploadAvatar(file);
+    }
+    await this.userRepository.update(id, { avatarId: avatar.id });
+    return avatar;
+  }
+
   async update(id: number, field: PartialUser) {
     console.log('part:', field);
-    return this.userRepository.update(id, field);
+    return await this.userRepository.update(id, field).catch((_reason: any) => {
+      console.error('user update failure:', _reason);
+      throw new ConflictException();
+    });
   }
 
   ////////////

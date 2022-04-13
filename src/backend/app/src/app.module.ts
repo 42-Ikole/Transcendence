@@ -16,6 +16,7 @@ import { SocketModule } from './websocket/socket.module';
 import { StatusModule } from './status/status.module';
 import { FriendModule } from './friend/friend.module';
 import { CookieModule } from './websocket/cookie.module';
+import { AvatarModule } from './avatar/avatar.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CookieModule } from './websocket/cookie.module';
     CookieModule,
     StatusModule,
     FriendModule,
+    AvatarModule,
     PassportModule.register({ session: true }),
     ConfigModule.forRoot(configModuleOptions),
     ChatModule,

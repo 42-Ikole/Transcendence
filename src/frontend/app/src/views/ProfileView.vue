@@ -1,73 +1,61 @@
 <template>
-  <div class="container mt-4">
-    <div class="row">
-      <div class="col-md-5">
-        <div class="profileImg" v-bind:class="statusStyling"></div>
-      </div>
-      <div class="col-md-7">
-        <h1>{{ userName }}</h1>
-        <p class="status" v-bind:class="statusStyling">{{ userStatus }}</p>
-        <hr />
-        <MatchHistory />
-      </div>
-    </div>
+  <div v-if="loaded">
+    <ProfileComponent :profileData="profileData" />
+  </div>
+  <div v-else-if="error">
+    <p>error encountered</p>
+  </div>
+  <div v-else>
+    <!-- TODO: loading component -->
+    <p>loading...</p>
   </div>
 </template>
 
-<style>
-.profileImg {
-  background: #f0f0f0 url("@/assets/profileplaceholder.jpeg");
-  background-repeat: no-repeat;
-  background-size: cover;
-  border-radius: 50%;
-  height: 400px;
-  width: 400px;
-  border: solid;
-  border-width: 3px;
-}
-
-.status-offline {
-  border-color: #000000;
-  color: #000000;
-}
-.status-online {
-  border-color: #25af2df3;
-  color: #25af2df3;
-}
-.status-ingame {
-  border-color: #ff8e00;
-  color: #ff8e00;
-}
-
-.status {
-  margin-top: -3px;
-  font-size: 12px;
-}
-</style>
-
 <script lang="ts">
 import { defineComponent } from "vue";
-import { mapState } from "pinia";
+import ProfileComponent from "@/components/profile/ProfileComponent.vue";
 import { useUserStore } from "@/stores/UserStore";
-import MatchHistory from "@/components/profile/MatchHistory.vue";
+import type { UserProfileData } from "@/types/UserType";
+import { makeApiCall } from "@/utils/ApiCall";
+
+interface DataObject {
+  profileData?: UserProfileData;
+  loaded: boolean;
+  error: boolean;
+}
 
 export default defineComponent({
-  computed: {
-    ...mapState(useUserStore, ["profileData", "state"]),
-    userName() {
-      return this.profileData.username;
+  components: {
+    ProfileComponent,
+  },
+  data(): DataObject {
+    return {
+      profileData: undefined,
+      loaded: false,
+      error: false,
+    };
+  },
+  methods: {
+    async loadUser(id: string) {
+      if (!id || isNaN(id) || parseInt(id) === useUserStore().profileData!.id) {
+        this.loadSelf();
+        return;
+      }
+      const response = await makeApiCall(`/user/${id}`);
+      if (!response.ok) {
+        this.error = true;
+        return;
+      }
+      this.profileData = await response.json();
+      this.loaded = true;
     },
-    userStatus() {
-      return this.state;
-    },
-    statusStyling() {
-      if (this.state === "ONLINE") return "status-online";
-      else if (this.state == "PLAYING") return "status-ingame";
-      else return "status-offline";
+    loadSelf() {
+      this.profileData = useUserStore().profileData;
+      this.loaded = true;
     },
   },
-  components: {
-    MatchHistory,
+  async mounted() {
+    await this.loadUser(this.$route.params.id);
   },
 });
 </script>

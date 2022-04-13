@@ -7,15 +7,24 @@ import {
   Body,
   UseGuards,
   Req,
-  NotFoundException,
   ParseIntPipe,
+  Patch,
+  UseInterceptors,
+  UploadedFile,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
-import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
 import { RequestWithUser } from 'src/auth/auth.types';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { PrivateUser, PublicUser } from './user.types';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
+import { Readable } from 'stream';
+import { createReadStream } from 'fs';
+import { join } from 'path';
 
 @ApiTags('user')
 @Controller('user')
@@ -67,14 +76,47 @@ export class UserController {
     return await this.userService.findLosses(id);
   }
 
-  ////////////
-  // Update //
-  ////////////
+  @Patch('update')
+  async updateUser(@Req() request: RequestWithUser, @Body() user: PartialUser) {
+    return await this.userService.update(request.user.id, user);
+  }
 
-  @Post('update/:id')
-  async update(@Param('id') id, @Body() user: PartialUser) {
-    console.log('id:', id, 'part:', user);
-    return this.userService.update(id, user);
+  @Post('uploadAvatar')
+  @UseGuards(AuthenticatedGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadAvatar(
+    @Req() request: RequestWithUser,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.userService.addAvatar(request.user.id, {
+      filename: file.originalname,
+      data: file.buffer,
+    });
+  }
+
+  @Get('avatar/:id/:hahagetrektbitch')
+  async getAvatar(
+    @Param('id', ParseIntPipe) id: number,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    try {
+      const file = await this.userService.getAvatarById(id);
+      const stream = Readable.from(file.data);
+      response.set({
+        'Content-Disposition': `inline; filename="${file.filename}"`,
+        'Content-Type': 'image',
+      });
+      return new StreamableFile(stream);
+    } catch (error) {
+      const file = createReadStream(
+        join(process.cwd(), 'src/avatar/default_avatar.jpeg'),
+      );
+      response.set({
+        'Content-Type': 'image/jpeg',
+        'Content-Disposition': 'inline; filename="default avatar"',
+      });
+      return new StreamableFile(file);
+    }
   }
 
   /////////////
