@@ -1,17 +1,20 @@
 <template>
   <div class="input-group">
-    <IconChatOnlineStatus :fill="!isOffline ? 'green' : 'red'" />
     <button
-      class="btn btn-primary btn-sm dropdown-toggle"
+      class="btn btn dropdown-toggle mb-2"
       type="button"
       data-bs-toggle="dropdown"
       aria-expanded="false"
+			:class="onlineOutline"
     >
       {{ user.username }}
     </button>
     <ul class="dropdown-menu">
       <li>
         <h6 class="dropdown-header">{{ status }}</h6>
+      </li>
+			 <li>
+        <hr class="dropdown-divider" />
       </li>
       <li>
         <button @click="viewProfile" class="dropdown-item" type="button">
@@ -33,6 +36,9 @@
             Send Challenge
           </button>
         </li>
+		 <li>
+			<hr class="dropdown-divider" />
+		</li>
         <li v-if="!isBlocked">
           <button @click="blockUser" class="dropdown-item" type="button">
             Block
@@ -58,6 +64,9 @@
               Unfriend
             </button>
           </li>
+		   <li>
+			<hr class="dropdown-divider" />
+		</li>
           <li v-if="isAdmin">
             <button @click="muteUser" class="dropdown-item" type="button">
               Mute
@@ -127,6 +136,10 @@ export default defineComponent({
     isOnline() {
       return this.status === "ONLINE";
     },
+		onlineOutline() {
+			console.log("online", this.status === "ONLINE");
+			return (this.status === "ONLINE" ? "btn-outline-success" : "btn-outline-danger");
+		},
     isOffline() {
       return this.status === "OFFLINE";
     },
