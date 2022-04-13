@@ -111,21 +111,29 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.wss.to(chat.name).emit('userLeftRoom', {chatName: chat.name, user: client.user});
 	}
 
-	@SubscribeMessage('requestMessages')
-	async requestMessages(
+	@SubscribeMessage('subscribeToChat')
+	async subscribeToChat(
 		@MessageBody() data: ChatRoomDto,
 		@ConnectedSocket() client: SocketWithUser
 	): Promise<void> {
 		const chat: Chat = await this.chatService.findByName(data.roomName, ['members']);
 		if (chat === undefined) {
-			client.emit('requestMessageFailure');
+			client.emit('subscribeToChatFailure');
 			return ;
 		}
 		if (this.chatService.userIsInChat(client.user, chat)) {
 			client.join(chat.name);
-			client.emit('requestMessageSuccess');
+			client.emit('subscribeToChatSuccess');
 		} else {
-			client.emit('requestMessageFailure');
+			client.emit('subscribeToChatFailure');
 		}
+	}
+
+	@SubscribeMessage('unsubscribeToChat')
+	async unsubscribeToChat(
+		@MessageBody() data: ChatRoomDto,
+		@ConnectedSocket() client: SocketWithUser
+	): Promise<void> {
+		client.leave(data.roomName);
 	}
 }
