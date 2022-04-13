@@ -90,7 +90,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			client.emit('joinRoomFailure');
 			return ;
 		}
-		this.chatService.userJoinsRoom(client.user, chat);
+		await this.chatService.userJoinsRoom(client.user, chat);
 		client.emit('joinRoomSuccess');
 		this.wss.to(chat.name).emit('userJoinedRoom', {chatName: chat.name, user: client.user});
 	}
