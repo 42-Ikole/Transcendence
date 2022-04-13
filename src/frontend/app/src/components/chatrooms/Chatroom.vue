@@ -143,7 +143,7 @@ export default defineComponent({
 		});
 		this.socket.on('leaveRoomSuccess', () => {
 			this.switchToRoomList();
-		})
+		});
 	},
 	computed: {
 		...mapState(useSocketStore, {

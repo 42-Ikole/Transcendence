@@ -1,7 +1,7 @@
 <template>
 	<div class="container py-5" v-if="isWaiting">
 		<div class="card-header justify-content-between align-items-center p-3" style="width: 30%; background-color: #dee;">
-			<form class="form-check" style="padding-bottom: 20px;" v-for="allChats in chats">
+			<form class="form-check" style="padding-bottom: 20px;" v-for="allChats in chats" @submit.prevent="joinRoom">
 				<h3 v-if="allChats === chats.joinedChats">Your chatrooms:</h3>
 				<h3 v-else>Other chatrooms:</h3>
 				<div class="form-check" v-for="chat in allChats">
@@ -13,7 +13,7 @@
 					<a v-else-if="chat.type === 'private'" >
 						<ChatPrivateIcon />
 					</a>
-					<div v-if="selectedChatName === chat.name && chat.type === 'protected'">
+					<div v-if="allChats === chats.otherChats && selectedChatName === chat.name && chat.type === 'protected'">
 						<input class="input_pass" placeholder="Password" :type="passwordVisibility" v-model="typedPassword" />
 						<button class="button" type="button" @click="toggleShowPassword" >
 							<i v-if="showPassword">
@@ -107,8 +107,8 @@ export default defineComponent({
 			this.showPassword = !this.showPassword;
 		},
 		setWaiting() {
-			this.state = State.WAITING;
 			this.getAllChats();
+			this.state = State.WAITING;
 		},
 		async getAllChats() {
 			const response = await makeApiCall('/chat');
@@ -137,8 +137,8 @@ export default defineComponent({
 				}
 			}
 		},
-		refreshChatList() {
-			this.getAllChats();
+		async refreshChatList() {
+			await this.getAllChats();
 		}
 	},
 	created() {
@@ -169,7 +169,7 @@ export default defineComponent({
 		ChatPrivateIcon,
 		EyeOpen,
 		EyeClosed,
-	}
+	},
 });
 
 </script>
