@@ -124,20 +124,6 @@ export default defineComponent({
 			}
 		},
 	},
-	created() {
-		this.socket.on('messageToClient', (message) => {
-			this.receivedMessage(message);
-		});
-		this.socket.on('userJoinedRoom', (joinData) => {
-			this.userJoinsChat(joinData);
-		});
-		this.socket.on('userLeftRoom', (leaveData) => {
-			this.userLeavesChat(leaveData);
-		});
-		this.socket.on('leaveRoomSuccess', () => {
-			this.switchToRoomList();
-		});
-	},
 	computed: {
 		...mapState(useSocketStore, {
 			socket: 'chat',
@@ -148,6 +134,20 @@ export default defineComponent({
 	},
 	async mounted() {
 		await this.refreshChat();
+		this.socket.emit('requestMessages', this.chat.name);
+		this.socket.on('messageToClient', (message) => {
+			this.receivedMessage(message);
+		});
+		this.socket.on('userJoinedRoom', (joinData) => {
+			this.userJoinsChat(joinData);
+		});
+		this.socket.on('userLeftRoom', (leaveData) => {
+			this.userLeavesChat(leaveData);
+		});
+		this.socket.on('leaveRoomSuccess', this.switchToRoomList);
+	},
+	unmounted() {
+		this.socket.removeListener('leaveRoomSuccess', this.switchToRoomList);
 	},
 	components: {
 		OnlineStatus,
