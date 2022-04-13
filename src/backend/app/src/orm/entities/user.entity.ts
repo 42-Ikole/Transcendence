@@ -5,11 +5,13 @@ import {
   OneToMany,
   OneToOne,
   JoinColumn,
+  ManyToMany,
 } from 'typeorm';
 import { Match } from './match.entity';
 import { IsString, IsOptional, Equals } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { Friend } from './friend.entity';
+import { Chat } from './chat.entity';
 import { Avatar } from './avatar.entity';
 
 //////     //////
@@ -49,6 +51,9 @@ export class User {
 
   @Column({ default: 'OFFLINE' })
   status: string;
+
+  @ManyToMany(() => Chat, (chat) => chat.members)
+  chats: Chat[];
 
   // Two Factor
   @Column({ nullable: true })

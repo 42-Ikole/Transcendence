@@ -10,6 +10,7 @@ import { MatchModule } from './match/match.module';
 import { TwoFactorModule } from './2FA/twofactor.module';
 import { ConfigModule } from '@nestjs/config';
 import { configModuleOptions } from './config/options';
+import { ChatModule } from './chat/chat.module';
 import { PongModule } from './pong/pong.module';
 import { SocketModule } from './websocket/socket.module';
 import { StatusModule } from './status/status.module';
@@ -32,6 +33,7 @@ import { AvatarModule } from './avatar/avatar.module';
     AvatarModule,
     PassportModule.register({ session: true }),
     ConfigModule.forRoot(configModuleOptions),
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

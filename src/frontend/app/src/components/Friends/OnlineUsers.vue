@@ -5,7 +5,7 @@
       <p>{{ user.username }} : {{ user.id }}</p>
       <button
         class="btn btn-outline-light btn-sm"
-        @click="sendFriendRequest(user)"
+        @click="sendFriendRequestUser(user)"
       >
         Send Friend Request
       </button>
@@ -21,8 +21,9 @@
 import { useSocketStore } from "@/stores/SocketStore";
 import { useUserStore } from "@/stores/UserStore";
 import type { PublicUser } from "@/types/UserType";
-import makeApiCall, { makeApiCallJson } from "@/utils/ApiCall";
+import makeApiCall from "@/utils/ApiCall";
 import { mapState } from "pinia";
+import { block, sendFriendRequest } from "@/utils/Friends";
 import { defineComponent } from "vue";
 
 interface DataObject {
@@ -41,15 +42,11 @@ export default defineComponent({
     }),
   },
   methods: {
-    async sendFriendRequest(user: PublicUser) {
-      await makeApiCallJson("friend/request", "POST", {
-        id: user.id,
-      });
+    async sendFriendRequestUser(user: PublicUser) {
+      sendFriendRequest(user);
     },
     async blockUser(user: PublicUser) {
-      await makeApiCallJson("friend/block", "POST", {
-        id: user.id,
-      });
+      block(user);
     },
     async refresh() {
       const response = await makeApiCall("/user/all");

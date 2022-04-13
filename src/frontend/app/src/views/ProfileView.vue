@@ -54,6 +54,11 @@ export default defineComponent({
       this.loaded = true;
     },
   },
+  watch: {
+    "$route.params.id"() {
+      this.loadUser(this.$route.params.id);
+    },
+  },
   async mounted() {
     await this.loadUser(this.$route.params.id);
   },

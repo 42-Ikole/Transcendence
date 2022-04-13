@@ -222,7 +222,7 @@ export class PongService {
     return (
       !!this.challengers[client.user.id] &&
       !!this.socketService.userExistsType(challengerId, 'pong') &&
-      this.statusService.getState(challengerId) === 'SEARCHING'
+      this.statusService.getState(challengerId) === 'CHALLENGING'
     );
   }
 
