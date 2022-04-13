@@ -86,20 +86,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			client.emit('joinRoomSuccess');
 			return ;
 		}
-		if (!success) {
+		if (!success || chat === undefined) {
 			client.emit('joinRoomFailure');
 			return ;
 		}
-		if (chat === undefined) {
-			client.emit('joinRoomFailure');
-			return ;
-		}
-		client.emit('joinRoomSuccess');
-		if (this.chatService.userIsInChat(client.user, chat)) {
-			return ;
-		}
-		client.join(chat.name);
 		this.chatService.userJoinsRoom(client.user, chat);
+		client.emit('joinRoomSuccess');
 		this.wss.to(chat.name).emit('userJoinedRoom', {chatName: chat.name, user: client.user});
 	}
 
@@ -117,5 +109,23 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		await this.chatService.userLeavesRoom(client.user, chat);
 		client.emit('leaveRoomSuccess');
 		this.wss.to(chat.name).emit('userLeftRoom', {chatName: chat.name, user: client.user});
+	}
+
+	@SubscribeMessage('requestMessages')
+	async requestMessages(
+		@MessageBody() data: ChatRoomDto,
+		@ConnectedSocket() client: SocketWithUser
+	): Promise<void> {
+		const chat: Chat = await this.chatService.findByName(data.roomName, ['members']);
+		if (chat === undefined) {
+			client.emit('requestMessageFailure');
+			return ;
+		}
+		if (this.chatService.userIsInChat(client.user, chat)) {
+			client.join(chat.name);
+			client.emit('requestMessageSuccess');
+		} else {
+			client.emit('requestMessageFailure');
+		}
 	}
 }
