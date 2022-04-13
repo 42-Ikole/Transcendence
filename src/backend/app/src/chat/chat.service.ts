@@ -94,12 +94,79 @@ export class ChatService {
     // Remove the user from the members list.
     chat.members = chat.members.filter((item) => item.id != user.id);
     await this.chatRepository.save(chat);
+    return;
+  }
+
+  async addUserAsAdmin(
+    requestingUser: User,
+    user: User,
+    chat: Chat,
+  ): Promise<boolean> {
+    // Check if requesting user is owner.
+    if (!this.userIsOwner(requestingUser, chat)) {
+      return;
+    }
+    // Only add admin role if not already admin, or owner.
+    if (
+      this.userIsOwner(user, chat) ||
+      this.userHasAdminPrivilege(user, chat)
+    ) {
+      return;
+    }
+    chat.admins.push(user);
+    await this.chatRepository.save(chat);
+    return;
+  }
+
+  async removeUserAsAdmin(
+    requestingUser: User,
+    user: User,
+    chat: Chat,
+  ): Promise<boolean> {
+    // Check if requesting user is owner.
+    if (!this.userIsOwner(requestingUser, chat)) {
+      return;
+    }
+    // Remove the user from the admins list.
+    chat.admins = chat.admins.filter((item) => item.id != user.id);
+    await this.chatRepository.save(chat);
+    return;
+  }
+
+  async changeRoomOwner(
+    requestingUser: User,
+    newOwner: User,
+    chat: Chat,
+  ): Promise<boolean> {
+    // Check if requesting user is owner.
+    if (!this.userIsOwner(requestingUser, chat)) {
+      return;
+    }
+    chat.owner = newOwner;
+    await this.chatRepository.save(chat);
+    return;
   }
 
   userIsInChat(user: User, chat: Chat): boolean {
     // Look through the members and see if the user is in there.
     for (const member of chat.members) {
       if (member.id === user.id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  userIsOwner(user: User, chat: Chat): boolean {
+    return chat.owner.id === user.id;
+  }
+
+  userHasAdminPrivilege(user: User, chat: Chat): boolean {
+    if (chat.owner.id === user.id) {
+      return true;
+    }
+    for (const admin of chat.admins) {
+      if (admin.id === user.id) {
         return true;
       }
     }
