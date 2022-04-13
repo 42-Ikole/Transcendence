@@ -10,7 +10,7 @@
           </div>
           <div class="card-body" style="height: 500px; overflow-y: scroll">
             <div class="flex-row justify-content-start">
-              <div class="small" v-for="user in users">
+              <div class="small" v-for="user in users" :key="user.username">
                 <OnlineStatus :fill="isOnline ? 'green' : 'red'" />
                 <a style="padding-left: 5px">
                   {{ user.username }}
@@ -42,7 +42,7 @@
             style="height: 500px; overflow-y: scroll; padding-bottom: 25px"
           >
             <div class="flex-row justify-content-start">
-              <div class="small" v-for="message in this.messages">
+              <div class="small" v-for="message in this.messages" :key="message.author">
                 {{ message.author.username }}: {{ message.message }}
               </div>
             </div>
