@@ -5,7 +5,22 @@
       style="width: 40%; background-color: #eee"
       @submit.prevent="createChat"
     >
-      <h3>Creating a new chat room.</h3>
+          <div
+            class="d-flex justify-content-between align-items-center p-2"
+          >
+      <h4>Creating a new chat room.</h4>
+      <div class="btn btn-sm" role="group">
+				<button
+					type="button"
+					class="btn btn-secondary btn-sm"
+					data-mdb-ripple-color="dark"
+					style="line-height: 1"
+					@click="switchToRoomList"
+					>
+						Back
+				</button>
+			</div>
+      </div>
       <div class="card card-body">
         <div class="form-check">
           <input
@@ -114,6 +129,9 @@ export default defineComponent({
     },
     toggleShowPassword() {
       this.showPassword = !this.showPassword;
+    },
+    switchToRoomList() {
+      this.$emit("roomCreated");
     },
   },
   watch: {
