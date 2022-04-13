@@ -42,7 +42,11 @@
             style="height: 500px; overflow-y: scroll; padding-bottom: 25px"
           >
             <div class="flex-row justify-content-start">
-              <div class="small" v-for="message in this.messages" :key="message.author">
+              <div
+                class="small"
+                v-for="message in this.messages"
+                :key="message.author"
+              >
                 {{ message.author.username }}: {{ message.message }}
               </div>
             </div>

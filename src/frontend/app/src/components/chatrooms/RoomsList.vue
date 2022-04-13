@@ -7,7 +7,8 @@
       <form
         class="form-check"
         style="padding-bottom: 20px"
-        v-for="allChats in chats" :key="allChats.chat"
+        v-for="allChats in chats"
+        :key="allChats.chat"
         @submit.prevent="joinRoom"
       >
         <h3 v-if="allChats === chats.joinedChats">Your chatrooms:</h3>
