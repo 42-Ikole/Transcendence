@@ -5,7 +5,7 @@ import {
   OneToMany,
   OneToOne,
   JoinColumn,
-	ManyToMany,
+  ManyToMany,
 } from 'typeorm';
 import { Match } from './match.entity';
 import { IsString, IsOptional, Equals } from 'class-validator';
@@ -50,10 +50,10 @@ export class User {
   relatedUsers: Friend[];
 
   @Column({ default: 'OFFLINE' })
-	status: string;
+  status: string;
 
-	@ManyToMany(() => Chat, (chat) => chat.members)
-	chats: Chat[];
+  @ManyToMany(() => Chat, (chat) => chat.members)
+  chats: Chat[];
 
   // Two Factor
   @Column({ nullable: true })
