@@ -72,7 +72,9 @@ export const useUserStore = defineStore("user", {
       this.updateAvatar();
     },
     updateAvatar() {
-      this.avatarUrl = `http://localhost:3000/user/avatar/${this.profileData!.id}/${this.updateCount}`;
+      this.avatarUrl = `http://localhost:3000/user/avatar/${
+        this.profileData!.id
+      }/${this.updateCount}`;
       this.updateCount += 1;
     },
     logout() {
@@ -85,5 +87,7 @@ export const useUserStore = defineStore("user", {
 });
 
 export function makeAvatarUrl(id: number) {
-  return `http://localhost:3000/user/avatar/${id}/${useUserStore().updateCount}`;
+  return `http://localhost:3000/user/avatar/${id}/${
+    useUserStore().updateCount
+  }`;
 }
