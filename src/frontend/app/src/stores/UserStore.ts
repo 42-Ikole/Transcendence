@@ -9,13 +9,12 @@ import makeApiCall from "@/utils/ApiCall";
 import { canMakeConnection } from "@/utils/Login";
 import { useFriendStore } from "./FriendStore";
 
-let updateCount = 0;
-
 interface UserStore {
   state: UserState;
   authenticatedState: AuthenticatedState;
   profileData: UserProfileData | null;
   avatarUrl: string;
+  updateCount: number;
 }
 
 async function initUserData(): Promise<UserProfileData> {
@@ -33,6 +32,7 @@ export const useUserStore = defineStore("user", {
       authenticatedState: "OAUTH",
       profileData: null,
       avatarUrl: "http://localhost:3000/user/avatar",
+      updateCount: 0,
     };
   },
   getters: {
@@ -72,8 +72,10 @@ export const useUserStore = defineStore("user", {
       this.updateAvatar();
     },
     updateAvatar() {
-      this.avatarUrl = `http://localhost:3000/user/avatar/${this.profileData.id}/${updateCount}`;
-      updateCount += 1;
+      this.avatarUrl = `http://localhost:3000/user/avatar/${
+        this.profileData!.id
+      }/${this.updateCount}`;
+      this.updateCount += 1;
     },
     logout() {
       this.setAuthState("OAUTH");
@@ -83,3 +85,9 @@ export const useUserStore = defineStore("user", {
     },
   },
 });
+
+export function makeAvatarUrl(id: number) {
+  return `http://localhost:3000/user/avatar/${id}/${
+    useUserStore().updateCount
+  }`;
+}

@@ -47,6 +47,7 @@
 import { defineComponent } from "vue";
 import { logoutUser } from "@/utils/Login";
 import { useUserStore } from "@/stores/UserStore";
+import { mapState } from "pinia";
 
 export default defineComponent({
   data() {
@@ -66,9 +67,9 @@ export default defineComponent({
     },
   },
   computed: {
+    ...mapState(useUserStore, ["avatarUrl"]),
     avatar() {
-      const url = useUserStore().avatarUrl;
-      return `background-image: url(${url})`;
+      return `background-image: url(${this.avatarUrl})`;
     },
   },
 });

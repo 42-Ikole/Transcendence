@@ -1,25 +1,29 @@
 <template>
-  <div class="card text-white match-won">
+  <div class="card text-white" :class="matchWonClass">
     <div class="card-body">
       <div class="row">
         <div class="col-sm-4">
-          <MiniProfile />
-          <h3 class="text-white text-center">11</h3>
+          <MiniProfile :user="winner" />
+          <h3 class="text-white text-start">{{ this.match.winnerScore }}</h3>
         </div>
         <div class="col-sm-auto">
           <h2 class="text-white texter-center">VS</h2>
         </div>
         <div class="col-sm-4 ms-auto">
-          <MiniProfile />
-          <h3 class="text-white text-center">6</h3>
+          <MiniProfile :user="loser" />
+          <h3 class="text-white text-end">{{ this.match.loserScore }}</h3>
         </div>
       </div>
-      <p class="card-text">17:48 28/03/2022</p>
+      <p class="card-text col-sm text-center">{{ this.matchDate }}</p>
     </div>
   </div>
 </template>
 
 <style>
+.card {
+  margin-bottom: 2rem;
+}
+
 .match-won {
   background-color: #088c12 !important;
 }
@@ -34,12 +38,45 @@
 </style>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, PropType } from "vue";
 import MiniProfile from "@/components/profile/MiniProfile.vue";
+import type { Match } from "@/types/MatchType";
 
+interface blubData {
+  matchDate: string;
+}
 export default defineComponent({
+  data(): blubData {
+    return {
+      matchDate: new Date(Date.parse(this.match.createdDate)).toDateString(),
+    };
+  },
   components: {
     MiniProfile,
+  },
+  props: {
+    match: {
+      type: Object as PropType<Match>,
+      required: true,
+    },
+    userId: {
+      type: Number,
+      required: true,
+    },
+  },
+  computed: {
+    isWinner() {
+      return this.match.winner.id === this.userId;
+    },
+    matchWonClass() {
+      return this.isWinner ? "match-won" : "match-lost";
+    },
+    winner() {
+      return this.match.winner;
+    },
+    loser() {
+      return this.match.loser;
+    },
   },
 });
 </script>
