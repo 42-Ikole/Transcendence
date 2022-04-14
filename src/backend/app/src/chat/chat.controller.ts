@@ -9,6 +9,7 @@ import {
   UseGuards,
   Req,
   ConflictException,
+	NotAcceptableException,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto, CreateChatInterface, AllChatsDto } from './chat.types';
@@ -77,11 +78,9 @@ export class ChatController {
       owner: request.user,
       members: [request.user],
     };
-    const valid: boolean = this.chatService.isValidRoomname(
-      createChatInterface.name,
-    );
+    const valid: boolean = this.chatService.isValidRoomname(createChatInterface.name);
     if (!valid) {
-      throw new ConflictException();
+      throw new NotAcceptableException();
     }
     // Add the chat to the database.
     const chat: Chat = await this.chatService.createChat(createChatInterface);
