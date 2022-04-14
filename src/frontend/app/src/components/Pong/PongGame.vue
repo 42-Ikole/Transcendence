@@ -1,6 +1,6 @@
 <template>
   <div v-if="isSpecialMode" class="hotkeys">
-    <p> Hotkeys : grow [R], shrink: [F]</p>
+    <p> Hotkeys : speed-up: [Q], grow: [R], shrink: [F]</p>
   </div>
   <div class="text-center">
     <h2 class="p1-score inline">{{ playerOneScore }}</h2>
