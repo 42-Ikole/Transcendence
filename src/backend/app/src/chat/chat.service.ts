@@ -25,7 +25,7 @@ export class ChatService {
   async findAll(user: User): Promise<AllChatsDto> {
     console.log('finding rooms for user:', user.username);
     const chats = await this.chatRepository.find({
-      relations: ['members'],
+      relations: ['members', 'owner'],
     });
     const allChats: AllChatsDto = { joinedChats: [], otherChats: [] };
     for (const chat of chats) {
