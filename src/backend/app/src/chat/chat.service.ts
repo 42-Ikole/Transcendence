@@ -2,6 +2,7 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+	UnauthorizedException,
 } from '@nestjs/common';
 import {
   IncomingMessageDtO,
@@ -97,28 +98,28 @@ export class ChatService {
     return;
   }
 
-  async addUserAsAdmin(
+  async promoteAdmin(
     requestingUser: User,
     user: User,
     chat: Chat,
   ): Promise<boolean> {
     // Check if requesting user is owner.
     if (!this.userIsOwner(requestingUser, chat)) {
-      return;
+      throw new UnauthorizedException();
     }
     // Only add admin role if not already admin, or owner.
     if (
       this.userIsOwner(user, chat) ||
       this.userHasAdminPrivilege(user, chat)
     ) {
-      return;
+      return false;
     }
     chat.admins.push(user);
     await this.chatRepository.save(chat);
-    return;
+    return true;
   }
 
-  async removeUserAsAdmin(
+  async demoteAdmin(
     requestingUser: User,
     user: User,
     chat: Chat,
