@@ -165,7 +165,7 @@ export class ChatController {
 	broadcastRoleUpdate(chatName: string, userId: number): void {
 		// Do 2 emits:
 		// 1. roleUpdate. To the user that was promoted.
-		this.socketService.sockets[userId].chatroom.emit('roleUpdate');
+		this.socketService.emitToUser(userId, 'chatroom', 'roleUpdate')
 		// 2. roleUpdate_{id}. To all users in the chat room where it happened.
 		this.socketService.chatServer.to(chatName).emit('roleUpdate_' + userId);
 	}
