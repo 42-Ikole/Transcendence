@@ -126,7 +126,7 @@ export class ChatService {
   ): Promise<boolean> {
     // Check if requesting user is owner.
     if (!this.userIsOwner(requestingUser, chat)) {
-      return;
+      throw new UnauthorizedException();
     }
     // Remove the user from the admins list.
     chat.admins = chat.admins.filter((item) => item.id != user.id);
@@ -141,7 +141,7 @@ export class ChatService {
   ): Promise<boolean> {
     // Check if requesting user is owner.
     if (!this.userIsOwner(requestingUser, chat)) {
-      return;
+      throw new UnauthorizedException();
     }
     chat.owner = newOwner;
     await this.chatRepository.save(chat);
