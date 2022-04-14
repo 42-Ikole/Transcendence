@@ -47,3 +47,12 @@ export class ChatRoomDto {
   @IsOptional()
   password: string;
 }
+
+export class ChatRoleDto {
+	@IsString()
+	@IsNotEmpty()
+	chatName: string;
+
+	@IsNotEmpty()
+	user: User;
+}

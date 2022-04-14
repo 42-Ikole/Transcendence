@@ -13,7 +13,7 @@ import {
 	ImATeapotException,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { CreateChatDto, CreateChatInterface, AllChatsDto } from './chat.types';
+import { CreateChatDto, CreateChatInterface, AllChatsDto, ChatRoleDto } from './chat.types';
 import { Chat } from 'src/orm/entities/chat.entity';
 import { User } from 'src/orm/entities/user.entity';
 import { Message } from 'src/orm/entities/message.entity';
@@ -92,5 +92,17 @@ export class ChatController {
     this.socketService.chatServer.emit('createRoom', { room: chat });
     console.log('Emited createRoom');
     return chat;
-  }
+	}
+
+	@Post('/admin')
+	async promoteAdmin(
+		@Req() request: RequestWithUser,
+		@Body() body: ChatRoleDto,
+	): Promise<void> {
+		const chat: Chat = await this.chatService.findByName(body.chatName, ['admins']);
+		if (chat === undefined) {
+			throw new NotFoundException();
+		}
+		const success: boolean = await this.chatService.promoteAdmin(request.user, body.user, chat);
+	}
 }
