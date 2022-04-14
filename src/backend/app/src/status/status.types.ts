@@ -1,4 +1,4 @@
-import { IsInt } from "class-validator";
+import { IsInt } from 'class-validator';
 
 // NULL or MISSING === OFFLINE
 export type UserState =

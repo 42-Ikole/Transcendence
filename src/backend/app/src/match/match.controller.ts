@@ -1,4 +1,11 @@
-import { Controller, Body, Get, Param, Post } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Get,
+  Param,
+  Post,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Match } from 'src/orm/entities/match.entity';
 import { MatchService } from 'src/match/match.service';
@@ -18,7 +25,9 @@ export class MatchController {
   }
 
   @Get('userMatches/:id')
-  async findUserMatches(@Param('id') id): Promise<Match[]> {
-    return this.matchService.findUserMatches(id);
+  async findUserMatches(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Match[]> {
+    return await this.matchService.findUserMatches(id);
   }
 }

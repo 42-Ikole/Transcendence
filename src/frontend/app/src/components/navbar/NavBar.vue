@@ -13,7 +13,9 @@
     </div>
     <div class="mx-auto order-0">
       <div class="navbar-brand mx-auto">
-        <img src="/src/assets/pongHub.png" alt="ponghub" id="navbarLogo" />
+        <a href="https://github.com/K1ngmar/Transcendence" target="_blank">
+          <img src="/src/assets/pongHub.png" alt="ponghub" id="navbarLogo" />
+        </a>
       </div>
       <button
         class="navbar-toggler"
@@ -52,9 +54,9 @@ export default defineComponent({
       routes: [
         { path: "/", message: "Home" },
         { path: "/about", message: "About" },
-        { path: "/2fa", message: "Two Factor" },
         { path: "/login", message: "Login" },
         { path: "/pong", message: "Pong" },
+        { path: "/chatrooms", message: "Chatrooms" },
         { path: "/friend-list", message: "friend-list" },
       ],
     };

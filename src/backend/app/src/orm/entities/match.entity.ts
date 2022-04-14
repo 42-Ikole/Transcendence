@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
@@ -25,4 +31,6 @@ export class Match {
   // DEFAULT | SPECIAL
   @Column()
   mode: string;
+  @CreateDateColumn()
+  createdDate: Date;
 }

@@ -55,11 +55,13 @@ export const useFriendStore = defineStore("friend", {
       }
     },
     hasNoRelation(id: number): boolean {
-      return !this.isPartOfSet(id, "FRIENDS")
-      && !this.isPartOfSet(id, "FRIEND_REQUESTS")
-      && !this.isPartOfSet(id, "SENT_REQUESTS")
-      && !this.isPartOfSet(id, "BLOCKED")
-      && !this.isPartOfSet(id, "BLOCKED_BY");
+      return (
+        !this.isPartOfSet(id, "FRIENDS") &&
+        !this.isPartOfSet(id, "FRIEND_REQUESTS") &&
+        !this.isPartOfSet(id, "SENT_REQUESTS") &&
+        !this.isPartOfSet(id, "BLOCKED") &&
+        !this.isPartOfSet(id, "BLOCKED_BY")
+      );
     },
     init() {
       this.refresh();

@@ -22,6 +22,22 @@
     <div v-else-if="isChallenged">
       <ChallengedRequest />
     </div>
+    <div v-else>
+      <div class="row">
+        <div class="col-lg-3">
+          <h3>Ranked:</h3>
+          <FindMatch />
+        </div>
+        <div class="col-lg-3">
+          <h3>Spectate:</h3>
+          <ActiveGames />
+        </div>
+        <div class="col-lg-3">
+          <h3>Challenge:</h3>
+          <ChallengeUsers />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

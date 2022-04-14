@@ -21,7 +21,7 @@
 import { useSocketStore } from "@/stores/SocketStore";
 import { useUserStore } from "@/stores/UserStore";
 import type { PublicUser } from "@/types/UserType";
-import makeApiCall, { makeApiCallJson } from "@/utils/ApiCall";
+import makeApiCall from "@/utils/ApiCall";
 import { mapState } from "pinia";
 import { block, sendFriendRequest } from "@/utils/Friends";
 import { defineComponent } from "vue";

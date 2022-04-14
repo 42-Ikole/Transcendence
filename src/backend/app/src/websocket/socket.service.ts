@@ -23,6 +23,7 @@ type SocketMap = Record<number, UserSocket>;
 export class SocketService {
   public pongServer: Server = null;
   public statusServer: Server = null;
+  public chatServer: Server = null;
 
   public sockets: SocketMap = {}; // userId -> relatedSockets
 
@@ -41,8 +42,12 @@ export class SocketService {
 
   disconnectUser(userId: number) {
     if (this.userExists(userId)) {
-      this.sockets[userId].pong.disconnect();
-      this.sockets[userId].status.disconnect();
+      if (this.sockets[userId].pong) {
+        this.sockets[userId].pong.disconnect();
+      }
+      if (this.sockets[userId].status) {
+        this.sockets[userId].status.disconnect();
+      }
     }
     this.deleteSocket(userId);
   }

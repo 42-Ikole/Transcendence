@@ -5,6 +5,7 @@ import {
   OnGatewayDisconnect,
   SubscribeMessage,
   MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { SocketService } from 'src/websocket/socket.service';
@@ -69,7 +70,10 @@ export class StatusGateway
   // Also emits the current status immediately after joining room
   @SubscribeMessage('subscribeStatusUpdate')
   @UsePipes(new ValidationPipe())
-  subscribeStatus(client: SocketWithUser, @MessageBody() body: UserIdDto) {
+  subscribeStatus(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() body: UserIdDto,
+  ) {
     client.join(`statusUpdate_${body.id}`);
     client.emit(`statusUpdate_${body.id}`, {
       id: body.id,
@@ -79,7 +83,10 @@ export class StatusGateway
 
   @SubscribeMessage('unsubscribeStatusUpdate')
   @UsePipes(new ValidationPipe())
-  unsubscribeStatus(client: SocketWithUser, @MessageBody() body: UserIdDto) {
+  unsubscribeStatus(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() body: UserIdDto,
+  ) {
     client.leave(`statusUpdate_${body.id}`);
   }
 }

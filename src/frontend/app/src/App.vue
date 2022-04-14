@@ -12,7 +12,7 @@
         <NavBar />
       </div>
     </header>
-    <RouterView />
+    <RouterView :key="$route.fullPath" />
   </div>
 </template>
 
