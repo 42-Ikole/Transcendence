@@ -26,30 +26,30 @@
             class="card-header d-flex justify-content-between align-items-center p-3"
           >
             <h5 class="mb-0">{{ this.chat.name }}</h5>
-			<div class="btn-toolbar" role="toolbar">
-				<div class="btn-group me-2" role="group">
-					<button
-					type="button"
-					class="btn btn-secondary btn-sm"
-					data-mdb-ripple-color="dark"
-					style="line-height: 1"
-					@click="switchToRoomList"
-					>
-						Back
-					</button>
-				</div>
-				<div class="btn-group me-2" role="group">
-           		 <button
-					type="button"
-					class="btn btn-danger btn-sm"
-					data-mdb-ripple-color="dark"
-					style="line-height: 1"
-					@click="leaveRoom"
-          		  >
-             		 Leave chat
-           			</button>
-				</div>
-			</div>
+            <div class="btn-toolbar" role="toolbar">
+              <div class="btn-group me-2" role="group">
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  data-mdb-ripple-color="dark"
+                  style="line-height: 1"
+                  @click="switchToRoomList"
+                >
+                  Back
+                </button>
+              </div>
+              <div class="btn-group me-2" role="group">
+                <button
+                  type="button"
+                  class="btn btn-danger btn-sm"
+                  data-mdb-ripple-color="dark"
+                  style="line-height: 1"
+                  @click="leaveRoom"
+                >
+                  Leave chat
+                </button>
+              </div>
+            </div>
           </div>
           <div
             id="autoScrollBottom"
@@ -157,7 +157,7 @@ export default defineComponent({
     },
     leaveRoom() {
       this.socket.emit("leaveRoom", { roomName: this.chat.name });
-	},
+    },
     async refreshChat() {
       const messagesResponse = await makeApiCall(
         "/chat/messages/" + this.chat.name
