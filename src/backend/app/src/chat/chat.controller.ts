@@ -45,11 +45,11 @@ export class ChatController {
     description: 'Name of a chatroom',
     type: String,
   })
-  async findByName(@Param('name') name: string): Promise<Message[]> {
+  async getMessagesForChat(@Param('name') name: string): Promise<Message[]> {
     // Get all the messages for a particular chat.
     const chat: Chat = await this.chatService.findByName(name, [
       'messages',
-      'messages.author',
+			'messages.author',
     ]);
     if (chat === undefined) throw new NotFoundException();
     return chat.messages;
@@ -62,12 +62,28 @@ export class ChatController {
     description: 'Name of a chatroom',
     type: String,
   })
-  async findUsersForChat(@Param('name') name: string): Promise<User[]> {
+  async getUsersForChat(@Param('name') name: string): Promise<User[]> {
     // Get all the members for a particular chat.
     const chat: Chat = await this.chatService.findByName(name, ['members']);
     if (chat === undefined) throw new NotFoundException();
     return chat.members;
   }
+
+	@Get('/admin/:name')
+	@ApiParam({
+		name: 'name',
+		required: true,
+		description: 'Name of a chatroom',
+		type: String,
+	})
+	async getAdminsForChat(@Param('name') name: string): Promise<User[]> {
+		// Get all the admins for a particular chat.
+		const chat: Chat = await this.chatService.findByName(name, ['admins']);
+		if (chat === undefined) {
+			throw new NotFoundException();
+		}
+		return chat.admins;
+	}
 
   @Post()
   async createChat(
