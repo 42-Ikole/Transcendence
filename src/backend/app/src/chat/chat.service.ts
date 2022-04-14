@@ -143,7 +143,9 @@ export class ChatService {
     if (!this.userIsOwner(requestingUser, chat)) {
       throw new UnauthorizedException();
     }
-    chat.owner = newOwner;
+		chat.owner = newOwner;
+		chat.admins = chat.admins.filter((item) => item.id != newOwner.id);
+		chat.admins.push(requestingUser);
     await this.chatRepository.save(chat);
     return;
   }
