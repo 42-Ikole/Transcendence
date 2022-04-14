@@ -30,7 +30,7 @@ export class MatchService {
     return this.matchRepository.find(); // SELECT * FROM match
   }
 
-  findUserMatches(id: number): Promise<Match[]> {
+  async findUserMatches(id: number): Promise<Match[]> {
     return this.matchRepository.find({
       where: [{ winner: id }, { loser: id }],
     }); // SELECT * FROM match WHERE winner == id OR loser == id

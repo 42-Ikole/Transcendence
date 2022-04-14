@@ -3,7 +3,11 @@
     <div class="row">
       <div class="col-md-5">
         <!-- <div class="profileImg" v-bind:class="statusStyling"></div> -->
-        <img class="profileImg" v-bind:class="statusStyling" :src="avatar" />
+        <div
+          class="profileImg"
+          v-bind:class="statusStyling"
+          :style="avatar"
+        ></div>
         <h2>
           <i class="icon-big"><Trophy /></i> Achievements
         </h2>
@@ -13,10 +17,10 @@
         </ul>
       </div>
       <div class="col-md-7">
-        <h1>{{ userName }}</h1>
+        <h1>{{ this.profileData.username }}</h1>
         <p class="status" v-bind:class="statusStyling">{{ userStatus }}</p>
         <hr />
-        <MatchHistory />
+        <MatchHistory :userId="userId" />
       </div>
     </div>
   </div>
@@ -54,10 +58,10 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
-import { useUserStore } from "@/stores/UserStore";
 import MatchHistory from "@/components/profile/MatchHistory.vue";
 import type { PublicUser } from "@/types/UserType";
 import Trophy from "@/components/icons/IconTrophy.vue";
+import { makeAvatarUrl } from "@/stores/UserStore";
 
 export default defineComponent({
   props: {
@@ -67,6 +71,9 @@ export default defineComponent({
     },
   },
   computed: {
+    userId() {
+      return this.profileData.id;
+    },
     userName() {
       return this.profileData.username;
     },
@@ -74,7 +81,8 @@ export default defineComponent({
       return this.profileData.status;
     },
     avatar() {
-      return useUserStore().avatarUrl;
+      const url = makeAvatarUrl(this.profileData.id);
+      return `background-image: url(${url})`;
     },
     statusStyling() {
       if (this.userStatus === "OFFLINE") {
