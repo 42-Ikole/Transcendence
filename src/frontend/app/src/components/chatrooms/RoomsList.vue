@@ -99,7 +99,6 @@ interface DataObject {
   selectedChatName: string;
   typedPassword: string;
   showPassword: boolean;
-  passwordIcon: any;
 }
 
 export default defineComponent({
@@ -178,19 +177,16 @@ export default defineComponent({
       await this.getAllChats();
     },
   },
-  created() {
-    this.socket.on("joinRoomSuccess", () => {
-      this.joinRoomSuccessfully();
-    });
-    this.socket.on("joinRoomFailure", () => {
-      this.joinRoomFailed();
-    });
-    this.socket.on("createRoom", () => {
-      this.refreshChatList();
-    });
-  },
   async mounted() {
     await this.getAllChats();
+    this.socket.on("joinRoomSuccess", this.joinRoomSuccessfully);
+    this.socket.on("joinRoomFailure", this.joinRoomFailed);
+    this.socket.on("createRoom", this.refreshChatList);
+  },
+  unmounted() {
+    this.socket.removeListener("joinRoomSuccess", this.joinRoomSuccessfully);
+    this.socket.removeListener("joinRoomFailure", this.joinRoomFailed);
+    this.socket.removeListener("createRoom", this.refreshChatList);
   },
   watch: {
     selectedChatName(newRoom, oldRoom) {
