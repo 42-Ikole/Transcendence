@@ -25,9 +25,11 @@ import { Response } from 'express';
 import { Readable } from 'stream';
 import { createReadStream } from 'fs';
 import { join } from 'path';
+import { request } from 'http';
 
 @ApiTags('user')
 @Controller('user')
+@UseGuards(AuthenticatedGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -74,6 +76,22 @@ export class UserController {
   @Get('matches_lost/:id')
   async findLosses(@Param('id') id) {
     return await this.userService.findLosses(id);
+  }
+
+  @Get('chat/owned')
+  async findOwnedChats(@Req() request: RequestWithUser) {
+    const user = await this.userService.findById(request.user.id, {
+      relations: ['ownedChats']
+    });
+    return user.ownedChats;
+  }
+
+  @Get('chat/admin')
+  async findAdminChats(@Req() request: RequestWithUser) {
+    const user = await this.userService.findById(request.user.id, {
+      relations: ['adminChats']
+    });
+    return user.adminChats;
   }
 
   @Patch('update')

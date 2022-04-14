@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, FindOneOptions } from 'typeorm';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { IUser } from 'src/user/user.interface';
 import { AvatarService } from 'src/avatar/avatar.service';
@@ -46,8 +46,8 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findById(id: number): Promise<User> {
-    const user = await this.userRepository.findOne(id);
+  async findById(id: number, options?: FindOneOptions<User>): Promise<User> {
+    const user = await this.userRepository.findOne(id, options);
     if (!user) {
       throw new NotFoundException();
     }

@@ -52,8 +52,15 @@ export class User {
   @Column({ default: 'OFFLINE' })
   status: string;
 
+  // Chats
   @ManyToMany(() => Chat, (chat) => chat.members)
   chats: Chat[];
+
+  @OneToMany(() => Chat, (chat) => chat.owner)
+  ownedChats: Chat[]; // chats where user is an owner
+
+  @ManyToMany(() => Chat, (chat) => chat.admins)
+  adminChats: Chat[]; // chats where user is an admin
 
   // Two Factor
   @Column({ nullable: true })

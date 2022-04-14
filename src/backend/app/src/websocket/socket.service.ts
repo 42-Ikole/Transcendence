@@ -52,6 +52,10 @@ export class SocketService {
     this.deleteSocket(userId);
   }
 
+  emitToUser(userId: number, socketType: SocketTypes, message: string, ...args: any[]) {
+    this.sockets[userId][socketType].emit(message, args);
+  }
+
   userExists(userId: number): boolean {
     return !!this.sockets[userId];
   }

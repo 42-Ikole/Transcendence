@@ -19,10 +19,10 @@ export class Chat {
   @Column({ unique: true })
   name: string;
 
-  @ManyToOne(() => User, (user) => user.id)
+  @ManyToOne(() => User, (user) => user.ownedChats)
   owner: User;
 
-  @ManyToMany(() => User)
+  @ManyToMany(() => User, (user) => user.adminChats)
   @JoinTable()
   admins: User[];
 
