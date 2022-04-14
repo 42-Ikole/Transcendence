@@ -11,6 +11,7 @@ import {
   ConflictException,
 	NotAcceptableException,
 	ImATeapotException,
+	Delete,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto, CreateChatInterface, AllChatsDto, ChatRoleDto } from './chat.types';
@@ -103,6 +104,30 @@ export class ChatController {
 		if (chat === undefined) {
 			throw new NotFoundException();
 		}
-		const success: boolean = await this.chatService.promoteAdmin(request.user, body.user, chat);
+		await this.chatService.promoteAdmin(request.user, body.user, chat);
+	}
+
+	@Delete('/admin')
+	async demoteAdmin(
+		@Req() request: RequestWithUser,
+		@Body() body: ChatRoleDto,
+	): Promise<void> {
+		const chat: Chat = await this.chatService.findByName(body.chatName, ['admins']);
+		if (chat === undefined) {
+			throw new NotFoundException();
+		}
+		await this.chatService.demoteAdmin(request.user, body.user, chat);
+	}
+
+	@Post('/owner')
+	async changeRoomOwner(
+		@Req() request: RequestWithUser,
+		@Body() body: ChatRoleDto,
+	): Promise<void> {
+		const chat: Chat = await this.chatService.findByName(body.chatName, ['admins']);
+		if (chat === undefined) {
+			throw new NotFoundException();
+		}
+		await this.chatService.changeRoomOwner(request.user, body.user, chat);
 	}
 }
