@@ -248,7 +248,7 @@ export class PongGateway
       return;
     }
     this.pongService.addChallenger(client, target, mode);
-    this.setStateIfOnline(client.user.id, 'SEARCHING');
+    this.setStateIfOnline(client.user.id, 'CHALLENGING');
     this.setStateIfOnline(target.user.id, 'CHALLENGED');
     target.emit('requestChallenge', { source: client.user });
   }

@@ -1,22 +1,15 @@
 import { defineStore } from "pinia";
 import { useSocketStore } from "./SocketStore";
-import type { UserProfileData } from "@/types/UserType";
+import type {
+  AuthenticatedState,
+  UserProfileData,
+  UserState,
+} from "@/types/UserType";
 import makeApiCall from "@/utils/ApiCall";
 import { canMakeConnection } from "@/utils/Login";
 import { useFriendStore } from "./FriendStore";
 
-export type UserState =
-  | "OFFLINE"
-  | "ONLINE"
-  | "CONNECTION_DENIED"
-  | "SEARCHING"
-  | "PLAYING"
-  | "OBSERVING"
-  | "CHALLENGED";
-
 let updateCount = 0;
-
-export type AuthenticatedState = "AUTHENTICATED" | "2FA" | "OAUTH";
 
 interface UserStore {
   state: UserState;

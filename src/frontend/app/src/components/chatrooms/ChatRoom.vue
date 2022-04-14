@@ -1,31 +1,28 @@
 <template>
-  <div class="container py-5">
+  <div class="container py-5" style="height: 550px">
     <div class="row d-flex justify-content-center">
-      <div style="width: 20%; background-color: #dee">
-        <div class="card">
+      <div class="chatroomSidebar col-lg-3">
+        <div class="card" style="height: 100%">
           <div
             class="card-header d-flex justify-content-between align-items-center p-3"
           >
-            <h5 class="mb-0">Users in chat:</h5>
+            <h4 class="mb-0">Users in chat:</h4>
           </div>
-          <div class="card-body" style="height: 500px; overflow-y: scroll">
+          <div class="card-body" style="height: auto; overflow-y: scroll">
             <div class="flex-row justify-content-start">
               <div class="small" v-for="user in users" :key="user.username">
-                <OnlineStatus :fill="isOnline ? 'green' : 'red'" />
-                <a style="padding-left: 5px">
-                  {{ user.username }}
-                </a>
+                <ChatUserDropdown :user="user" :show-chat-options="true" />
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div style="width: 60%; background-color: #eee">
+      <div class="col-lg-9" style="background-color: #eee">
         <div class="card">
           <div
             class="card-header d-flex justify-content-between align-items-center p-3"
           >
-            <h5 class="mb-0">{{ this.chat.name }}</h5>
+            <h2 class="mb-0 cr-name">{{ this.chat.name }}</h2>
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group me-2" role="group">
                 <button
@@ -41,7 +38,7 @@
               <div class="btn-group me-2" role="group">
                 <button
                   type="button"
-                  class="btn btn-danger btn-sm"
+                  class="btn btn-outline-danger btn-lg"
                   data-mdb-ripple-color="dark"
                   style="line-height: 1"
                   @click="leaveRoom"
@@ -62,24 +59,22 @@
                 v-for="message in this.messages"
                 :key="message.author"
               >
-                {{ message.author.username }}: {{ message.message }}
+                <p class="chat-author">{{ message.author.username }}:</p>
+                {{ message.message }}
               </div>
             </div>
           </div>
           <div class="card-footer d-flex justify-content-start p-3">
-            <form
-              class="form-control form-control-lg"
-              @submit.prevent="sendMessage"
-            >
+            <form class="input-group" @submit.prevent="sendMessage">
               <input
-                style="min-width: 65%; max-width: 10px"
+                class="form-control form-control-lg"
                 type="text"
                 placeholder="Type message"
                 v-model="myMessage"
                 ref="messageBox"
               />
               <input
-                class="btn btn-info btn-rounded float-end"
+                class="btn btn-lg btn-outline-info btn-rounded float-end"
                 type="submit"
                 value="Send"
               />
@@ -91,6 +86,22 @@
   </div>
 </template>
 
+<style>
+.chatroomSidebar {
+  width: 20%;
+  background-color: #ff8e00;
+}
+
+.cr-name {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.chat-author {
+  display: inline-block;
+}
+</style>
+
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
 import { PublicUser } from "../../types/UserType.ts";
@@ -98,14 +109,13 @@ import { useSocketStore } from "@/stores/SocketStore";
 import { mapState } from "pinia";
 import { Chat, SendChatMessage } from "./Chatrooms.types.ts";
 import { makeApiCall } from "@/utils/ApiCall";
-import OnlineStatus from "../icons/IconChatOnlineStatus.vue";
+import ChatUserDropdown from "../ChatDropdown/ChatUserDropdown.vue";
 
 interface DataObject {
   myMessage: string;
   users: PublicUser[];
   messageToChat: SendChatMessage;
   messages: any[];
-  userOnline: boolean;
 }
 
 export default defineComponent({
@@ -124,7 +134,6 @@ export default defineComponent({
         message: "",
       },
       messages: [],
-      userOnline: true,
     };
   },
   methods: {
@@ -176,9 +185,6 @@ export default defineComponent({
     ...mapState(useSocketStore, {
       socket: "chat",
     }),
-    isOnline() {
-      return this.userOnline;
-    },
   },
   async mounted() {
     this.socket.on("subscribeToChatSuccess", this.refreshChat);
@@ -200,7 +206,7 @@ export default defineComponent({
     this.socket.removeListener("leaveRoomSuccess", this.switchToRoomList);
   },
   components: {
-    OnlineStatus,
+    ChatUserDropdown,
   },
 });
 </script>
