@@ -43,7 +43,8 @@ export class ChatGateway
   handleDisconnect(client: SocketWithUser) {
     if (!client.user) {
       return;
-    }
+		}
+		this.socketService.deleteSocket(client.user.id);
     console.log('chat gateway: OnDisconnect');
     console.log('client id:', client.id);
   }
@@ -62,7 +63,8 @@ export class ChatGateway
     const chats: AllChatsDto = await this.chatService.findAll(client.user);
     for (const chat of chats.joinedChats) {
       client.join(chat.name);
-    }
+		}
+		this.socketService.addSocket(client.user.id, 'chatroom', client);
   }
 
   @SubscribeMessage('messageToChat')
