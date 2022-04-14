@@ -130,7 +130,7 @@ export class PongGateway
   }
 
   endGame(roomName: string, winner: PlayerIndex, loser: PlayerIndex) {
-    console.log('game ended:', roomName, "winner:", winner, "loser:", loser);
+    console.log('game ended:', roomName, 'winner:', winner, 'loser:', loser);
     const gameRoom = this.pongService.getGameRoom(roomName);
     this.setStateIfOnline(gameRoom.playerOne.userId, 'VIEWING_SCORE_SCREEN');
     this.setStateIfOnline(gameRoom.playerTwo.userId, 'VIEWING_SCORE_SCREEN');
@@ -140,7 +140,9 @@ export class PongGateway
 
   getWinner(roomName: string): PlayerIndex {
     const gameRoom = this.pongService.getGameRoom(roomName);
-    if (gameRoom.gameState.playerOne.score > gameRoom.gameState.playerTwo.score) {
+    if (
+      gameRoom.gameState.playerOne.score > gameRoom.gameState.playerTwo.score
+    ) {
       return 'playerOne';
     }
     return 'playerTwo';
@@ -148,7 +150,9 @@ export class PongGateway
 
   getLoser(roomName: string): PlayerIndex {
     const gameRoom = this.pongService.getGameRoom(roomName);
-    if (gameRoom.gameState.playerOne.score > gameRoom.gameState.playerTwo.score) {
+    if (
+      gameRoom.gameState.playerOne.score > gameRoom.gameState.playerTwo.score
+    ) {
       return 'playerTwo';
     }
     return 'playerOne';
@@ -162,7 +166,7 @@ export class PongGateway
       gameRoom.gameState[winner].score,
       gameRoom[loser].userId,
       gameRoom.gameState[loser].score,
-      gameRoom.gameState.default ? "DEFAULT" : "SPECIAL",
+      gameRoom.gameState.default ? 'DEFAULT' : 'SPECIAL',
     );
   }
 
@@ -234,7 +238,7 @@ export class PongGateway
 
   @SubscribeMessage('cancelChallenge')
   cancelChallenge(@ConnectedSocket() client: SocketWithUser) {
-    console.log(client.user.id, "cancels challenge");
+    console.log(client.user.id, 'cancels challenge');
     this.setStateIfOnline(client.user.id, 'ONLINE');
     const challenged = this.pongService.getChallenged(client);
     if (challenged) {
@@ -263,7 +267,6 @@ export class PongGateway
     this.pongService.cancelMatchmaking(client);
     this.setStateIfOnline(client.user.id, 'ONLINE');
   }
-
 
   // Check if there is another client ready to play, otherwise set client as waiting/searching
   matchMaking(client: SocketWithUser, mode: boolean) {
@@ -349,7 +352,11 @@ export class PongGateway
     const intervalId = setInterval(() => {
       updateGamestate(gameState);
       if (gameHasEnded(gameState)) {
-        this.endGame(roomName, this.getWinner(roomName), this.getLoser(roomName));
+        this.endGame(
+          roomName,
+          this.getWinner(roomName),
+          this.getLoser(roomName),
+        );
       } else {
         this.socketService.pongServer
           .to(roomName)
@@ -408,7 +415,7 @@ export class PongGateway
 
   @SubscribeMessage('cancelObserve')
   cancelObserve(client: SocketWithUser) {
-    console.log(client.user.id, "stops observing");
+    console.log(client.user.id, 'stops observing');
     this.pongService.cancelObserve(client);
     this.setStateIfOnline(client.user.id, 'ONLINE');
   }
@@ -429,6 +436,6 @@ export class PongGateway
 
   @SubscribeMessage('exitScoreScreen')
   exitScoreScreen(client: SocketWithUser) {
-    this.setStateIfOnline(client.user.id, "ONLINE");
+    this.setStateIfOnline(client.user.id, 'ONLINE');
   }
 }

@@ -25,15 +25,22 @@ import { mapState } from "pinia";
 import ConnectionDenied from "./components/Authentication/ConnectionDenied.vue";
 import PongView from "./views/PongView.vue";
 
-const PONG_STATES = ["SEARCHING" ,"PLAYING", ,"OBSERVING", ,"CHALLENGED", "CHALLENGING", "VIEWING_SCORE_SCREEN"];
+const PONG_STATES = [
+  "SEARCHING",
+  "PLAYING",
+  "OBSERVING",
+  "CHALLENGED",
+  "CHALLENGING",
+  "VIEWING_SCORE_SCREEN",
+];
 
 export default defineComponent({
   components: {
     NavBar,
     RouterView,
     ConnectionDenied,
-    PongView
-},
+    PongView,
+  },
   computed: {
     ...mapState(useUserStore, ["state", "authenticatedState", "profileData"]),
     connectionDenied() {

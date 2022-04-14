@@ -177,7 +177,10 @@ function updateBallPosition(state: GameState) {
     state.ball.position.x += state.ball.direction.x * BALL_SPEED;
   }
   state.ball.position.y += state.ball.direction.y * BALL_SPEED;
-  if (state.ball.position.y - state.ball.radius <= 0 || state.ball.position.y + state.ball.radius >= 1) {
+  if (
+    state.ball.position.y - state.ball.radius <= 0 ||
+    state.ball.position.y + state.ball.radius >= 1
+  ) {
     state.ball.direction.y *= -1;
     if (state.default == false && state.ball.position.y <= 0) {
       state.ball.radius += 0.001;

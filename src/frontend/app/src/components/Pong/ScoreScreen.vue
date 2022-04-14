@@ -1,10 +1,12 @@
 <template>
-<div class="text-center">
-  <h3>Game Result</h3>
-  <p>{{ playerOneName }}: {{ playerOneScore }}</p>
-  <p>{{ playerTwoName }}: {{ playerTwoScore }}</p>
-  <button class="btn btn-outline-light" @click="exitScoreScreen">Continue</button>
-</div>
+  <div class="text-center">
+    <h3>Game Result</h3>
+    <p>{{ playerOneName }}: {{ playerOneScore }}</p>
+    <p>{{ playerTwoName }}: {{ playerTwoScore }}</p>
+    <button class="btn btn-outline-light" @click="exitScoreScreen">
+      Continue
+    </button>
+  </div>
 </template>
 
 <script lang="ts">
@@ -47,8 +49,8 @@ export default defineComponent({
   },
   methods: {
     exitScoreScreen() {
-      useSocketStore().pong!.emit('exitScoreScreen');
-    }
+      useSocketStore().pong!.emit("exitScoreScreen");
+    },
   },
 });
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div class="text-center">
-    <p> User [{{ username }}] challenged you </p>
-    <p> Game Mode: {{ gameMode }} </p>
+    <p>User [{{ username }}] challenged you</p>
+    <p>Game Mode: {{ gameMode }}</p>
     <p>
       <button class="btn btn-outline-light" @click="accept">Accept</button>
       <button class="btn btn-outline-light" @click="reject">Reject</button>
@@ -30,7 +30,7 @@ export default defineComponent({
     return {
       data: { id: 0, defaultMode: false },
       username: "",
-    }
+    };
   },
   methods: {
     accept() {
@@ -46,7 +46,7 @@ export default defineComponent({
         return "default";
       }
       return "special";
-    }
+    },
   },
   async mounted() {
     const response = await makeApiCall("/pong/challengeData");
