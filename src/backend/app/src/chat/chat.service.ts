@@ -174,7 +174,10 @@ export class ChatService {
   }
 
   isValidRoomname(name: string): boolean {
-    const len = name.length;
+		const len = name.length;
+		if (len > 32) {
+			return false;
+		}
     for (let i = 0; i < len; i++) {
       const char = name.charCodeAt(i);
       if (

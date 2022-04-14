@@ -10,6 +10,7 @@ import {
   Req,
   ConflictException,
 	NotAcceptableException,
+	ImATeapotException,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto, CreateChatInterface, AllChatsDto } from './chat.types';
@@ -77,7 +78,10 @@ export class ChatController {
       ...body,
       owner: request.user,
       members: [request.user],
-    };
+		};
+		if (createChatInterface.type == 'protected' && createChatInterface.password === '') {
+			throw new ImATeapotException();
+		}
     const valid: boolean = this.chatService.isValidRoomname(createChatInterface.name);
     if (!valid) {
       throw new NotAcceptableException();
