@@ -2,7 +2,7 @@
   <div class="container py-5" v-if="isWaiting">
     <div
       class="card-header justify-content-between align-items-center p-3"
-      style="width: 30%; background-color: #dee"
+      style="width: 35%; background-color: #dee"
     >
       <form
         class="form-check"
@@ -53,6 +53,7 @@
           </div>
         </div>
       </form>
+      <div v-if="correctPassword === false" class="text-danger" style="padding-bottom: 5px;">Invalid password!</div>
       <button class="btn btn-info btn-sm float-end" @click="createRoom">
         Create room
       </button>
@@ -99,6 +100,7 @@ interface DataObject {
   selectedChatName: string;
   typedPassword: string;
   showPassword: boolean;
+  correctPassword: boolean;
 }
 
 export default defineComponent({
@@ -110,6 +112,7 @@ export default defineComponent({
       selectedChatName: "",
       typedPassword: "",
       showPassword: false,
+      correctPassword: true,
     };
   },
   computed: {
@@ -145,6 +148,10 @@ export default defineComponent({
     setWaiting() {
       this.getAllChats();
       this.state = State.WAITING;
+      this.selectedChatName = "";
+      this.typedPassword = "";
+      this.showPassword = false;
+      this.correctPassword = true;
     },
     async getAllChats() {
       const response = await makeApiCall("/chat");
@@ -155,11 +162,9 @@ export default defineComponent({
     joinRoomSuccessfully() {
       this.selectedChat = this.findChatByName(this.selectedChatName);
       this.state = State.JOINING;
-      this.typedPassword = "";
-      this.selectedChatName = "";
     },
     joinRoomFailed() {
-      console.log("Joining failed");
+      this.correctPassword = false;
     },
     findChatByName(name: string): Chat {
       for (let chat of this.chats.joinedChats) {
@@ -192,6 +197,7 @@ export default defineComponent({
     selectedChatName(newRoom, oldRoom) {
       if (oldRoom !== this.selectedChatName) {
         this.typedPassword = "";
+        this.correctPassword = true;
       }
     },
   },

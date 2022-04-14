@@ -2,7 +2,7 @@
   <div class="container py-5">
     <form
       class="card-header justify-content-between align-items-center p-3"
-      style="width: 40%; background-color: #eee"
+      style="width: 45%; background-color: #eee"
       @submit.prevent="createChat"
     >
       <div class="d-flex justify-content-between align-items-center p-2">
@@ -49,10 +49,12 @@
         </div>
       </div>
       <div class="card-header justify-content-between">
+      <p class="text-primary fs-6 fst-italic">Valid characters are A-Z a-z 0-9 _ (can't begin with _ )</p>
         Room name:
         <input
           class="card-title col-8"
-          placeholder="Type here"
+          placeholder="Maximum length of 32"
+          maxlength="32"
           type="text"
           v-model="name"
         />
@@ -73,6 +75,9 @@
               <EyeClosed />
             </i>
           </button>
+        </div>
+        <div class="text-danger" style="padding-bottom: 5px;" v-if="errorMessage !== ''">
+        {{ errorMessage }}
         </div>
         <div>
           <input
@@ -99,6 +104,7 @@ interface DataObject {
   name: string;
   pass: string;
   showPassword: boolean;
+  errorMessage: string;
 }
 
 export default defineComponent({
@@ -109,6 +115,7 @@ export default defineComponent({
       name: "",
       pass: "",
       showPassword: false,
+      errorMessage: "",
     };
   },
   methods: {
@@ -121,8 +128,20 @@ export default defineComponent({
         name: this.name,
         password: this.pass,
       });
+      console.log(response);
       if (response.ok) {
         this.$emit("roomCreated");
+      }
+      else {
+        if (response.status === 406) {
+          this.errorMessage = "Invalid room name!";
+        }
+        else if (response.status === 409) {
+          this.errorMessage = "Room name already exists!";
+        }
+        else if (response.status === 418) {
+          this.errorMessage = "I'm a teapot";
+        }
       }
     },
     toggleShowPassword() {
@@ -137,7 +156,15 @@ export default defineComponent({
       if (oldType !== "protected") {
         this.pass = "";
       }
+      if (oldType !== newType) {
+        this.errorMessage = "";
+      }
     },
+    name(newName, oldName) {
+      if (oldName !== newName) {
+        this.errorMessage = "";
+      }
+    }
   },
   computed: {
     invalidRoomInput() {
