@@ -8,7 +8,6 @@ import {
   NotFoundException,
   UseGuards,
   Req,
-  ConflictException,
 	NotAcceptableException,
 	ImATeapotException,
 	Delete,
@@ -117,11 +116,16 @@ export class ChatController {
 		@Req() request: RequestWithUser,
 		@Body() body: ChatRoleDto,
 	): Promise<void> {
+		// Find the relevant chat.
 		const chat: Chat = await this.chatService.findByName(body.chatName, ['admins']);
 		if (chat === undefined) {
 			throw new NotFoundException();
 		}
-		await this.chatService.promoteAdmin(request.user, body.user, chat);
+		// Set the new user to admin, if possible.
+		const success: boolean = await this.chatService.promoteAdmin(request.user, body.user, chat);
+		if (success) {
+			this.broadcastRoleUpdate(chat.name, body.user.id);
+		}
 	}
 
 	@Delete('/admin')
@@ -129,11 +133,16 @@ export class ChatController {
 		@Req() request: RequestWithUser,
 		@Body() body: ChatRoleDto,
 	): Promise<void> {
+		// Find the relevant chat.
 		const chat: Chat = await this.chatService.findByName(body.chatName, ['admins']);
 		if (chat === undefined) {
 			throw new NotFoundException();
 		}
-		await this.chatService.demoteAdmin(request.user, body.user, chat);
+		// Remove the user as admin, if possible.
+		const success: boolean = await this.chatService.demoteAdmin(request.user, body.user, chat);
+		if (success) {
+			this.broadcastRoleUpdate(chat.name, body.user.id);
+		}
 	}
 
 	@Post('/owner')
@@ -141,10 +150,23 @@ export class ChatController {
 		@Req() request: RequestWithUser,
 		@Body() body: ChatRoleDto,
 	): Promise<void> {
+		// Find the relevant chat.
 		const chat: Chat = await this.chatService.findByName(body.chatName, ['admins']);
 		if (chat === undefined) {
 			throw new NotFoundException();
 		}
-		await this.chatService.changeRoomOwner(request.user, body.user, chat);
+		// Change the room owner, if possible.
+		const success: boolean = await this.chatService.changeRoomOwner(request.user, body.user, chat);
+		if (success) {
+			this.broadcastRoleUpdate(chat.name, body.user.id);
+		}
+	}
+
+	broadcastRoleUpdate(chatName: string, userId: number): void {
+		// Do 2 emits:
+		// 1. roleUpdate. To the user that was promoted.
+		this.socketService.sockets[userId].chatroom.emit('roleUpdate');
+		// 2. roleUpdate_{id}. To all users in the chat room where it happened.
+		this.socketService.chatServer.to(chatName).emit('roleUpdate_' + userId);
 	}
 }
