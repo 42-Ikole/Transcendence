@@ -12,7 +12,7 @@ export type UserState =
   | 'VIEWING_SCORE_SCREEN'
   | 'CONNECTION_DENIED';
 
-  // TODO: remove array
+// TODO: remove array
 export const USER_STATES: UserState[] = [
   'OFFLINE',
   'ONLINE',

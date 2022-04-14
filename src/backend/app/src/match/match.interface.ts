@@ -1,6 +1,6 @@
 import { User } from 'src/orm/entities/user.entity';
 
-export type ModeType = "DEFAULT" | "SPECIAL"
+export type ModeType = 'DEFAULT' | 'SPECIAL';
 
 export interface IMatch {
   winner: User;

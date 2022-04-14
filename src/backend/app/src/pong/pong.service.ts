@@ -205,7 +205,10 @@ export class PongService {
   cancelMatchmaking(client: SocketWithUser) {
     if (this.waitingUser && client.user.id === this.waitingUser.user.id) {
       this.waitingUser = null;
-    } else if (this.waitingDefaultUser && client.user.id === this.waitingDefaultUser.user.id) {
+    } else if (
+      this.waitingDefaultUser &&
+      client.user.id === this.waitingDefaultUser.user.id
+    ) {
       this.waitingDefaultUser = null;
     }
   }

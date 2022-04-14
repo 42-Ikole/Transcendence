@@ -3,11 +3,15 @@
     <h1>PongHub Hub</h1>
     <hr />
     <div v-if="isPlaying">
-      <button class="btn btn-outline-light" @click="surrenderMatch">Surrender</button>
+      <button class="btn btn-outline-light" @click="surrenderMatch">
+        Surrender
+      </button>
       <PongGame :observing="isObserving" />
     </div>
     <div v-else-if="isObserving">
-      <button class="btn btn-outline-light" @click="cancelObserve">Leave</button>
+      <button class="btn btn-outline-light" @click="cancelObserve">
+        Leave
+      </button>
       <PongGame :observing="isObserving" />
     </div>
     <div v-else-if="isSearching">
@@ -84,8 +88,8 @@ export default defineComponent({
     ChallengeUsers,
     ChallengedRequest,
     ChallengingComponent,
-    SearchingComponent
-},
+    SearchingComponent,
+  },
   computed: {
     isPlaying() {
       const userStore = useUserStore();
@@ -105,7 +109,7 @@ export default defineComponent({
     },
     isViewingScoreScreen() {
       return useUserStore().state === "VIEWING_SCORE_SCREEN";
-    }
+    },
   },
   methods: {
     endGame(data: GameState) {
@@ -116,8 +120,8 @@ export default defineComponent({
       useSocketStore().pong!.emit("cancelObserve");
     },
     surrenderMatch() {
-      useSocketStore().pong!.emit('surrenderMatch');
-    }
+      useSocketStore().pong!.emit("surrenderMatch");
+    },
   },
   mounted() {
     useSocketStore().pong!.on("endGame", this.endGame);
