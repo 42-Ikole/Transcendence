@@ -101,6 +101,10 @@ export default defineComponent({
       this.PressedKeys.delete(data.key);
     },
 
+    releaseKeys() {
+      this.PressedKeys.clear();
+    },
+
     clear() {
       this.context!.clearRect(0, 0, this.width, this.height);
     },
@@ -116,6 +120,7 @@ export default defineComponent({
     } else {
       this.socket!.on("updatePosition", this.updateObserver);
     }
+    window.onblur = this.releaseKeys;
   },
 
   unmounted() {
@@ -127,6 +132,7 @@ export default defineComponent({
     } else {
       this.socket!.removeListener("updatePosition", this.updateObserver);
     }
+    window.onblur = null;
   },
 });
 </script>
