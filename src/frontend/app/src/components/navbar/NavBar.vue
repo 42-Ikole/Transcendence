@@ -57,7 +57,7 @@ export default defineComponent({
         { path: "/login", message: "Login" },
         { path: "/pong", message: "Pong" },
         { path: "/chatrooms", message: "Chatrooms" },
-        { path: "/friend-list", message: "friend-list" },
+        { path: "/friend-list", message: "Friends" },
       ],
     };
   },
