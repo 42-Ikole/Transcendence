@@ -62,12 +62,16 @@ export class ChatService {
   }
 
   async findByName(name: string, relations = []): Promise<Chat> {
-    const chat: Chat = await this.chatRepository.findOne({
+    return await this.chatRepository.findOne({
       where: [{ name: name }],
       relations: relations,
 		});
+	}
+
+	async findByNameOrFail(name: string, relations = []): Promise<Chat> {
+		const chat: Chat = await this.findByName(name, relations);
 		if (chat === undefined) {
-			throw new NotFoundException();
+			throw new NotFoundException()
 		}
 		return chat;
 	}
@@ -122,7 +126,7 @@ export class ChatService {
   async addMessage(message: IncomingMessageDtO, user: User): Promise<Message> {
     const messageToDatabase = {
       message: message.message,
-      chatRoom: await this.findByName(message.chatName),
+      chatRoom: await this.findByNameOrFail(message.chatName),
       author: user,
     };
     const newMessage: Message =
