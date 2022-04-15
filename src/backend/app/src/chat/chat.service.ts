@@ -102,7 +102,6 @@ export class ChatService {
 	async deleteChat(requestingUser: User, chatId: number): Promise<Chat> {
 		// Get the chat.
 		const chat: Chat = await this.findById(chatId, ['owner']);
-		const chatName = chat.name;
 		// Check if the user who requested the delete owns this chat.
 		if (!this.userIsOwner(requestingUser, chat)) {
 			throw new UnauthorizedException();
