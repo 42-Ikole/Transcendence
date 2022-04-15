@@ -1,4 +1,4 @@
-import { Ball, GameState, Player, PongBar, SpecialMoves, PressedKeys } from './pong.types';
+import { Ball, GameState, Player, PongBar, SpecialMoves, PressedKeys, GameRoom } from './pong.types';
 
 /*
 Concept: all coordinates are in range [0, 1] and used in the frontend as a percentage relative to the screen size.
@@ -187,10 +187,16 @@ export function gameHasEnded(state: GameState): boolean {
   );
 }
 
-export function updateGamestate(state: GameState): GameState {
-  updateBallPosition(state);
-  if (roundHasEnded(state)) {
-    handleRoundEnd(state);
+export function updateGamestate(room: GameRoom) {
+  updateBallPosition(room.gameState);
+  movePlayer(room.gameState.playerOne.bar, room.playerOne.pressedKeys);
+  movePlayer(room.gameState.playerTwo.bar, room.playerTwo.pressedKeys);
+  if (!room.gameState.default) {
+    checkSpecialMoves(room.gameState.playerOne.specialMoves, room.playerOne.pressedKeys);
+    checkSpecialMoves(room.gameState.playerTwo.specialMoves, room.playerTwo.pressedKeys);
+    specialMoves(room.gameState);
   }
-  return state;
+  if (roundHasEnded(room.gameState)) {
+    handleRoundEnd(room.gameState);
+  }
 }

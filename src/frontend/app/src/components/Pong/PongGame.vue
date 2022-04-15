@@ -63,7 +63,6 @@ export default defineComponent({
   methods: {
     updatePlayer(data: GameState) {
       this.updateObserver(data);
-      this.socket!.emit("movement", this.pressedKeys);
     },
 
     updateObserver(data: GameState) {
@@ -126,6 +125,16 @@ export default defineComponent({
     },
   },
 
+  watch: {
+    pressedKeys: {
+      deep: true,
+      handler() {
+        console.log("emitting");
+        this.socket!.emit("movement", this.pressedKeys);
+      },
+    }
+  },
+
   mounted() {
     console.log("FrontEnd: Setting up PongGame");
     this.context = (this.$refs as any).game.getContext("2d");
@@ -155,7 +164,7 @@ export default defineComponent({
 
 <style>
 .game-bg {
-  background-image: url("@/assets/new\ coders.png");
+  /* background-image: url("@/assets/new\ coders.png"); */
   background-repeat: no-repeat;
   background-position: center;
 }

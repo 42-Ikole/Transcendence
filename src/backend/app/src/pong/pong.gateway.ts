@@ -35,6 +35,18 @@ import { ModeType } from 'src/match/match.interface';
 
 type PlayerIndex = 'playerOne' | 'playerTwo';
 
+function initPressedKeys(): PressedKeys {
+  return {
+    w: false,
+    s: false,
+    ArrowUp: false,
+    ArrowDown: false,
+    q: false,
+    r: false,
+    f: false,
+  };
+}
+
 /*
 Endpoints:
 `requestMatch`
@@ -326,20 +338,22 @@ export class PongGateway
     );
     // discuss: timeout for starting game
     setTimeout(() => {
-      const intervalId = this.startGameLoop(roomName, gameState);
       this.pongService.addGameRoom(roomName, {
-        intervalId,
+        intervalId: undefined,
         playerOne: {
           userId: clientOne.user.id,
           disconnected: false,
+          pressedKeys: initPressedKeys(),
         },
         playerTwo: {
           userId: clientTwo.user.id,
           disconnected: false,
+          pressedKeys: initPressedKeys(),
         },
         observers: new Set<number>(),
         gameState,
       });
+      this.startGameLoop(roomName, gameState);
     }, 100);
   }
 
@@ -349,8 +363,9 @@ export class PongGateway
   }
 
   startGameLoop(roomName: string, gameState: GameState) {
-    const intervalId = setInterval(() => {
-      updateGamestate(gameState);
+    const gameRoom = this.pongService.getGameRoom(roomName);
+    gameRoom.intervalId = setInterval(() => {
+      updateGamestate(gameRoom);
       if (gameHasEnded(gameState)) {
         this.endGame(
           roomName,
@@ -363,7 +378,6 @@ export class PongGateway
           .emit('updatePosition', gameState);
       }
     }, 1000 / 60);
-    return intervalId;
   }
 
   @SubscribeMessage('movement')
@@ -373,14 +387,9 @@ export class PongGateway
       return;
     }
     if (client.user.id === gameRoom.playerOne.userId) {
-      movePlayer(gameRoom.gameState.playerOne.bar, data);
-      checkSpecialMoves(gameRoom.gameState.playerOne.specialMoves, data);
+      gameRoom.playerOne.pressedKeys = data;
     } else if (client.user.id === gameRoom.playerTwo.userId) {
-      movePlayer(gameRoom.gameState.playerTwo.bar, data);
-      checkSpecialMoves(gameRoom.gameState.playerTwo.specialMoves, data);
-    }
-    if (gameRoom.gameState.default == false) {
-      specialMoves(gameRoom.gameState);
+      gameRoom.playerTwo.pressedKeys = data;
     }
   }
 
