@@ -98,7 +98,7 @@ export class PongGateway
   handleReconnect(client: SocketWithUser) {
     this.pongService.reconnectUser(client);
     client.join(client.gameRoom);
-    this.setStateIfOnline(client.user.id, 'PLAYING');
+    this.statusService.updateUserState(client.user.id, 'PLAYING');
   }
 
   handleDisconnect(client: SocketWithUser) {
@@ -194,7 +194,7 @@ export class PongGateway
   }
 
   @SubscribeMessage('surrenderMatch')
-  surrenderMatch(client: SocketWithUser) {
+  surrenderMatch(@ConnectedSocket() client: SocketWithUser) {
     if (!this.pongService.isPlaying(client)) {
       return;
     }
@@ -268,7 +268,7 @@ export class PongGateway
   }
 
   @SubscribeMessage('cancelMatchmaking')
-  cancelMatchmaking(client: SocketWithUser) {
+  cancelMatchmaking(@ConnectedSocket() client: SocketWithUser) {
     this.pongService.cancelMatchmaking(client);
     this.setStateIfOnline(client.user.id, 'ONLINE');
   }
@@ -374,7 +374,7 @@ export class PongGateway
   }
 
   @SubscribeMessage('movement')
-  movement(client: SocketWithUser, data: PressedKeys) {
+  movement(@ConnectedSocket() client: SocketWithUser, @MessageBody() data: PressedKeys) {
     const gameRoom = this.pongService.getGameRoom(client.gameRoom);
     if (!gameRoom) {
       return;
@@ -390,7 +390,7 @@ export class PongGateway
   DTO: userId of user who is playing a game OR roomName of name of room to join
   */
   @SubscribeMessage('requestObserve')
-  observe(client: SocketWithUser, observeDto: ObserveGameDto) {
+  observe(@ConnectedSocket() client: SocketWithUser, @MessageBody() observeDto: ObserveGameDto) {
     let roomName: string;
     console.log('Dto:', observeDto);
     if (observeDto.roomName) {
@@ -410,28 +410,20 @@ export class PongGateway
   }
 
   @SubscribeMessage('cancelObserve')
-  cancelObserve(client: SocketWithUser) {
+  cancelObserve(@ConnectedSocket() client: SocketWithUser) {
     console.log(client.user.id, 'stops observing');
     this.pongService.cancelObserve(client);
     this.setStateIfOnline(client.user.id, 'ONLINE');
   }
 
   setStateIfOnline(id: number, newState: UserState) {
-    console.log(
-      'changing state of',
-      id,
-      'from',
-      this.statusService.getState(id),
-      'to',
-      newState,
-    );
     if (this.statusService.getState(id) !== 'OFFLINE') {
       this.statusService.updateUserState(id, newState);
     }
   }
 
   @SubscribeMessage('exitScoreScreen')
-  exitScoreScreen(client: SocketWithUser) {
+  exitScoreScreen(@ConnectedSocket() client: SocketWithUser) {
     this.setStateIfOnline(client.user.id, 'ONLINE');
   }
 }

@@ -54,8 +54,11 @@ export class StatusGateway
       client.disconnect();
       return;
     }
+    console.log("Status Connect: ", client.user.id);
     this.socketService.addSocket(client.user.id, 'status', client);
-    this.statusService.updateUserState(client.user.id, 'ONLINE');
+    if (this.statusService.getState(client.user.id) === 'OFFLINE') {
+      this.statusService.updateUserState(client.user.id, 'ONLINE');
+    }
   }
 
   handleDisconnect(client: SocketWithUser) {

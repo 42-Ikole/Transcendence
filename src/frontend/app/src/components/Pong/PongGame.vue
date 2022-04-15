@@ -8,7 +8,7 @@
     <h2 class="inline p2-score">{{ playerTwoScore }}</h2>
   </div>
   <div class="game-bg">
-    <canvas class="game" ref="game" width="2560" height="1920"> </canvas>
+    <canvas class="game" ref="game" width="600" height="480"> </canvas>
   </div>
 </template>
 
@@ -35,6 +35,8 @@ interface DataObject {
   pressedKeys: PressedKeys;
   isSpecialMode: boolean;
 }
+
+let finished = false;
 
 export default defineComponent({
   props: {
@@ -137,7 +139,6 @@ export default defineComponent({
     pressedKeys: {
       deep: true,
       handler() {
-        console.log("emitting");
         this.socket!.emit("movement", this.pressedKeys);
       },
     },
@@ -166,6 +167,7 @@ export default defineComponent({
       this.socket!.removeListener("updatePosition", this.updateObserver);
     }
     window.onblur = null;
+    finished = true;
   },
 });
 </script>

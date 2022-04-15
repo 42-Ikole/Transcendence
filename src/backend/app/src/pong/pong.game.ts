@@ -20,6 +20,13 @@ const BAR_SHRINK = 0.006;
 const BAR_CORRECTION = 0.003;
 const SPEEDUP = 1.2;
 
+function invertDirection(pos: number, dir: number): number {
+  if ((pos < 0.5 && dir < 0) || (pos > 0.5 && dir > 0)) {
+    return -dir;
+  }
+  return dir;
+}
+
 function newBall(): Ball {
   return {
     position: {
@@ -142,7 +149,7 @@ function handleRoundEnd(state: GameState) {
 }
 
 function ballBarDirection(ball: Ball, bar: PongBar, mode: boolean) {
-  ball.direction.x *= -1;
+  ball.direction.x = invertDirection(ball.position.x, ball.direction.x);
   const offset = ball.position.y - bar.position.y - bar.height / 2;
   ball.direction.y += ((offset / (bar.height / 2)) * 1.2) / 2;
   if (bar.height > 0.025 && mode == false) {
@@ -177,7 +184,7 @@ function updateBallPosition(state: GameState) {
     state.ball.position.y - state.ball.radius <= 0 ||
     state.ball.position.y + state.ball.radius >= 1
   ) {
-    state.ball.direction.y *= -1;
+    state.ball.direction.y = invertDirection(state.ball.position.y, state.ball.direction.y);
     if (state.default == false && state.ball.position.y <= 0) {
       state.ball.radius += 0.001;
     } else if (state.default == false && state.ball.position.y >= 1) {
