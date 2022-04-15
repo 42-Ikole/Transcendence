@@ -45,7 +45,15 @@ export default defineComponent({
       context: null,
       playerOneScore: 0,
       playerTwoScore: 0,
-      pressedKeys: { w: false, s: false, ArrowUp: false, ArrowDown: false, q: false, r: false, f: false},
+      pressedKeys: {
+        w: false,
+        s: false,
+        ArrowUp: false,
+        ArrowDown: false,
+        q: false,
+        r: false,
+        f: false,
+      },
       isSpecialMode: true,
     };
   },
@@ -132,7 +140,7 @@ export default defineComponent({
         console.log("emitting");
         this.socket!.emit("movement", this.pressedKeys);
       },
-    }
+    },
   },
 
   mounted() {

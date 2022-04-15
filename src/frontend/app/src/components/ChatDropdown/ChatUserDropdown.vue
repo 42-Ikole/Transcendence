@@ -207,7 +207,7 @@ export default defineComponent({
     },
     observeUser() {
       useSocketStore().pong!.emit("requestObserve", { userId: this.user.id });
-    }
+    },
   },
   mounted() {
     this.status = this.user.status;

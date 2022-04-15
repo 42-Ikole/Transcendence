@@ -15,14 +15,7 @@ import {
   SocketWithUser,
 } from '../websocket/websocket.types';
 import { GameState, PressedKeys } from './pong.types';
-import {
-  gameHasEnded,
-  movePlayer,
-  newGameState,
-  updateGamestate,
-  specialMoves,
-  checkSpecialMoves,
-} from './pong.game';
+import { gameHasEnded, newGameState, updateGamestate } from './pong.game';
 import { PongService } from './pong.service';
 import { UserService } from 'src/user/user.service';
 import { MatchService } from 'src/match/match.service';
