@@ -36,7 +36,7 @@
             Send Challenge
           </button>
         </li>
-        <li v-if="isPlaying">
+        <li v-if="canObserve">
           <button @click="observeUser" class="dropdown-item" type="button">
             Observe Game
           </button>
@@ -150,8 +150,8 @@ export default defineComponent({
     isOffline() {
       return this.status === "OFFLINE";
     },
-    isPlaying() {
-      return this.status === "PLAYING";
+    canObserve() {
+      return [ "PLAYING" , "OBSERVING" ].includes(this.status);
     },
     isAdmin() {
       // SELF === the user that is controlling the frontend (userStore), not the user the dropdown belongs to
