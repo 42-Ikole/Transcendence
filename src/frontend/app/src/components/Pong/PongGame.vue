@@ -8,7 +8,7 @@
     <h2 class="inline p2-score">{{ playerTwoScore }}</h2>
   </div>
   <div class="game-bg">
-    <canvas class="game" ref="game" width="600" height="480"> </canvas>
+    <canvas class="game" ref="game" width="2560" height="1920"> </canvas>
   </div>
 </template>
 
@@ -63,7 +63,7 @@ export default defineComponent({
   methods: {
     updatePlayer(data: GameState) {
       this.updateObserver(data);
-      this.socket!.emit("movement", Array.from(this.pressedKeys));
+      this.socket!.emit("movement", this.pressedKeys);
     },
 
     updateObserver(data: GameState) {
@@ -104,11 +104,15 @@ export default defineComponent({
     },
 
     keyDown(data: any) {
-      this.pressedKeys[data.key] = true;
+      if (this.pressedKeys[data.key] !== undefined) {
+        this.pressedKeys[data.key] = true;
+      }
     },
 
     keyUp(data: any) {
-      this.pressedKeys[data.key] = false;
+      if (this.pressedKeys[data.key] !== undefined) {
+        this.pressedKeys[data.key] = false;
+      }
     },
 
     releaseKeys() {
