@@ -1,7 +1,7 @@
 <template>
   <div class="input-group">
     <button
-      class="btn btn dropdown-toggle mb-2"
+      class="btn dropdown mb-2"
       type="button"
       data-bs-toggle="dropdown"
       aria-expanded="false"
@@ -65,17 +65,24 @@
             </button>
           </li>
           <li>
-            <hr class="dropdown-divider" />
           </li>
           <li v-if="isAdmin">
+            <hr class="dropdown-divider" />
             <button @click="muteUser" class="dropdown-item" type="button">
               Mute
             </button>
           </li>
           <li v-if="isAdmin">
-            <button @click="banUser" class="dropdown-item" type="button">
-              Ban
-            </button>
+            <div v-if="!isBanned">
+              <button @click="banUser" class="dropdown-item" type="button">
+                Ban
+              </button>
+            </div>
+            <div v-if="isBanned">
+              <button @click="unbanUser" class="dropdown-item" type="button">
+                Unban
+              </button>
+            </div>
           </li>
           <li v-if="canMakeAdmin">
             <button @click="makeAdmin" class="dropdown-item" type="button">
@@ -98,10 +105,19 @@ import { defineComponent, type PropType } from "vue";
 import type { PublicUser } from "@/types/UserType";
 import { useFriendStore } from "@/stores/FriendStore";
 import { useUserStore } from "@/stores/UserStore";
+import { useChatStore} from "@/stores/ChatStore";
 import { challengeUser } from "@/utils/Pong";
 import { sendFriendRequest, unfriend, unblock, block } from "@/utils/Friends";
 import { stopTrackingUserStatus, trackUserStatus } from "@/utils/StatusTracker";
 import type { StatusUpdate } from "@/types/StatusTypes";
+import { useSocketStore } from "@/stores/SocketStore";
+
+type RoleType = "OWNER" | "ADMIN" | "MEMBER"
+
+interface DataObject {
+  status: string;
+  role: RoleType;
+}
 
 export default defineComponent({
   props: {
@@ -113,10 +129,16 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
+    chatID: {
+      type: Number,
+      required: false,
+    },
   },
-  data() {
+  data(): DataObject {
+    console.log("USER INFO: ", this.user);
     return {
       status: "",
+      role: "MEMBER",
     };
   },
   computed: {
@@ -136,7 +158,6 @@ export default defineComponent({
       return this.status === "ONLINE";
     },
     onlineOutline() {
-      console.log("online", this.status === "ONLINE");
       return this.status === "ONLINE"
         ? "btn-outline-success"
         : "btn-outline-danger";
@@ -145,18 +166,22 @@ export default defineComponent({
       return this.status === "OFFLINE";
     },
     isAdmin() {
-      // SELF === the user that is controlling the frontend (userStore), not the user the dropdown belongs to
-      // true if SELF is ADMIN in chat
-      return true;
+      return useChatStore().isAdmin(this.chatID) || this.isOwner;
+    },
+    isOwner() {
+      return useChatStore().isOwner(this.chatID);
     },
     canMakeAdmin() {
       // true if SELF (controller) is owner and USER is NOT admin
-      return true;
+      return this.isOwner ;
     },
     canRemoveAdmin() {
       // true if SELF! is owner of chat and USER is admin
-      return true;
+      return this.isOwner;
     },
+    isBanned() {
+      //return this.user.banStatus;
+    }
   },
   methods: {
     viewProfile() {
@@ -178,7 +203,6 @@ export default defineComponent({
       unfriend(this.user);
     },
     trackState(update: StatusUpdate) {
-      console.log("friend state:", update);
       this.status = update.newState;
     },
     startDirectMessage() {
@@ -188,7 +212,10 @@ export default defineComponent({
       return;
     },
     banUser() {
-      return;
+      //this.user.banStatus != this.user.banStatus;
+    },
+    unbanUser() {
+      
     },
     makeAdmin() {
       return;
@@ -196,13 +223,23 @@ export default defineComponent({
     removeAdmin() {
       return;
     },
+    async refreshRole() {
+      // TODO: make API call using userID and chatID and store in ROLE
+      const roleResponse = await makeApiCall("");
+			if (roleResponse.ok) {
+				this.role = await ownerResponse.json();
+			}
+    },
   },
   mounted() {
     this.status = this.user.status;
     trackUserStatus(this.user.id, this.trackState);
+    this.refreshRole();
+    useSocketStore().chat.on(`roleUpdate_${this.user.id}`, this.refreshRole);
   },
   unmounted() {
     stopTrackingUserStatus(this.user.id, this.trackState);
+    useSocketStore().chat.removeListener(`roleUpdate_${this.user.id}`, this.refreshRole);
   },
 });
 </script>
