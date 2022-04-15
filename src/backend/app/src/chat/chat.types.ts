@@ -48,16 +48,11 @@ export class ChatRoomDto {
   password: string;
 }
 
-export class ChatRoleDto {
+export class ChatUserDto {
 	@IsInt()
 	@IsNotEmpty()
 	chatId: number;
 
 	@IsInt()
 	userId: number;
-}
-
-export interface ChatRoleUpdateInterface {
-	success: boolean,
-	chatName: string,
 }

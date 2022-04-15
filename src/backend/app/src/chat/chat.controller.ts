@@ -12,7 +12,7 @@ import {
 	ParseIntPipe,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { CreateChatDto, CreateChatInterface, AllChatsDto, ChatRoleDto, ChatRoleUpdateInterface } from './chat.types';
+import { CreateChatDto, CreateChatInterface, AllChatsDto, ChatUserDto } from './chat.types';
 import { Chat } from 'src/orm/entities/chat.entity';
 import { User } from 'src/orm/entities/user.entity';
 import { Message } from 'src/orm/entities/message.entity';
@@ -132,37 +132,28 @@ export class ChatController {
 	@Post('/admin')
 	async promoteAdmin(
 		@Req() request: RequestWithUser,
-		@Body() body: ChatRoleDto,
+		@Body() body: ChatUserDto,
 	): Promise<void> {
 		// Set the new user to admin, if possible.
-		const updateInfo: ChatRoleUpdateInterface = await this.chatService.promoteAdmin(request.user, body.chatId, body.userId);
-		if (updateInfo.success) {
-			this.broadcastRoleUpdate(updateInfo.chatName, body.userId);
-		}
+		await this.chatService.promoteAdmin(request.user, body.chatId, body.userId);
 	}
 
 	@Delete('/admin')
 	async demoteAdmin(
 		@Req() request: RequestWithUser,
-		@Body() body: ChatRoleDto,
+		@Body() body: ChatUserDto,
 	): Promise<void> {
 		// Remove the user as admin, if possible.
-		const updateInfo: ChatRoleUpdateInterface = await this.chatService.demoteAdmin(request.user, body.chatId, body.userId);
-		if (updateInfo.success) {
-			this.broadcastRoleUpdate(updateInfo.chatName, body.userId);
-		}
+		await this.chatService.demoteAdmin(request.user, body.chatId, body.userId);
 	}
 
 	@Post('/owner')
 	async changeRoomOwner(
 		@Req() request: RequestWithUser,
-		@Body() body: ChatRoleDto,
+		@Body() body: ChatUserDto,
 	): Promise<void> {
 		// Change the room owner, if possible.
-		const updateInfo: ChatRoleUpdateInterface = await this.chatService.changeRoomOwner(request.user, body.chatId, body.userId);
-		if (updateInfo.success) {
-			this.broadcastRoleUpdate(updateInfo.chatName, body.userId);
-		}
+		await this.chatService.changeRoomOwner(request.user, body.chatId, body.userId);
 	}
 
 	broadcastRoleUpdate(chatName: string, userId: number): void {
