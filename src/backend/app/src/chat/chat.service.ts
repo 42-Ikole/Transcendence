@@ -8,6 +8,7 @@ import {
   IncomingMessageDtO,
   CreateChatInterface,
   AllChatsDto,
+	ChatRoleUpdateInterface,
 } from './chat.types';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -109,51 +110,78 @@ export class ChatService {
 
   async promoteAdmin(
     requestingUser: User,
-    user: User,
-    chat: Chat,
-  ): Promise<boolean> {
-    // Check if requesting user is owner.
-    if (!this.userIsOwner(requestingUser, chat)) {
-      throw new UnauthorizedException();
-    }
+    chatId: number,
+    userId: number,
+  ): Promise<ChatRoleUpdateInterface> {
+		// Get the chat.
+		const chat: Chat = await this.findById(chatId, ['admins']);
+		if (chat === undefined) {
+			throw new NotFoundException();
+		}
+		// Check if requesting user is owner.
+		if (!this.userIsOwner(requestingUser, chat)) {
+			throw new UnauthorizedException();
+		}
+		// Now get the user to which this promotion applies.
+		const user: User = await this.userService.findById(userId);
+		if (user === undefined) {
+			throw new NotFoundException();
+		}
     // Only add admin role if not already admin, or owner.
-    if (
-      this.userIsOwner(user, chat) ||
-      this.userHasAdminPrivilege(user, chat)
-    ) {
-      return false;
+    if (this.userHasAdminPrivilege(user, chat)) {
+      return {success: false, chatName: chat.name};
     }
     chat.admins.push(user);
     await this.chatRepository.save(chat);
-    return true;
+    return {success: true, chatName: chat.name};
   }
 
   async demoteAdmin(
     requestingUser: User,
-    user: User,
-    chat: Chat,
-  ): Promise<boolean> {
+    chatId: number,
+    userId: number,
+  ): Promise<ChatRoleUpdateInterface> {
+		// Get the chat.
+		const chat: Chat = await this.findById(chatId, ['admins']);
+		if (chat === undefined) {
+			throw new NotFoundException();
+		}
     // Check if requesting user is owner.
     if (!this.userIsOwner(requestingUser, chat)) {
       throw new UnauthorizedException();
-    }
+		}
+		// Now get the user to which this demotion applies.
+		const user: User = await this.userService.findById(userId);
+		if (user === undefined) {
+			throw new NotFoundException();
+		}
     // Remove the user from the admins list.
     chat.admins = chat.admins.filter((item) => item.id != user.id);
     await this.chatRepository.save(chat);
-    return;
+    return {success: true, chatName: chat.name};
   }
 
   async changeRoomOwner(
     requestingUser: User,
-    newOwner: User,
-    chat: Chat,
-  ): Promise<boolean> {
+    chatId: number,
+    userId: number,
+  ): Promise<ChatRoleUpdateInterface> {
+		// Get the chat.
+		const chat: Chat = await this.findById(chatId, ['admins', 'owner']);
+		if (chat === undefined) {
+			throw new NotFoundException();
+		}
     // Check if requesting user is owner.
     if (!this.userIsOwner(requestingUser, chat)) {
       throw new UnauthorizedException();
-    }
-		chat.owner = newOwner;
-		chat.admins = chat.admins.filter((item) => item.id != newOwner.id);
+		}
+		// Now get the user who will become the new owner.
+		const user: User = await this.userService.findById(userId);
+		if (user === undefined) {
+			throw new NotFoundException();
+		}
+		chat.owner = user;
+		chat.admins = chat.admins.filter((item) => item.id != user.id);
 		chat.admins.push(requestingUser);
     await this.chatRepository.save(chat);
     return;

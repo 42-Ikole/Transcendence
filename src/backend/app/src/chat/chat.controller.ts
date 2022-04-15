@@ -14,7 +14,7 @@ import {
 	ParseIntPipe,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { CreateChatDto, CreateChatInterface, AllChatsDto, ChatRoleDto } from './chat.types';
+import { CreateChatDto, CreateChatInterface, AllChatsDto, ChatRoleDto, ChatRoleUpdateInterface } from './chat.types';
 import { Chat } from 'src/orm/entities/chat.entity';
 import { User } from 'src/orm/entities/user.entity';
 import { Message } from 'src/orm/entities/message.entity';
@@ -134,15 +134,10 @@ export class ChatController {
 		@Req() request: RequestWithUser,
 		@Body() body: ChatRoleDto,
 	): Promise<void> {
-		// Find the relevant chat.
-		const chat: Chat = await this.chatService.findByName(body.chatName, ['admins']);
-		if (chat === undefined) {
-			throw new NotFoundException();
-		}
 		// Set the new user to admin, if possible.
-		const success: boolean = await this.chatService.promoteAdmin(request.user, body.user, chat);
-		if (success) {
-			this.broadcastRoleUpdate(chat.name, body.user.id);
+		const updateInfo: ChatRoleUpdateInterface = await this.chatService.promoteAdmin(request.user, body.chatId, body.userId);
+		if (updateInfo.success) {
+			this.broadcastRoleUpdate(updateInfo.chatName, body.userId);
 		}
 	}
 
@@ -151,15 +146,10 @@ export class ChatController {
 		@Req() request: RequestWithUser,
 		@Body() body: ChatRoleDto,
 	): Promise<void> {
-		// Find the relevant chat.
-		const chat: Chat = await this.chatService.findByName(body.chatName, ['admins']);
-		if (chat === undefined) {
-			throw new NotFoundException();
-		}
 		// Remove the user as admin, if possible.
-		const success: boolean = await this.chatService.demoteAdmin(request.user, body.user, chat);
-		if (success) {
-			this.broadcastRoleUpdate(chat.name, body.user.id);
+		const updateInfo: ChatRoleUpdateInterface = await this.chatService.demoteAdmin(request.user, body.chatId, body.userId);
+		if (updateInfo.success) {
+			this.broadcastRoleUpdate(updateInfo.chatName, body.userId);
 		}
 	}
 
@@ -168,15 +158,10 @@ export class ChatController {
 		@Req() request: RequestWithUser,
 		@Body() body: ChatRoleDto,
 	): Promise<void> {
-		// Find the relevant chat.
-		const chat: Chat = await this.chatService.findByName(body.chatName, ['admins']);
-		if (chat === undefined) {
-			throw new NotFoundException();
-		}
 		// Change the room owner, if possible.
-		const success: boolean = await this.chatService.changeRoomOwner(request.user, body.user, chat);
-		if (success) {
-			this.broadcastRoleUpdate(chat.name, body.user.id);
+		const updateInfo: ChatRoleUpdateInterface = await this.chatService.changeRoomOwner(request.user, body.chatId, body.userId);
+		if (updateInfo.success) {
+			this.broadcastRoleUpdate(updateInfo.chatName, body.userId);
 		}
 	}
 
