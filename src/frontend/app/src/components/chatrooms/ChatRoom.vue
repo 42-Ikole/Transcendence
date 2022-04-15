@@ -11,7 +11,7 @@
           <div class="card-body" style="height: auto; overflow-y: scroll">
             <div class="flex-row justify-content-start">
               <div class="small" v-for="user in users" :key="user.username">
-                <ChatUserDropdown :user="user" :show-chat-options="true" :chatID="chat.id" />
+                <ChatUserDropdown :user="user" :show-chat-options="true" :chatId="chat.id" />
               </div>
             </div>
           </div>
@@ -42,8 +42,19 @@
                   data-mdb-ripple-color="dark"
                   style="line-height: 1"
                   @click="leaveRoom"
+                  v-if="!isOwner"
                 >
                   Leave chat
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger btn-lg"
+                  data-mdb-ripple-color="dark"
+                  style="line-height: 1"
+                  @click="leaveRoom"
+                  v-else-if="isOwner"
+                >
+                  Delete chat
                 </button>
               </div>
             </div>
@@ -110,6 +121,7 @@ import { mapState } from "pinia";
 import { Chat, SendChatMessage } from "./Chatrooms.types.ts";
 import { makeApiCall } from "@/utils/ApiCall";
 import ChatUserDropdown from "../ChatDropdown/ChatUserDropdown.vue";
+import { useChatStore} from "@/stores/ChatStore";
 
 interface DataObject {
   myMessage: string;
@@ -195,6 +207,9 @@ export default defineComponent({
     ...mapState(useSocketStore, {
       socket: "chat",
     }),
+    isOwner() {
+      return useChatStore().isOwner(this.chat.id);
+    },
   },
   async mounted() {
     this.socket.on("subscribeToChatSuccess", this.refreshChat);
