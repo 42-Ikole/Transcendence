@@ -1,12 +1,10 @@
-import { Ball, GameState, Player, PongBar, SpecialMoves } from './pong.types';
+import { Ball, GameState, Player, PongBar, SpecialMoves, PressedKeys } from './pong.types';
 
 /*
 Concept: all coordinates are in range [0, 1] and used in the frontend as a percentage relative to the screen size.
 So position `x = 0.5` is half of the screen/game width in the frontend.
 */
 
-// TODO: add BALL acceleration and key input (like space) for some special move
-//
 const BALL_SPEED = 0.01;
 const PLAYER_SPEED = 0.01;
 const VERTICAL_FACTOR = 0.4;
@@ -78,14 +76,12 @@ function resetGameState(state: GameState) {
 }
 
 // directions is an array of pressed keys, add functionality
-export function movePlayer(bar: PongBar, directions: Array<string>) {
-  for (const item of directions) {
-    if (item === 'ArrowUp' || item === 'w') {
-      bar.position.y -= PLAYER_SPEED;
-    }
-    if (item === 'ArrowDown' || item === 's') {
-      bar.position.y += PLAYER_SPEED;
-    }
+export function movePlayer(bar: PongBar, directions: PressedKeys) {
+  if (directions.ArrowUp || directions.w) {
+    bar.position.y -= PLAYER_SPEED;
+  }
+  if (directions.ArrowDown || directions.s) {
+    bar.position.y += PLAYER_SPEED;
   }
   // so that the bar doesn't go beyond the edge (top/bottom)
   if (bar.position.y > 1 - bar.height) {
@@ -115,19 +111,11 @@ export function specialMoves(state: GameState) {
   }
 }
 
-export function checkSpecialMoves(special: SpecialMoves, keys: Array<string>) {
-  special.speedUp = false;
-  special.grow = false;
-  special.shrink = false;
-  for (const item of keys) {
-    if (item === 'q') {
-      special.speedUp = true;
-    } else if (item === 'r') {
-      special.grow = true;
-    } else if (item === 'f') {
-      special.shrink = true;
-    }
-  }
+export function checkSpecialMoves(special: SpecialMoves, keys: PressedKeys) {
+  // boolean values should be defined
+  special.speedUp = keys.q;
+  special.grow = keys.r;
+  special.shrink = keys.f;
 }
 
 function roundHasEnded(state: GameState): boolean {

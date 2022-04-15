@@ -14,7 +14,7 @@ import {
   RequestMatchDto,
   SocketWithUser,
 } from '../websocket/websocket.types';
-import { GameState } from './pong.types';
+import { GameState, PressedKeys } from './pong.types';
 import {
   gameHasEnded,
   movePlayer,
@@ -367,23 +367,17 @@ export class PongGateway
   }
 
   @SubscribeMessage('movement')
-  movement(client: SocketWithUser, data: Array<string>) {
+  movement(client: SocketWithUser, data: PressedKeys) {
     const gameRoom = this.pongService.getGameRoom(client.gameRoom);
     if (!gameRoom) {
       return;
     }
     if (client.user.id === gameRoom.playerOne.userId) {
-      movePlayer(gameRoom.gameState.playerOne.bar, Array.from(data));
-      checkSpecialMoves(
-        gameRoom.gameState.playerOne.specialMoves,
-        Array.from(data),
-      );
+      movePlayer(gameRoom.gameState.playerOne.bar, data);
+      checkSpecialMoves(gameRoom.gameState.playerOne.specialMoves, data);
     } else if (client.user.id === gameRoom.playerTwo.userId) {
-      movePlayer(gameRoom.gameState.playerTwo.bar, Array.from(data));
-      checkSpecialMoves(
-        gameRoom.gameState.playerTwo.specialMoves,
-        Array.from(data),
-      );
+      movePlayer(gameRoom.gameState.playerTwo.bar, data);
+      checkSpecialMoves(gameRoom.gameState.playerTwo.specialMoves, data);
     }
     if (gameRoom.gameState.default == false) {
       specialMoves(gameRoom.gameState);

@@ -52,3 +52,13 @@ export interface GameRoom {
   observers: Set<number>; // set of userIds
   gameState: GameState;
 }
+
+export interface PressedKeys {
+  w: boolean;
+  s: boolean;
+  ArrowUp: boolean;
+  ArrowDown: boolean;
+  q: boolean;
+  r: boolean;
+  f: boolean;
+}

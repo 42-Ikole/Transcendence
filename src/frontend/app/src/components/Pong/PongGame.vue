@@ -18,11 +18,22 @@ import type { Ball, GameState, PongBar } from "./PongTypes";
 import { mapState } from "pinia";
 import { useSocketStore } from "@/stores/SocketStore";
 
+interface PressedKeys {
+  w: boolean;
+  s: boolean;
+  ArrowUp: boolean;
+  ArrowDown: boolean;
+  q: boolean;
+  r: boolean;
+  f: boolean;
+}
+
 interface DataObject {
   context: CanvasRenderingContext2D | null;
   playerOneScore: number;
   playerTwoScore: number;
-  PressedKeys: Set<string>;
+  pressedKeys: PressedKeys;
+  isSpecialMode: boolean;
 }
 
 export default defineComponent({
@@ -34,7 +45,7 @@ export default defineComponent({
       context: null,
       playerOneScore: 0,
       playerTwoScore: 0,
-      PressedKeys: new Set<string>(),
+      pressedKeys: { w: false, s: false, ArrowUp: false, ArrowDown: false, q: false, r: false, f: false},
       isSpecialMode: true,
     };
   },
@@ -51,8 +62,8 @@ export default defineComponent({
   },
   methods: {
     updatePlayer(data: GameState) {
-      this.socket!.emit("movement", Array.from(this.PressedKeys));
       this.updateObserver(data);
+      this.socket!.emit("movement", Array.from(this.pressedKeys));
     },
 
     updateObserver(data: GameState) {
@@ -93,16 +104,17 @@ export default defineComponent({
     },
 
     keyDown(data: any) {
-      this.PressedKeys.add(data.key);
-      console.log("->", data.key, "<-");
+      this.pressedKeys[data.key] = true;
     },
 
     keyUp(data: any) {
-      this.PressedKeys.delete(data.key);
+      this.pressedKeys[data.key] = false;
     },
 
     releaseKeys() {
-      this.PressedKeys.clear();
+      for (let key in this.pressedKeys) {
+        this.pressedKeys[key] = false;
+      }
     },
 
     clear() {
