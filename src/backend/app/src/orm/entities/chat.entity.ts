@@ -43,5 +43,6 @@ export class Chat {
 	type: string;
 	
 	@ManyToMany(() => User, (user) => user.chatInvites)
+	@JoinTable()
 	invitedUsers: User[];
 }
