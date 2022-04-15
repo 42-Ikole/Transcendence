@@ -156,11 +156,21 @@ export class ChatController {
 		await this.chatService.changeRoomOwner(request.user, body.chatId, body.userId);
 	}
 
-	broadcastRoleUpdate(chatName: string, userId: number): void {
-		// Do 2 emits:
-		// 1. roleUpdate. To the user that was promoted.
-		this.socketService.emitToUser(userId, 'chatroom', 'roleUpdate')
-		// 2. roleUpdate_{id}. To all users in the chat room where it happened.
-		this.socketService.chatServer.to(chatName).emit('roleUpdate_' + userId);
+	@Post('/invite')
+	async inviteUser(
+		@Req() request: RequestWithUser,
+		@Body() body: ChatUserDto,
+	): Promise<void> {
+		// Invite a user to a private chat.
+		await this.chatService.inviteUserToChat(request.user, body.chatId, body.userId);
+	}
+
+	@Delete('/invite')
+	async uninviteUser(
+		@Req() request: RequestWithUser,
+		@Body() body: ChatUserDto,
+	): Promise<void> {
+		// Uninvite a user to a private chat.
+		await this.chatService.removeInviteToChat(request.user, body.chatId, body.userId);
 	}
 }

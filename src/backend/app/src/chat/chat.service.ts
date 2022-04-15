@@ -234,6 +234,76 @@ export class ChatService {
 		throw new NotFoundException();
 	}
 
+	async inviteUserToChat(
+		requestingUser: User,
+		chatId: number,
+		userId: number,
+	): Promise<void> {
+		// Is the user inviting themselves?
+		if (requestingUser.id === userId) {
+			return;
+		}
+		// Get the chat.
+		const chat: Chat = await this.findById(chatId, ['members', 'admins', 'owner', 'invitedUsers']);
+		// Check if the chat is private.
+		if (chat.type !== 'private') {
+			return;
+		}
+		// Check if the requesting user has admin privileges.
+		if (!this.userHasAdminPrivilege(requestingUser, chat)) {
+			throw new UnauthorizedException();
+		}
+		// Get the user to be invited.
+		const user: User = await this.userService.findById(userId);
+		// Check if the user is not already in the room.
+		if (this.userIsInChat(user, chat)) {
+			return;
+		}
+		// Check if the user was not already invited.
+		if (this.userIsInvited(user, chat)) {
+			return ;
+		}
+		// Invite the user.
+		chat.invitedUsers.push(user);
+		await this.chatRepository.save(chat);
+		// Emit the event to both invited user and inviting user.
+		this.socketService.emitToUser(requestingUser.id, 'chatroom', 'chatRoleUpdate');
+		this.socketService.emitToUser(user.id, 'chatroom', 'chatRoleUpdate');
+	}
+
+	async removeInviteToChat(
+		requestingUser: User,
+		chatId: number,
+		userId: number,
+	): Promise<void> {
+		// Is the user uninviting themselves?
+		if (requestingUser.id === userId) {
+			return;
+		}
+		// Get the chat.
+		const chat: Chat = await this.findById(chatId, ['members', 'admins', 'owner', 'invitedUsers']);
+		// Check if the chat is private.
+		if (chat.type !== 'private') {
+			return;
+		}
+		// Check if the requesting user has admin privileges.
+		if (!this.userHasAdminPrivilege(requestingUser, chat)) {
+			throw new UnauthorizedException();
+		}
+		// Get the user to be invited.
+		const user: User = await this.userService.findById(userId);
+		// Check if the user is invited.
+		if (!this.userIsInvited(user, chat)) {
+			return;
+		}
+		// Uninvite the user.
+		chat.invitedUsers = chat.invitedUsers.filter((item) => item.id != user.id);
+		await this.chatRepository.save(chat);
+		// Emit the event to both invited user and uninviting user.
+		this.socketService.emitToUser(requestingUser.id, 'chatroom', 'chatRoleUpdate');
+		this.socketService.emitToUser(user.id, 'chatroom', 'chatRoleUpdate');
+	}
+
   userIsInChat(user: User, chat: Chat): boolean {
     // Look through the members and see if the user is in there.
     for (const member of chat.members) {
