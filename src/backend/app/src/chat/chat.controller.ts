@@ -115,7 +115,7 @@ export class ChatController {
     return await this.chatService.createChat(createChatInterface);
 	}
 
-	@Delete(':/chatid')
+	@Delete('/:chatid')
 	@ApiParam({
 		name: 'chatid',
 		required: true,
