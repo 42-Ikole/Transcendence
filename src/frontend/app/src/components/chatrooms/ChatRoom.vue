@@ -6,12 +6,12 @@
           <div
             class="card-header d-flex justify-content-between align-items-center p-3"
           >
-            <h4 class="mb-0">Users in chat:</h4>
+            <h2 class="mb-0">Users in chat:</h2>
           </div>
           <div class="card-body" style="height: auto; overflow-y: scroll">
             <div class="flex-row justify-content-start">
               <div class="small" v-for="user in users" :key="user.username">
-                <ChatUserDropdown :user="user" :show-chat-options="true" />
+                <ChatUserDropdown :user="user" :show-chat-options="true" :chatID="chat.id" />
               </div>
             </div>
           </div>
@@ -27,7 +27,7 @@
               <div class="btn-group me-2" role="group">
                 <button
                   type="button"
-                  class="btn btn-secondary btn-sm"
+                  class="btn btn-outline-secondary btn-lg"
                   data-mdb-ripple-color="dark"
                   style="line-height: 1"
                   @click="switchToRoomList"
@@ -116,6 +116,7 @@ interface DataObject {
   users: PublicUser[];
   messageToChat: SendChatMessage;
   messages: any[];
+  admins: any[];
 }
 
 export default defineComponent({
@@ -134,6 +135,7 @@ export default defineComponent({
         message: "",
       },
       messages: [],
+      admins: [],
     };
   },
   methods: {
@@ -179,6 +181,14 @@ export default defineComponent({
       if (usersResponse.ok) {
         this.users = await usersResponse.json();
       }
+      const adminResponse = await makeApiCall("chat/admins/" + this.chat.name);
+      if (adminResponse.ok) {
+        this.admins = await adminResponse.json();
+        console.log("ADMINS: ", this.admins);
+      } else {
+        console.log('mislukt?');
+      }
+      console.log("OWNER: ", this.chat.owner);
     },
   },
   computed: {
