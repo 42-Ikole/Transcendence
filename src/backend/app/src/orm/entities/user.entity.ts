@@ -60,7 +60,10 @@ export class User {
   ownedChats: Chat[]; // chats where user is an owner
 
   @ManyToMany(() => Chat, (chat) => chat.admins)
-  adminChats: Chat[]; // chats where user is an admin
+	adminChats: Chat[]; // chats where user is an admin
+	
+	@ManyToMany(() => Chat, (chat) => chat.invitedUsers)
+	chatInvites: Chat[];
 
   // Two Factor
   @Column({ nullable: true })
