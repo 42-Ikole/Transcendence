@@ -10,9 +10,10 @@ import {
   Req,
 	Delete,
 	ParseIntPipe,
+	Patch,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { CreateChatDto, CreateChatInterface, AllChatsDto, ChatUserDto } from './chat.types';
+import { CreateChatDto, CreateChatInterface, AllChatsDto, ChatUserDto, ChatPasswordDto } from './chat.types';
 import { Chat } from 'src/orm/entities/chat.entity';
 import { User } from 'src/orm/entities/user.entity';
 import { Message } from 'src/orm/entities/message.entity';
@@ -127,6 +128,32 @@ export class ChatController {
 		@Param('chatid', ParseIntPipe) chatId: number,
 		): Promise<void> {
 		await this.chatService.deleteChat(request.user, chatId);
+	}
+
+	@Post('/password')
+	async addPassword(
+		@Req() request: RequestWithUser,
+		@Body() body: ChatPasswordDto,
+	): Promise<void> {
+		// Add a password to this chatroom.
+		await this.chatService.addPassword(request.user, body.chatId, body.password);
+	}
+
+	@Patch('/password')
+	async changePassword(
+		@Req() request: RequestWithUser,
+		@Body() body: ChatPasswordDto,
+	): Promise<void> {
+		// Change a password in a chatroom.
+		await this.chatService.changePassword(request.user, body.chatId, body.password);
+	}
+
+	@Delete('/password/:chatid')
+	async removePassword(
+		@Req() request: RequestWithUser,
+		@Param('chatid', ParseIntPipe) chatId: number,
+	): Promise<void> {
+		await this.chatService.removePassword(request.user, chatId);
 	}
 
 	@Post('/admin')

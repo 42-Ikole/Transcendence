@@ -123,6 +123,77 @@ export class ChatService {
 		return chat;
 	}
 
+	async addPassword(requestingUser: User, chatId: number, password: string): Promise<Chat> {
+		// Get the chat.
+		const chat: Chat = await this.chatRepository.findOne({
+			select: ['password', 'owner', 'type'],
+			where: [{ id: chatId }],
+			relations: ['owner'],
+		});
+		if (chat === undefined) {
+			throw new NotFoundException();
+		}
+		// Check if requesting user is the owner.
+		if (!this.userIsOwner(requestingUser, chat)) {
+			throw new UnauthorizedException();
+		}
+		// Check if chat is of type public.
+		if (chat.type !== 'public') {
+			return;
+		}
+		// Add the password.
+		chat.type = 'private';
+		chat.password = password;
+		return await this.chatRepository.save(chat);
+	}
+
+	async changePassword(requestingUser: User, chatId: number, password: string): Promise<Chat> {
+		// Get the chat.
+		const chat: Chat = await this.chatRepository.findOne({
+			select: ['password', 'owner', 'type'],
+			where: [{ id: chatId }],
+			relations: ['owner'],
+		});
+		if (chat === undefined) {
+			throw new NotFoundException();
+		}
+		// Check if the requesting user is the owner.
+		if (!this.userIsOwner(requestingUser, chat)) {
+			throw new UnauthorizedException();
+		}
+		// Check if chat is of type private.
+		if (chat.type !== 'private') {
+			return;
+		}
+		// Change the password.
+		chat.password = password;
+		return await this.chatRepository.save(chat);
+	}
+
+	async removePassword(requestingUser: User, chatId: number): Promise<Chat> {
+		// Get the chat.
+		const chat: Chat = await this.chatRepository.findOne({
+			select: ['password', 'owner', 'type'],
+			where: [{ id: chatId }],
+			relations: ['owner'],
+		});
+		if (chat === undefined) {
+			throw new NotFoundException();
+		}
+		// Check if the requesting user is the owner.
+		if (!this.userIsOwner(requestingUser, chat)) {
+			throw new UnauthorizedException();
+		}
+		// Check if the chat is private.
+		if (chat.type !== 'private') {
+			return;
+		}
+		// Remove the password.
+		chat.password = '';
+		chat.type = 'public';
+		return await this.chatRepository.save(chat);
+	}
+
   async addMessage(message: IncomingMessageDtO, user: User): Promise<Message> {
     const messageToDatabase = {
       message: message.message,

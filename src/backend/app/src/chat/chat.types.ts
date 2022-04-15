@@ -56,3 +56,13 @@ export class ChatUserDto {
 	@IsInt()
 	userId: number;
 }
+
+export class ChatPasswordDto {
+	@IsInt()
+	@IsNotEmpty()
+	chatId: number;
+
+	@IsString()
+	@IsOptional()
+	password: string;
+}
