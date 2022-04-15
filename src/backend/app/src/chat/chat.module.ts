@@ -6,9 +6,10 @@ import { ChatService } from './chat.service';
 import { Chat } from 'src/orm/entities/chat.entity';
 import { Message } from 'src/orm/entities/message.entity';
 import { CookieModule } from 'src/websocket/cookie.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Chat, Message]), CookieModule],
+  imports: [TypeOrmModule.forFeature([Chat, Message]), CookieModule, UserModule],
   exports: [ChatService],
   providers: [ChatService, ChatGateway],
   controllers: [ChatController],

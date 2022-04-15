@@ -14,12 +14,14 @@ import { Repository } from 'typeorm';
 import { Chat } from 'src/orm/entities/chat.entity';
 import { Message } from 'src/orm/entities/message.entity';
 import { User } from 'src/orm/entities/user.entity';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ChatService {
   constructor(
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
-    @InjectRepository(Message) private messageRepository: Repository<Message>,
+		@InjectRepository(Message) private messageRepository: Repository<Message>,
+		private userService: UserService,
   ) {}
 
   async findAll(user: User): Promise<AllChatsDto> {
@@ -148,7 +150,29 @@ export class ChatService {
 		chat.admins.push(requestingUser);
     await this.chatRepository.save(chat);
     return;
-  }
+	}
+
+	async userRoleInChat(chatname: string, userId: number): Promise<string> {
+		const chat: Chat = await this.findByName(chatname, ['members', 'admins', 'owner']);
+		if (chat === undefined) {
+			throw new NotFoundException();
+		}
+		const user: User = await this.userService.findById(userId);
+		if (chat.owner.id === user.id) {
+			return "OWNER";
+		}
+		for (const admin of chat.admins) {
+			if (admin.id === user.id) {
+				return "ADMIN";
+			}
+		}
+		for (const member of chat.members) {
+			if (member.id === user.id) {
+				return "MEMBER";
+			}
+		}
+		throw new NotFoundException();
+	}
 
   userIsInChat(user: User, chat: Chat): boolean {
     // Look through the members and see if the user is in there.

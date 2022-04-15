@@ -37,16 +37,16 @@ export class ChatController {
     return await this.chatService.findAll(request.user);
   }
 
-  @Get('/messages/:name')
+  @Get('/messages/:chatname')
   @ApiParam({
-    name: 'name',
+    name: 'chatname',
     required: true,
     description: 'Name of a chatroom',
     type: String,
   })
-  async getMessagesForChat(@Param('name') name: string): Promise<Message[]> {
+  async getMessagesForChat(@Param('chatname') chatname: string): Promise<Message[]> {
     // Get all the messages for a particular chat.
-    const chat: Chat = await this.chatService.findByName(name, [
+    const chat: Chat = await this.chatService.findByName(chatname, [
       'messages',
 			'messages.author',
     ]);
@@ -54,35 +54,52 @@ export class ChatController {
     return chat.messages;
   }
 
-  @Get('/users/:name')
+  @Get('/users/:chatname')
   @ApiParam({
-    name: 'name',
+    name: 'chatname',
     required: true,
     description: 'Name of a chatroom',
     type: String,
   })
-  async getUsersForChat(@Param('name') name: string): Promise<User[]> {
+  async getUsersForChat(@Param('chatname') chatname: string): Promise<User[]> {
     // Get all the members for a particular chat.
-    const chat: Chat = await this.chatService.findByName(name, ['members']);
+    const chat: Chat = await this.chatService.findByName(chatname, ['members']);
     if (chat === undefined) throw new NotFoundException();
     return chat.members;
   }
 
-	@Get('/admins/:name')
+	@Get('/admins/:chatname')
 	@ApiParam({
-		name: 'name',
+		name: 'chatname',
 		required: true,
 		description: 'Name of a chatroom',
 		type: String,
 	})
-	async getAdminsForChat(@Param('name') name: string): Promise<User[]> {
+	async getAdminsForChat(@Param('chatname') chatname: string): Promise<User[]> {
 		// Get all the admins for a particular chat.
-		const chat: Chat = await this.chatService.findByName(name, ['admins']);
+		const chat: Chat = await this.chatService.findByName(chatname, ['admins']);
 		console.log(chat);
 		if (chat === undefined) {
 			throw new NotFoundException();
 		}
 		return chat.admins;
+	}
+
+	@Get('/role/:chatname/:userid')
+	@ApiParam({
+		name: 'chatname',
+		required: true,
+		description: 'Name of a chatroom',
+		type: String,
+	})
+	@ApiParam({
+		name: 'userid',
+		required: true,
+		description: 'Id of a user',
+		type: Number,
+	})
+	async getRoleForUserInChat(@Param('chatname') chatname: string, @Param('userid') userId: number): Promise<string> {
+		return await this.chatService.userRoleInChat(chatname, userId);
 	}
 
   @Post()
