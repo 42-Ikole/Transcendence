@@ -95,19 +95,23 @@ export class ChatService {
     const chat: Chat = this.chatRepository.create(param);
 		await this.chatRepository.save(chat);
 		// Broadcast that a new room has been created.
-		this.socketService.chatServer.emit('createRoom', {room: chat});
+		this.socketService.chatServer.emit('roomCreated', {room: chat});
 		return chat;
 	}
 
 	async deleteChat(requestingUser: User, chatId: number): Promise<Chat> {
 		// Get the chat.
 		const chat: Chat = await this.findById(chatId, ['owner']);
+		const chatName = chat.name;
 		// Check if the user who requested the delete owns this chat.
 		if (!this.userIsOwner(requestingUser, chat)) {
 			throw new UnauthorizedException();
 		}
 		// Remove the chat.
-		return this.chatRepository.remove(chat);
+		this.chatRepository.remove(chat);
+		// Broadcast to everyone in the room that it has been deleted.
+		this.socketService.chatServer.emit('roomDeleted', {room: chat});
+		return chat;
 	}
 
   async addMessage(message: IncomingMessageDtO, user: User): Promise<Message> {
