@@ -111,6 +111,7 @@ import { sendFriendRequest, unfriend, unblock, block } from "@/utils/Friends";
 import { stopTrackingUserStatus, trackUserStatus } from "@/utils/StatusTracker";
 import type { StatusUpdate } from "@/types/StatusTypes";
 import { useSocketStore } from "@/stores/SocketStore";
+import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
 
 type RoleType = "OWNER" | "ADMIN" | "MEMBER"
 
@@ -129,7 +130,7 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
-    chatID: {
+    chatId: {
       type: Number,
       required: false,
     },
@@ -166,18 +167,16 @@ export default defineComponent({
       return this.status === "OFFLINE";
     },
     isAdmin() {
-      return useChatStore().isAdmin(this.chatID) || this.isOwner;
+      return useChatStore().isAdmin(this.chatId) || this.isOwner;
     },
     isOwner() {
-      return useChatStore().isOwner(this.chatID);
+      return useChatStore().isOwner(this.chatId);
     },
     canMakeAdmin() {
-      // true if SELF (controller) is owner and USER is NOT admin
-      return this.isOwner ;
+      return this.isOwner && this.role !== "ADMIN";
     },
     canRemoveAdmin() {
-      // true if SELF! is owner of chat and USER is admin
-      return this.isOwner;
+      return this.isOwner && this.role === "ADMIN";
     },
     isBanned() {
       //return this.user.banStatus;
@@ -217,18 +216,27 @@ export default defineComponent({
     unbanUser() {
       
     },
-    makeAdmin() {
-      return;
+    async makeAdmin() {
+      if (this.role === "MEMBER") {
+        const makeAdminResponse = await makeApiCallJson("/chat/admin", "POST", {
+        chatId: this.chatId,
+        userId: this.user.id,
+        });
+      }
     },
-    removeAdmin() {
-      return;
+    async removeAdmin() {
+      if (this.role === "ADMIN") {
+        const removeAdminResponse = await makeApiCallJson("/chat/admin", "DELETE", {
+          chatId: this.chatId,
+          userId: this.user.id,
+        });
+      }
     },
     async refreshRole() {
-      // TODO: make API call using userID and chatID and store in ROLE
-      const roleResponse = await makeApiCall("");
+      const roleResponse = await makeApiCall("/chat/role/" + this.chatId + "/" + this.user.id);
 			if (roleResponse.ok) {
-				this.role = await ownerResponse.json();
-			}
+        this.role = await roleResponse.text();
+      }
     },
   },
   mounted() {
