@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsIn } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsIn, IsInt } from 'class-validator';
 import { User } from 'src/orm/entities/user.entity';
 import { Chat } from 'src/orm/entities/chat.entity';
 
@@ -49,10 +49,15 @@ export class ChatRoomDto {
 }
 
 export class ChatRoleDto {
-	@IsString()
+	@IsInt()
 	@IsNotEmpty()
-	chatName: string;
+	chatId: number;
 
-	@IsNotEmpty()
-	user: User;
+	@IsInt()
+	userId: number;
+}
+
+export interface ChatRoleUpdateInterface {
+	success: boolean,
+	chatName: string,
 }
