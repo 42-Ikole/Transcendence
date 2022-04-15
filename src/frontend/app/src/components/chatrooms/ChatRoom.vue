@@ -22,8 +22,20 @@
           <div
             class="card-header d-flex justify-content-between align-items-center p-3"
           >
-            <h2 class="mb-0 cr-name">{{ this.chat.name }}</h2>
+            <h3 class="mb-0 cr-name">{{ this.chat.name }}</h3>
             <div class="btn-toolbar" role="toolbar">
+              <div class="btn-group me-2" role="group">
+                <button
+                  type="button"
+                  class="btn btn-outline-info btn-lg"
+                  data-mdb-ripple-color="dark"
+                  style="line-height: 1"
+                  @click="inviteUser"
+                  v-if="chat.type === 'private' && (isOwner || isAdmin)"
+                >
+                  Invite
+                </button>
+              </div>
               <div class="btn-group me-2" role="group">
                 <button
                   type="button"
@@ -41,10 +53,10 @@
                   class="btn btn-outline-danger btn-lg"
                   data-mdb-ripple-color="dark"
                   style="line-height: 1"
-                  @click="leaveRoom"
-                  v-if="!isOwner"
+                  @click="deleteRoom"
+                  v-if="isOwner"
                 >
-                  Leave chat
+                  Delete chat
                 </button>
                 <button
                   type="button"
@@ -52,9 +64,9 @@
                   data-mdb-ripple-color="dark"
                   style="line-height: 1"
                   @click="leaveRoom"
-                  v-else-if="isOwner"
+                  v-else-if="!isOwner"
                 >
-                  Delete chat
+                  Leave chat
                 </button>
               </div>
             </div>
@@ -181,6 +193,16 @@ export default defineComponent({
     leaveRoom() {
       this.socket.emit("leaveRoom", { roomName: this.chat.name });
     },
+    async deleteRoom() {
+      const removeChatResponse = await makeApiCall("/chat/" + this.chat.id, { method: "DELETE" });
+      if (removeChatResponse.ok) {
+        this.$emit("roomDeleted", this.chat.name);
+        this.switchToRoomList();
+      }
+    },
+    inviteUser() {
+      console.log('ja pannenkoek');
+    },
     async refreshChat() {
       const messagesResponse = await makeApiCall(
         "/chat/messages/" + this.chat.name
@@ -196,17 +218,16 @@ export default defineComponent({
       const adminResponse = await makeApiCall("chat/admins/" + this.chat.name);
       if (adminResponse.ok) {
         this.admins = await adminResponse.json();
-        console.log("ADMINS: ", this.admins);
-      } else {
-        console.log('mislukt?');
       }
-      console.log("OWNER: ", this.chat.owner);
     },
   },
   computed: {
     ...mapState(useSocketStore, {
       socket: "chat",
     }),
+    isAdmin() {
+      return useChatStore().isAdmin(this.chat.id);
+    },
     isOwner() {
       return useChatStore().isOwner(this.chat.id);
     },
@@ -221,6 +242,8 @@ export default defineComponent({
     this.socket.on("subscribeToChatFailure", () => {
       console.log("failed");
     });
+    this.socket.on("roomDeleted", this.switchToRoomList);
+    useChatStore().refresh();
   },
   unmounted() {
     this.socket.emit("unsubscribeToChat", { roomName: this.chat.name });
@@ -229,6 +252,7 @@ export default defineComponent({
     this.socket.removeListener("userJoinedRoom", this.userJoinsChat);
     this.socket.removeListener("userLeftRoom", this.userLeavesChat);
     this.socket.removeListener("leaveRoomSuccess", this.switchToRoomList);
+    this.socket.removeListener("roomDeleted", this.switchToRoomList);
   },
   components: {
     ChatUserDropdown,

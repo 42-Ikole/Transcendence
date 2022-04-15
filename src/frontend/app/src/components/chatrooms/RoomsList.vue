@@ -2,17 +2,20 @@
   <div class="container py-5" v-if="isWaiting">
     <div
       class="card-header justify-content-between align-items-center p-3"
-      style="width: 35%; background-color: #dee"
+      style="width: 40%; background-color: #dee"
     >
       <form
         class="form-check"
-        style="padding-bottom: 20px"
+        style="padding-bottom: 20x"
         v-for="allChats in chats"
         :key="allChats.chat"
         @submit.prevent="joinRoom"
       >
         <h3 v-if="allChats === chats.joinedChats">Your chatrooms:</h3>
         <h3 v-else>Other chatrooms:</h3>
+        <div v-if="allChats.length === 0">
+          <i class="text-muted fs-6">There are no chatrooms here.</i>
+        </div>
         <div class="form-check" v-for="chat in allChats" :key="chat.name">
           <input
             class="form-check-input"
@@ -53,6 +56,7 @@
           </div>
         </div>
       </form>
+      <div v-if="showDeleted" class="text-danger" style="padding-bottom: 5px">'{{ this.roomDeleted }}' is succesfully deleted!</div>
       <div v-if="correctPassword === false" class="text-danger" style="padding-bottom: 5px;">Invalid password!</div>
       <button class="btn btn-info btn-sm float-end" @click="createRoom">
         Create room
@@ -67,7 +71,7 @@
     </div>
   </div>
   <div v-if="isJoining">
-    <Chatroom :chat="selectedChat" @roomLeft="setWaiting" />
+    <Chatroom :chat="selectedChat" @roomLeft="setWaiting" @roomDeleted="isDeleted"/>
   </div>
   <div v-if="isCreating">
     <CreateRoom @roomCreated="setWaiting" />
@@ -101,6 +105,8 @@ interface DataObject {
   typedPassword: string;
   showPassword: boolean;
   correctPassword: boolean;
+  showDeleted: boolean;
+  roomDeleted: string;
 }
 
 export default defineComponent({
@@ -113,6 +119,8 @@ export default defineComponent({
       typedPassword: "",
       showPassword: false,
       correctPassword: true,
+      showDeleted: false,
+      roomDeleted: "",
     };
   },
   computed: {
@@ -135,6 +143,8 @@ export default defineComponent({
   methods: {
     createRoom() {
       this.state = State.CREATING;
+      this.showDeleted = false;
+      this.roomDeleted = "";
     },
     async joinRoom() {
       this.socket.emit("joinRoom", {
@@ -153,10 +163,16 @@ export default defineComponent({
       this.showPassword = false;
       this.correctPassword = true;
     },
+    isDeleted(roomName: string) {
+      this.showDeleted = true;
+      this.roomDeleted = roomName;
+      this.setWaiting();
+    },
     async getAllChats() {
       const response = await makeApiCall("/chat");
       if (response.ok) {
         this.chats = await response.json();
+        console.log('ALL CHATS: ', this.chats);
       }
     },
     joinRoomSuccessfully() {
@@ -179,25 +195,38 @@ export default defineComponent({
       }
     },
     async refreshChatList() {
+      console.log("kaas");
       await this.getAllChats();
+    },
+    roomCreatedF() {
+      console.log("room created");
+      this.refreshChatList();
+    },
+    roomDeletedF() {
+      console.log("room deleted");
+      this.refreshChatList();
     },
   },
   async mounted() {
     await this.getAllChats();
     this.socket.on("joinRoomSuccess", this.joinRoomSuccessfully);
     this.socket.on("joinRoomFailure", this.joinRoomFailed);
-    this.socket.on("createRoom", this.refreshChatList);
+    this.socket.on("roomCreated", this.roomCreatedF);
+    this.socket.on("roomDeleted", this.roomDeletedF);
   },
   unmounted() {
     this.socket.removeListener("joinRoomSuccess", this.joinRoomSuccessfully);
     this.socket.removeListener("joinRoomFailure", this.joinRoomFailed);
-    this.socket.removeListener("createRoom", this.refreshChatList);
+    this.socket.removeListener("roomCreated", this.roomCreatedF);
+    this.socket.removeListener("roomDeleted", this.roomDeletedF);
   },
   watch: {
     selectedChatName(newRoom, oldRoom) {
       if (oldRoom !== this.selectedChatName) {
         this.typedPassword = "";
         this.correctPassword = true;
+        this.showDeleted = false;
+        this.roomDeleted = "";
       }
     },
   },

@@ -53,8 +53,8 @@
         Room name:
         <input
           class="card-title col-8"
-          placeholder="Maximum length of 32"
-          maxlength="32"
+          placeholder="Maximum length of 20"
+          maxlength="20"
           type="text"
           v-model="name"
         />
