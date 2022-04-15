@@ -97,7 +97,12 @@ export class ChatService {
 		// Broadcast that a new room has been created.
 		this.socketService.chatServer.emit('createRoom', {room: chat});
 		return chat;
-  }
+	}
+
+	async deleteChat(chatId: number): Promise<Chat> {
+		const chat: Chat = await this.findById(chatId);
+		return this.chatRepository.remove(chat);
+	}
 
   async addMessage(message: IncomingMessageDtO, user: User): Promise<Message> {
     const messageToDatabase = {

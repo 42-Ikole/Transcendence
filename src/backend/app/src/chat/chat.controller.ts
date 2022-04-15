@@ -32,7 +32,6 @@ export class ChatController {
   @Get()
   async findAll(@Req() request: RequestWithUser): Promise<AllChatsDto> {
     // Get all basic information about the chat rooms.
-
     return await this.chatService.findAll(request.user);
   }
 
@@ -114,6 +113,17 @@ export class ChatController {
 		};
     // Add the chat to the database.
     return await this.chatService.createChat(createChatInterface);
+	}
+
+	@Delete(':/chatid')
+	@ApiParam({
+		name: 'chatid',
+		required: true,
+		description: 'Id of a chatroom',
+		type: Number,
+	})
+	async deleteChat(@Param('chatid', ParseIntPipe) chatId: number) {
+		await this.chatService.deleteChat(chatId);
 	}
 
 	@Post('/admin')
