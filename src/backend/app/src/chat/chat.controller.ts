@@ -8,8 +8,6 @@ import {
   NotFoundException,
   UseGuards,
   Req,
-	NotAcceptableException,
-	ImATeapotException,
 	Delete,
 	ParseIntPipe,
 } from '@nestjs/common';
@@ -114,19 +112,8 @@ export class ChatController {
       owner: request.user,
       members: [request.user],
 		};
-		if (createChatInterface.type == 'protected' && createChatInterface.password === '') {
-			throw new ImATeapotException();
-		}
-    const valid: boolean = this.chatService.isValidRoomname(createChatInterface.name);
-    if (!valid) {
-      throw new NotAcceptableException();
-    }
     // Add the chat to the database.
-    const chat: Chat = await this.chatService.createChat(createChatInterface);
-    // Broadcast the new room to everyone.
-    this.socketService.chatServer.emit('createRoom', { room: chat });
-    console.log('Emited createRoom');
-    return chat;
+    return await this.chatService.createChat(createChatInterface);
 	}
 
 	@Post('/admin')

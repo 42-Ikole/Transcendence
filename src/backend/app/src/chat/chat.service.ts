@@ -3,6 +3,8 @@ import {
   ConflictException,
   NotFoundException,
 	UnauthorizedException,
+	ImATeapotException,
+	NotAcceptableException,
 } from '@nestjs/common';
 import {
   IncomingMessageDtO,
@@ -16,6 +18,7 @@ import { Chat } from 'src/orm/entities/chat.entity';
 import { Message } from 'src/orm/entities/message.entity';
 import { User } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
+import { SocketService } from 'src/websocket/socket.service';
 
 @Injectable()
 export class ChatService {
@@ -23,6 +26,7 @@ export class ChatService {
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
 		@InjectRepository(Message) private messageRepository: Repository<Message>,
 		private userService: UserService,
+		private socketService: SocketService,
   ) {}
 
   async findAll(user: User): Promise<AllChatsDto> {
@@ -73,10 +77,25 @@ export class ChatService {
 	}
 
   async createChat(param: CreateChatInterface): Promise<Chat> {
+		// Check if the password has been set if the type is protected.
+		if (param.type == 'protected' && param.password === '') {
+			throw new ImATeapotException();
+		}
+		// Check if the roomname is valid.
+    if (!this.isValidRoomname(param.name)) {
+      throw new NotAcceptableException();
+		}
+		// Check if the chat does not already exist.
     const existingChat = await this.findByName(param.name);
-    if (existingChat !== undefined) throw new ConflictException();
-    const newChat: Chat = this.chatRepository.create(param);
-    return await this.chatRepository.save(newChat);
+    if (existingChat !== undefined) {
+			throw new ConflictException();
+		}
+		// Create the new chat from the parameters.
+    const chat: Chat = this.chatRepository.create(param);
+		await this.chatRepository.save(chat);
+		// Broadcast that a new room has been created.
+		this.socketService.chatServer.emit('createRoom', {room: chat});
+		return chat;
   }
 
   async addMessage(message: IncomingMessageDtO, user: User): Promise<Message> {
