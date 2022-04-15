@@ -100,7 +100,6 @@ export class ChatController {
 		type: Number,
 	})
 	async getRoleForUserInChat(@Param('chatid', ParseIntPipe) chatId: number, @Param('userid', ParseIntPipe) userId: number): Promise<string> {
-		console.log('ik hier');
 		return await this.chatService.userRoleInChat(chatId, userId);
 	}
 
