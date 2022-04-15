@@ -122,8 +122,11 @@ export class ChatController {
 		description: 'Id of a chatroom',
 		type: Number,
 	})
-	async deleteChat(@Param('chatid', ParseIntPipe) chatId: number) {
-		await this.chatService.deleteChat(chatId);
+	async deleteChat(
+		@Req() request: RequestWithUser,
+		@Param('chatid', ParseIntPipe) chatId: number,
+		): Promise<void> {
+		await this.chatService.deleteChat(request.user, chatId);
 	}
 
 	@Post('/admin')

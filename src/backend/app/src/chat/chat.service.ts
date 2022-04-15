@@ -99,8 +99,14 @@ export class ChatService {
 		return chat;
 	}
 
-	async deleteChat(chatId: number): Promise<Chat> {
+	async deleteChat(requestingUser: User, chatId: number): Promise<Chat> {
+		// Get the chat.
 		const chat: Chat = await this.findById(chatId);
+		// Check if the user who requested the delete owns this chat.
+		if (!this.userIsOwner(requestingUser, chat)) {
+			throw new UnauthorizedException();
+		}
+		// Remove the chat.
 		return this.chatRepository.remove(chat);
 	}
 
