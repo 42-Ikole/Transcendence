@@ -30,10 +30,11 @@ export class ChatService {
   ) {}
 
   async findAll(user: User): Promise<AllChatsDto> {
-    console.log('finding rooms for user:', user.username);
+		// Find all members and owner of all the rooms.
     const chats = await this.chatRepository.find({
       relations: ['members', 'owner'],
-    });
+		});
+		// Put the chatrooms into the interface to send it back to the frontend.
     const allChats: AllChatsDto = { joinedChats: [], otherChats: [] };
     for (const chat of chats) {
       if (this.userIsInChat(user, chat)) {
@@ -256,7 +257,7 @@ export class ChatService {
 
   isValidRoomname(name: string): boolean {
 		const len = name.length;
-		if (len > 32) {
+		if (len > 20) {
 			return false;
 		}
     for (let i = 0; i < len; i++) {
