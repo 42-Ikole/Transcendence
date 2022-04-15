@@ -36,6 +36,11 @@
             Send Challenge
           </button>
         </li>
+        <li v-if="isPlaying">
+          <button @click="observeUser" class="dropdown-item" type="button">
+            Observe Game
+          </button>
+        </li>
         <li>
           <hr class="dropdown-divider" />
         </li>
@@ -98,6 +103,7 @@ import { defineComponent, type PropType } from "vue";
 import type { PublicUser } from "@/types/UserType";
 import { useFriendStore } from "@/stores/FriendStore";
 import { useUserStore } from "@/stores/UserStore";
+import { useSocketStore } from "@/stores/SocketStore";
 import { challengeUser } from "@/utils/Pong";
 import { sendFriendRequest, unfriend, unblock, block } from "@/utils/Friends";
 import { stopTrackingUserStatus, trackUserStatus } from "@/utils/StatusTracker";
@@ -143,6 +149,9 @@ export default defineComponent({
     },
     isOffline() {
       return this.status === "OFFLINE";
+    },
+    isPlaying() {
+      return this.status === "PLAYING";
     },
     isAdmin() {
       // SELF === the user that is controlling the frontend (userStore), not the user the dropdown belongs to
@@ -196,6 +205,9 @@ export default defineComponent({
     removeAdmin() {
       return;
     },
+    observeUser() {
+      useSocketStore().pong!.emit("requestObserve", { userId: this.user.id });
+    }
   },
   mounted() {
     this.status = this.user.status;
