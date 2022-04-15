@@ -156,7 +156,6 @@ export default defineComponent({
       this.showPassword = !this.showPassword;
     },
     setWaiting() {
-      this.getAllChats();
       this.state = State.WAITING;
       this.selectedChatName = "";
       this.typedPassword = "";
@@ -172,7 +171,6 @@ export default defineComponent({
       const response = await makeApiCall("/chat");
       if (response.ok) {
         this.chats = await response.json();
-        console.log('ALL CHATS: ', this.chats);
       }
     },
     joinRoomSuccessfully() {
@@ -195,30 +193,21 @@ export default defineComponent({
       }
     },
     async refreshChatList() {
-      console.log("kaas");
       await this.getAllChats();
-    },
-    roomCreatedF() {
-      console.log("room created");
-      this.refreshChatList();
-    },
-    roomDeletedF() {
-      console.log("room deleted");
-      this.refreshChatList();
     },
   },
   async mounted() {
     await this.getAllChats();
     this.socket.on("joinRoomSuccess", this.joinRoomSuccessfully);
     this.socket.on("joinRoomFailure", this.joinRoomFailed);
-    this.socket.on("roomCreated", this.roomCreatedF);
-    this.socket.on("roomDeleted", this.roomDeletedF);
+    this.socket.on("roomCreated", this.refreshChatList);
+    this.socket.on("roomDeleted", this.refreshChatList);
   },
   unmounted() {
     this.socket.removeListener("joinRoomSuccess", this.joinRoomSuccessfully);
     this.socket.removeListener("joinRoomFailure", this.joinRoomFailed);
-    this.socket.removeListener("roomCreated", this.roomCreatedF);
-    this.socket.removeListener("roomDeleted", this.roomDeletedF);
+    this.socket.removeListener("roomCreated", this.refreshChatList);
+    this.socket.removeListener("roomDeleted", this.refreshChatList);
   },
   watch: {
     selectedChatName(newRoom, oldRoom) {
