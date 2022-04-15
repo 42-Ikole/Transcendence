@@ -64,13 +64,18 @@
               Unfriend
             </button>
           </li>
-          <li>
-          </li>
           <li v-if="isAdmin">
             <hr class="dropdown-divider" />
-            <button @click="muteUser" class="dropdown-item" type="button">
-              Mute
-            </button>
+            <div v-if="!isMuted">
+              <button @click="muteUser" class="dropdown-item" type="button">
+                Mute
+              </button>
+            </div>
+            <div v-if="isMuted">
+              <button @click="unmuteUser" class="dropdown-item" type="button">
+                Unmute
+              </button>
+            </div>
           </li>
           <li v-if="isAdmin">
             <div v-if="!isBanned">
@@ -118,6 +123,10 @@ type RoleType = "OWNER" | "ADMIN" | "MEMBER"
 interface DataObject {
   status: string;
   role: RoleType;
+  mute: {
+    on: boolean,
+    duration: number,
+  };
 }
 
 export default defineComponent({
@@ -136,10 +145,13 @@ export default defineComponent({
     },
   },
   data(): DataObject {
-    console.log("USER INFO: ", this.user);
     return {
       status: "",
       role: "MEMBER",
+      mute: {
+        on: false,
+        duration: 0,
+      },
     };
   },
   computed: {
@@ -179,7 +191,10 @@ export default defineComponent({
       return this.isOwner && this.role === "ADMIN";
     },
     isBanned() {
-      //return this.user.banStatus;
+      //return this.user.isBanned;
+    },
+    isMuted() {
+      //return this.user.isMuted;
     }
   },
   methods: {
@@ -209,6 +224,9 @@ export default defineComponent({
     },
     muteUser() {
       return;
+    },
+    unmuteUser() {
+      return ;
     },
     banUser() {
       //this.user.banStatus != this.user.banStatus;
