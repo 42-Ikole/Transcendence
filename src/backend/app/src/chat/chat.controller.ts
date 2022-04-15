@@ -11,6 +11,7 @@ import {
 	NotAcceptableException,
 	ImATeapotException,
 	Delete,
+	ParseIntPipe,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto, CreateChatInterface, AllChatsDto, ChatRoleDto } from './chat.types';
@@ -85,12 +86,12 @@ export class ChatController {
 		return chat.admins;
 	}
 
-	@Get('/role/:chatname/:userid')
+	@Get('/role/:chatid/:userid')
 	@ApiParam({
-		name: 'chatname',
+		name: 'chatid',
 		required: true,
-		description: 'Name of a chatroom',
-		type: String,
+		description: 'Id of a chatroom',
+		type: Number,
 	})
 	@ApiParam({
 		name: 'userid',
@@ -98,8 +99,9 @@ export class ChatController {
 		description: 'Id of a user',
 		type: Number,
 	})
-	async getRoleForUserInChat(@Param('chatname') chatname: string, @Param('userid') userId: number): Promise<string> {
-		return await this.chatService.userRoleInChat(chatname, userId);
+	async getRoleForUserInChat(@Param('chatid', ParseIntPipe) chatId: number, @Param('userid', ParseIntPipe) userId: number): Promise<string> {
+		console.log('ik hier');
+		return await this.chatService.userRoleInChat(chatId, userId);
 	}
 
   @Post()

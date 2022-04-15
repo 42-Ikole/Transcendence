@@ -62,7 +62,14 @@ export class ChatService {
       where: [{ name: name }],
       relations: relations,
     });
-  }
+	}
+
+	async findById(id: number, relations = []): Promise<Chat> {
+		return await this.chatRepository.findOne({
+			where: [{id: id}],
+			relations: relations,
+		});
+	}
 
   async createChat(param: CreateChatInterface): Promise<Chat> {
     const existingChat = await this.findByName(param.name);
@@ -152,8 +159,8 @@ export class ChatService {
     return;
 	}
 
-	async userRoleInChat(chatname: string, userId: number): Promise<string> {
-		const chat: Chat = await this.findByName(chatname, ['members', 'admins', 'owner']);
+	async userRoleInChat(chatId: number, userId: number): Promise<string> {
+		const chat: Chat = await this.findById(chatId, ['members', 'admins', 'owner']);
 		if (chat === undefined) {
 			throw new NotFoundException();
 		}
