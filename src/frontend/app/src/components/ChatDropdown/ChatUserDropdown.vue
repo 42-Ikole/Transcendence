@@ -151,7 +151,7 @@ export default defineComponent({
       return this.status === "OFFLINE";
     },
     canObserve() {
-      return [ "PLAYING" , "OBSERVING" ].includes(this.status);
+      return ["PLAYING", "OBSERVING"].includes(this.status);
     },
     isAdmin() {
       // SELF === the user that is controlling the frontend (userStore), not the user the dropdown belongs to

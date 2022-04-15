@@ -184,7 +184,10 @@ function updateBallPosition(state: GameState) {
     state.ball.position.y - state.ball.radius <= 0 ||
     state.ball.position.y + state.ball.radius >= 1
   ) {
-    state.ball.direction.y = invertDirection(state.ball.position.y, state.ball.direction.y);
+    state.ball.direction.y = invertDirection(
+      state.ball.position.y,
+      state.ball.direction.y,
+    );
     if (state.default == false && state.ball.position.y <= 0) {
       state.ball.radius += 0.001;
     } else if (state.default == false && state.ball.position.y >= 1) {

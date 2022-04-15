@@ -374,7 +374,10 @@ export class PongGateway
   }
 
   @SubscribeMessage('movement')
-  movement(@ConnectedSocket() client: SocketWithUser, @MessageBody() data: PressedKeys) {
+  movement(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: PressedKeys,
+  ) {
     const gameRoom = this.pongService.getGameRoom(client.gameRoom);
     if (!gameRoom) {
       return;
@@ -390,7 +393,10 @@ export class PongGateway
   DTO: userId of user who is playing a game OR roomName of name of room to join
   */
   @SubscribeMessage('requestObserve')
-  observe(@ConnectedSocket() client: SocketWithUser, @MessageBody() observeDto: ObserveGameDto) {
+  observe(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() observeDto: ObserveGameDto,
+  ) {
     let roomName: string;
     console.log('Dto:', observeDto);
     if (observeDto.roomName) {

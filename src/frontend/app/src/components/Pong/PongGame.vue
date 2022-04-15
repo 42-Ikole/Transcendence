@@ -36,8 +36,6 @@ interface DataObject {
   isSpecialMode: boolean;
 }
 
-let finished = false;
-
 export default defineComponent({
   props: {
     observing: Boolean,
@@ -167,7 +165,6 @@ export default defineComponent({
       this.socket!.removeListener("updatePosition", this.updateObserver);
     }
     window.onblur = null;
-    finished = true;
   },
 });
 </script>

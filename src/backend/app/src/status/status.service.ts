@@ -30,7 +30,8 @@ export class StatusService {
       id,
       'from',
       this.getState(id),
-      'to', state,
+      'to',
+      state,
     );
     if (state === 'OFFLINE') {
       delete this.userStatus[id];
