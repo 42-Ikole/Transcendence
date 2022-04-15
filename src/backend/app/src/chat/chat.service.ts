@@ -114,7 +114,7 @@ export class ChatService {
     userId: number,
   ): Promise<ChatRoleUpdateInterface> {
 		// Get the chat.
-		const chat: Chat = await this.findById(chatId, ['admins']);
+		const chat: Chat = await this.findById(chatId, ['admins', 'owner']);
 		if (chat === undefined) {
 			throw new NotFoundException();
 		}
@@ -142,7 +142,7 @@ export class ChatService {
     userId: number,
   ): Promise<ChatRoleUpdateInterface> {
 		// Get the chat.
-		const chat: Chat = await this.findById(chatId, ['admins']);
+		const chat: Chat = await this.findById(chatId, ['admins', 'owner']);
 		if (chat === undefined) {
 			throw new NotFoundException();
 		}
