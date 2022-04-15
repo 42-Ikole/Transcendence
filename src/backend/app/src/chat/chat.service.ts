@@ -107,7 +107,7 @@ export class ChatService {
 			throw new UnauthorizedException();
 		}
 		// Remove the chat.
-		this.chatRepository.remove(chat);
+		await this.chatRepository.remove(chat);
 		// Broadcast to everyone in the room that it has been deleted.
 		this.socketService.chatServer.emit('roomDeleted', {room: chat});
 		return chat;
