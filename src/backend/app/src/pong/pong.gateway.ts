@@ -31,6 +31,7 @@ import { WsExceptionFilter } from 'src/websocket/websocket.exception.filter';
 import { SocketService } from '../websocket/socket.service';
 import { StatusService } from 'src/status/status.service';
 import { UserState } from 'src/status/status.types';
+import { AchievementService } from 'src/achievements/achievements.service';
 
 /*
 Endpoints:
@@ -60,6 +61,7 @@ export class PongGateway
     private matchService: MatchService,
     private socketService: SocketService,
     private statusService: StatusService,
+    private achievementService: AchievementService,
   ) {}
 
   @WebSocketServer() wss: Server;
@@ -131,6 +133,8 @@ export class PongGateway
     this.setStateIfOnline(gameRoom.playerTwo.userId, 'ONLINE');
     this.addMatchHistory(roomName);
     this.deleteGame(roomName);
+    this.achievementService.checkPongAchievements(gameRoom.playerOne.userId);
+    this.achievementService.checkPongAchievements(gameRoom.playerTwo.userId);
   }
 
   addMatchHistory(roomName: string) {

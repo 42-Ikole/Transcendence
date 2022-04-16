@@ -4,54 +4,67 @@ interface IAchievement {
 	description: string;
 }
 
+export enum Achievements {
+	SETUP_ACCOUNT = 1,
+	PLAY_GAME,
+	WIN_GAME,
+	LOSE_GAME,
+	WIN_TEN_GAMES,
+	UPLOAD_AVATAR,
+	BLOCK_USER,
+	SEND_FRIEND_REQUEST,
+	MAKE_FRIEND,
+	UNFRIEND,
+}
+
 export const ACHIEVEMENTS: IAchievement[] = [
 	{
-		id: 1,
+		id: Achievements.SETUP_ACCOUNT,
 		name: "All Set!",
 		description: "Set up account information.",
 	},
 	{
-		id: 2,
+		id: Achievements.PLAY_GAME,
 		name: "Pong",
 		description: "Play a game of Pong.",
 	},
 	{
-		id: 3,
+		id: Achievements.WIN_GAME,
 		name: "God",
 		description: "Win a game of Pong.",
 	},
 	{
-		id: 4,
+		id: Achievements.LOSE_GAME,
 		name: "RIP",
 		description: "Lose a game of Pong.",
 	},
 	{
-		id: 5,
+		id: Achievements.WIN_TEN_GAMES,
 		name: "This eval is lasting longer than expected...",
 		description: "Win 10 games of Pong.",
 	},
 	{
-		id: 6,
+		id: Achievements.UPLOAD_AVATAR,
 		name: "Fancy",
 		description: "Upload an avatar.",
 	},
 	{
-		id: 7,
+		id: Achievements.BLOCK_USER,
 		name: "Hater",
 		description: "Block a user.",
 	},
 	{
-		id: 8,
+		id: Achievements.SEND_FRIEND_REQUEST,
 		name: "Notice me",
 		description: "Send a friend request.",
 	},
 	{
-		id: 9,
+		id: Achievements.MAKE_FRIEND,
 		name: "F is for friends who do stuff together",
 		description: "Make a friend.",
 	},
 	{
-		id: 10,
+		id: Achievements.UNFRIEND,
 		name: "U is for U and ME",
 		description: "Unfriend someone.",
 	},

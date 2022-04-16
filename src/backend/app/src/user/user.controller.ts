@@ -61,19 +61,21 @@ export class UserController {
     return new PublicUser(await this.userService.findById(id));
   }
 
-  @Get('findIntraId/:id')
-  async findByIntraId(@Param('id') id): Promise<User> {
-    return await this.userService.findByIntraId(id);
-  }
-
   @Get('matches_won/:id')
-  async findWinner(@Param('id') id) {
+  async findWinner(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findWins(id);
   }
 
   @Get('matches_lost/:id')
-  async findLosses(@Param('id') id) {
+  async findLosses(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findLosses(id);
+  }
+
+  @Get('achievements/:id')
+  async findAchievements(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.findById(id, {
+      relations: ["achievements"]
+    });
   }
 
   @Patch('update')

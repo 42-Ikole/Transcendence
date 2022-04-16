@@ -1,4 +1,4 @@
-import { Controller, Get, } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Post, } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AchievementService } from './achievements.service';
   
@@ -9,6 +9,11 @@ export class AchievementController {
 
 	@Get()
 	async findAll() {
-		return await this.achievementService.findAll();
+		return await this.achievementService.findAll({ relations: ["users"] });
+	}
+
+	@Post('test/:id')
+	test(@Param('id', ParseIntPipe) id: number) {
+		return this.achievementService.checkPongAchievements(id);
 	}
 }
