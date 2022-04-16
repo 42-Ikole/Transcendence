@@ -2,7 +2,6 @@
   <div class="container mt-4">
     <div class="row">
       <div class="col-md-5">
-        <!-- <div class="profileImg" v-bind:class="statusStyling"></div> -->
         <div
           class="profileImg"
           v-bind:class="statusStyling"
@@ -17,8 +16,11 @@
         </ul>
       </div>
       <div class="col-md-7">
-        <h1>{{ this.profileData.username }}</h1>
+        <h1>{{ profileData.username }}</h1>
         <p class="status" v-bind:class="statusStyling">{{ userStatus }}</p>
+        <p class="text-white"> Game Wins: {{ matchStats.winCount }} </p> 
+        <p class="text-white"> Game Losses: {{ matchStats.lossCount }} </p> 
+        <p class="text-white"> Matchmaking Rating: {{ matchStats.rating }} </p>
         <hr />
         <MatchHistory :userId="userId" />
       </div>
@@ -62,6 +64,17 @@ import MatchHistory from "@/components/profile/MatchHistory.vue";
 import type { PublicUser } from "@/types/UserType";
 import Trophy from "@/components/icons/IconTrophy.vue";
 import { makeAvatarUrl } from "@/stores/UserStore";
+import makeApiCall from "@/utils/ApiCall";
+
+interface MatchStats {
+	winCount: number;
+	lossCount: number;
+	rating: number;
+}
+
+interface DataObject {
+  matchStats: MatchStats;
+}
 
 export default defineComponent({
   props: {
@@ -69,6 +82,11 @@ export default defineComponent({
       type: Object as PropType<PublicUser>,
       required: true,
     },
+  },
+  data(): DataObject {
+    return {
+      matchStats: { winCount: 0, lossCount: 0, rating: 0}
+    };
   },
   computed: {
     userId() {
@@ -97,6 +115,10 @@ export default defineComponent({
   components: {
     MatchHistory,
     Trophy,
+  },
+  async mounted() {
+    const response = await makeApiCall(`/match/stats/${this.userId}`);
+    this.matchStats = await response.json();;
   },
 });
 </script>
