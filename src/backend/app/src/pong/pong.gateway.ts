@@ -329,8 +329,8 @@ export class PongGateway
     this.setStateIfOnline(clientTwo.user.id, 'PLAYING');
 
     const gameState = newGameState(
-      clientOne.user.username,
-      clientTwo.user.username,
+      clientOne.user.id,
+      clientTwo.user.id,
       mode,
     );
     // discuss: timeout for starting game

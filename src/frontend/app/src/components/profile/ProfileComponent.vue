@@ -10,7 +10,8 @@
         <AchievementList :userId="userId" />
       </div>
       <div class="col-md-7">
-        <h1>{{ profileData.username }}</h1>
+        <h1> {{ profileData.username }} </h1>
+        <ChatUserDropdown :user="profileData" :showChatOptions="false" />
         <p class="status" v-bind:class="statusStyling">{{ userStatus }}</p>
         <p class="text-white"> Game Wins: {{ matchStats.winCount }} </p> 
         <p class="text-white"> Game Losses: {{ matchStats.lossCount }} </p> 
@@ -59,6 +60,7 @@ import type { PublicUser } from "@/types/UserType";
 import { makeAvatarUrl } from "@/stores/UserStore";
 import makeApiCall from "@/utils/ApiCall";
 import AchievementList from "./AchievementList.vue";
+import ChatUserDropdown from "../ChatDropdown/ChatUserDropdown.vue";
 
 interface MatchStats {
 	winCount: number;
@@ -108,8 +110,9 @@ export default defineComponent({
   },
   components: {
     MatchHistory,
-    AchievementList
-  },
+    AchievementList,
+    ChatUserDropdown
+},
   async mounted() {
     const response = await makeApiCall(`/match/stats/${this.userId}`);
     this.matchStats = await response.json();;

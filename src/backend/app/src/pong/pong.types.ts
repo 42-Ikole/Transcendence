@@ -17,7 +17,7 @@ export interface SpecialMoves {
 
 export interface Player {
   bar: PongBar;
-  username: string;
+  id: number;
   score: number;
   specialMoves: SpecialMoves;
 }
