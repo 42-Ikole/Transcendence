@@ -7,6 +7,7 @@
         class="input-group-text form-control-lg"
         @keyup.enter="updateUsername"
         v-model="newUsername"
+        maxlength="30"
         :placeholder="username"
       />
       <button

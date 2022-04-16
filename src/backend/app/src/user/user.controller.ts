@@ -25,11 +25,16 @@ import { Response } from 'express';
 import { Readable } from 'stream';
 import { createReadStream } from 'fs';
 import { join } from 'path';
+import { imageFileFilter } from 'src/avatar/avatar.utils';
+import { SocketService } from 'src/websocket/socket.service';
 
 @ApiTags('user')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly socketService: SocketService,
+  ) {}
 
   ////////////
   // Create //
@@ -81,12 +86,16 @@ export class UserController {
 
   @Patch('update')
   async updateUser(@Req() request: RequestWithUser, @Body() user: PartialUser) {
-    return await this.userService.update(request.user.id, user);
+    await this.userService.update(request.user.id, user);
+    this.socketService.statusServer.emit('friendUpdate');
   }
 
   @Post('uploadAvatar')
   @UseGuards(AuthenticatedGuard)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      fileFilter: imageFileFilter,
+    }))
   async uploadAvatar(
     @Req() request: RequestWithUser,
     @UploadedFile() file: Express.Multer.File,

@@ -9,12 +9,14 @@ import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { IntraUser } from 'src/user/user.interface';
 import { AvatarService } from 'src/avatar/avatar.service';
 import { Avatar, AvatarData } from 'src/orm/entities/avatar.entity';
+import { SocketService } from 'src/websocket/socket.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private readonly avatarService: AvatarService,
+    private readonly socketService: SocketService,
   ) {}
 
   ////////////
@@ -89,6 +91,7 @@ export class UserService {
       avatar = await this.avatarService.uploadAvatar(file);
     }
     await this.userRepository.update(id, { avatarId: avatar.id });
+    this.socketService.statusServer.emit('updateAvatar');
     return avatar;
   }
 
