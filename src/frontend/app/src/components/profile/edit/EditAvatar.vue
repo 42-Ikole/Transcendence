@@ -31,6 +31,8 @@ interface DataObject {
   status: string;
 }
 
+const MAX_FILE_SIZE = 1024 * 1024 * 10
+
 export default defineComponent({
   data(): DataObject {
     return {
@@ -46,23 +48,40 @@ export default defineComponent({
   methods: {
     async submitFile() {
       const formData = new FormData();
-      console.log(this.file);
       formData.append("file", this.file);
       const response = await makeApiCall("/user/uploadAvatar", {
         method: "POST",
         body: formData,
       });
       if (response.ok) {
-        console.log(response);
         useUserStore().updateAvatar();
         this.status = "Successfully updated avatar!";
       } else {
-        this.status = "Couldn't update avatar!";
+      this.status = "Couldn't update avatar!";
       }
       this.file = null;
     },
     handleFileUpload(event: any) {
       this.file = event.target.files[0];
+      this.status = "";
+      this.validateFile();
+    },
+    validateFile() {
+      if (!this.file.type || !this.isImage()) {
+        this.handleError('Invalid file type!');
+        return;
+      }
+      if (this.file.size > MAX_FILE_SIZE) {
+        const MB_SIZE = MAX_FILE_SIZE / 1024 / 1024;
+        this.handleError(`File too large! Max Size: ${MB_SIZE} MB`);
+      }
+    },
+    isImage() {
+      return this.file.type.startsWith('image/');
+    },
+    handleError(status: string) {
+      this.status = status;
+      this.file = null;
     },
   },
 });
