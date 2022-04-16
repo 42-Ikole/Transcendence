@@ -25,6 +25,14 @@ export class StatusService {
 
   updateUserState(id: number, state: UserState) {
     this.userService.update(id, { status: state });
+    console.log(
+      'changing state of',
+      id,
+      'from',
+      this.getState(id),
+      'to',
+      state,
+    );
     if (state === 'OFFLINE') {
       delete this.userStatus[id];
     } else {

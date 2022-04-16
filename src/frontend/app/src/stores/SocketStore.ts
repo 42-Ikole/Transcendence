@@ -24,9 +24,9 @@ export const useSocketStore = defineStore("socket", {
   },
   actions: {
     init() {
+      this.initStatusSocket();
       this.initPongSocket();
       this.initChatSocket();
-      this.initStatusSocket();
     },
     initStatusSocket() {
       this.status = io(STATUS_WS_ADDR, { withCredentials: true });
