@@ -31,7 +31,7 @@ export const useUserStore = defineStore("user", {
       state: "OFFLINE",
       authenticatedState: "OAUTH",
       profileData: null,
-      avatarUrl: "http://localhost:3000/user/avatar/0",
+      avatarUrl: "http://localhost:3000/user/avatar/0/0",
       updateCount: 0,
     };
   },
