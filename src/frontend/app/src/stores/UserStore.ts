@@ -1,28 +1,20 @@
 import { defineStore } from "pinia";
 import { useSocketStore } from "./SocketStore";
-import type { UserProfileData } from "@/types/UserType";
+import type {
+  AuthenticatedState,
+  UserProfileData,
+  UserState,
+} from "@/types/UserType";
 import makeApiCall from "@/utils/ApiCall";
 import { canMakeConnection } from "@/utils/Login";
 import { useFriendStore } from "./FriendStore";
-
-export type UserState =
-  | "OFFLINE"
-  | "ONLINE"
-  | "CONNECTION_DENIED"
-  | "SEARCHING"
-  | "PLAYING"
-  | "OBSERVING"
-  | "CHALLENGED";
-
-let updateCount = 0;
-
-export type AuthenticatedState = "AUTHENTICATED" | "2FA" | "OAUTH";
 
 interface UserStore {
   state: UserState;
   authenticatedState: AuthenticatedState;
   profileData: UserProfileData | null;
   avatarUrl: string;
+  updateCount: number;
 }
 
 async function initUserData(): Promise<UserProfileData> {
@@ -40,6 +32,7 @@ export const useUserStore = defineStore("user", {
       authenticatedState: "OAUTH",
       profileData: null,
       avatarUrl: "http://localhost:3000/user/avatar",
+      updateCount: 0,
     };
   },
   getters: {
@@ -52,8 +45,7 @@ export const useUserStore = defineStore("user", {
       const status = useSocketStore().status;
       if (status) {
         status.on('updateAvatar', () => {
-          console.log("updating avatar!");
-          updateCount += 1;
+          this.updateCount += 1;
           this.updateAvatar();
         });
       }
@@ -90,7 +82,9 @@ export const useUserStore = defineStore("user", {
       this.updateAvatar();
     },
     updateAvatar() {
-      this.avatarUrl = `http://localhost:3000/user/avatar/${this.profileData.id}/${updateCount}`;
+      this.avatarUrl = `http://localhost:3000/user/avatar/${
+        this.profileData!.id
+      }/${this.updateCount}`;
     },
     logout() {
       this.setAuthState("OAUTH");
@@ -100,3 +94,9 @@ export const useUserStore = defineStore("user", {
     },
   },
 });
+
+export function makeAvatarUrl(id: number) {
+  return `http://localhost:3000/user/avatar/${id}/${
+    useUserStore().updateCount
+  }`;
+}

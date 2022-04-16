@@ -2,14 +2,14 @@
   <div v-if="connectionDenied">
     <ConnectionDenied />
   </div>
-
+  <div v-else-if="isChallenging">Challenging user...</div>
   <div v-else>
     <header>
       <div v-if="isAuthenticated">
         <NavBar />
       </div>
     </header>
-    <RouterView />
+    <RouterView :key="$route.fullPath" />
   </div>
 </template>
 
@@ -38,6 +38,9 @@ export default defineComponent({
     },
     isAuthenticated() {
       return this.authenticatedState === "AUTHENTICATED";
+    },
+    isChallenging() {
+      return this.state === "CHALLENGING";
     },
   },
 });

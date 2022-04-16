@@ -23,6 +23,7 @@ type SocketMap = Record<number, UserSocket>;
 export class SocketService {
   public pongServer: Server = null;
   public statusServer: Server = null;
+  public chatServer: Server = null;
 
   public sockets: SocketMap = {}; // userId -> relatedSockets
 
