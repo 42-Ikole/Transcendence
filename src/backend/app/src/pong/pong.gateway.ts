@@ -136,15 +136,13 @@ export class PongGateway
     this.socketService.pongServer.socketsLeave(roomName);
   }
 
-  endGame(roomName: string, winner: PlayerIndex, loser: PlayerIndex) {
+  async endGame(roomName: string, winner: PlayerIndex, loser: PlayerIndex) {
     console.log('game ended:', roomName, 'winner:', winner, 'loser:', loser);
     const gameRoom = this.pongService.getGameRoom(roomName);
     this.setStateIfOnline(gameRoom.playerOne.userId, 'VIEWING_SCORE_SCREEN');
     this.setStateIfOnline(gameRoom.playerTwo.userId, 'VIEWING_SCORE_SCREEN');
-    this.addMatchHistory(roomName, winner, loser);
+    await this.addMatchHistory(roomName, winner, loser);
     this.deleteGame(roomName);
-    this.achievementService.checkPongAchievements(gameRoom.playerOne.userId);
-    this.achievementService.checkPongAchievements(gameRoom.playerTwo.userId);
   }
 
   getWinner(roomName: string): PlayerIndex {
@@ -167,16 +165,18 @@ export class PongGateway
     return 'playerOne';
   }
 
-  addMatchHistory(roomName: string, winner: PlayerIndex, loser: PlayerIndex) {
+  async addMatchHistory(roomName: string, winner: PlayerIndex, loser: PlayerIndex) {
     const gameRoom = this.pongService.getGameRoom(roomName);
 
-    this.createMatchHistory(
+    await this.createMatchHistory(
       gameRoom[winner].userId,
       gameRoom.gameState[winner].score,
       gameRoom[loser].userId,
       gameRoom.gameState[loser].score,
       gameRoom.gameState.default ? 'DEFAULT' : 'SPECIAL',
     );
+    this.achievementService.checkPongAchievements(gameRoom.playerOne.userId);
+    this.achievementService.checkPongAchievements(gameRoom.playerTwo.userId);
   }
 
   async createMatchHistory(
@@ -188,7 +188,7 @@ export class PongGateway
   ) {
     const winner = await this.userService.findById(winnerId);
     const loser = await this.userService.findById(loserId);
-    this.matchService.createMatch({
+    await this.matchService.createMatch({
       winner,
       winnerScore,
       loser,

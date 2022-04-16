@@ -29,8 +29,8 @@ export class DiscordStrategy extends PassportStrategy(Strategy) {
     profile: any,
     callback: (error: any, user: SessionUser) => void,
   ) {
-    const { username, id: intraId } = profile;
-    const details = { username: username + '_discord', intraId };
+    const { id: intraId } = profile;
+    const details = { username: null, intraId };
     console.log('Discord User:', details);
     const user = await this.authService.validateUser(details);
     callback(null, { id: user.id, twoFactorPassed: !user.twoFactorEnabled });

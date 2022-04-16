@@ -53,7 +53,6 @@ export default defineComponent({
       });
       if (response.ok) {
         console.log(response);
-        useUserStore().updateAvatar();
         this.status = "Successfully updated avatar!";
       } else {
         this.status = "Couldn't update avatar!";

@@ -14,6 +14,9 @@
           <div v-else-if="isTwoFactor">
             <TwoFactorApp />
           </div>
+          <div v-else-if="setupRequired">
+            <SetupProfile />
+          </div>
           <div v-else>
             <LoggedIn />
           </div>
@@ -31,13 +34,15 @@ import { defineComponent } from "vue";
 import LoggedIn from "@/components/Authentication/LoggedIn.vue";
 import TwoFactorApp from "@/components/Authentication/TwoFactorApp.vue";
 import LoggedOut from "@/components/Authentication/LoggedOut.vue";
+import SetupProfile from "../components/profile/SetupProfile.vue";
 
 export default defineComponent({
   components: {
     LoggedIn,
     LoggedOut,
     TwoFactorApp,
-  },
+    SetupProfile
+},
   computed: {
     ...mapState(useUserStore, {
       state: "authenticatedState",
@@ -47,6 +52,9 @@ export default defineComponent({
     },
     isOAuth() {
       return this.state === "OAUTH";
+    },
+    setupRequired() {
+      return this.state === "ACCOUNT_SETUP";
     },
   },
 });

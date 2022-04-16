@@ -7,13 +7,7 @@
           v-bind:class="statusStyling"
           :style="avatar"
         ></div>
-        <h2>
-          <i class="icon-big"><Trophy /></i> Achievements
-        </h2>
-        <hr />
-        <ul class="text-white">
-          <li>Created an account!</li>
-        </ul>
+        <AchievementList :userId="userId" />
       </div>
       <div class="col-md-7">
         <h1>{{ profileData.username }}</h1>
@@ -62,9 +56,9 @@
 import { defineComponent, type PropType } from "vue";
 import MatchHistory from "@/components/profile/MatchHistory.vue";
 import type { PublicUser } from "@/types/UserType";
-import Trophy from "@/components/icons/IconTrophy.vue";
 import { makeAvatarUrl } from "@/stores/UserStore";
 import makeApiCall from "@/utils/ApiCall";
+import AchievementList from "./AchievementList.vue";
 
 interface MatchStats {
 	winCount: number;
@@ -114,7 +108,7 @@ export default defineComponent({
   },
   components: {
     MatchHistory,
-    Trophy,
+    AchievementList
   },
   async mounted() {
     const response = await makeApiCall(`/match/stats/${this.userId}`);

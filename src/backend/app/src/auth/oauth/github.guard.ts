@@ -28,8 +28,8 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
     profile: any,
     callback: (error: any, user: SessionUser) => void,
   ) {
-    const { username, nodeId } = profile;
-    const details = { username: username + '_github', intraId: nodeId };
+    const { nodeId } = profile;
+    const details = { username: null, intraId: nodeId };
     console.log('Github User:', details);
     const user = await this.authService.validateUser(details);
     callback(null, { id: user.id, twoFactorPassed: !user.twoFactorEnabled });

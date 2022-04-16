@@ -41,7 +41,10 @@ export default defineComponent({
   computed: {
     ...mapState(useUserStore, ["profileData"]),
     username() {
-      return this.profileData!.username;
+      if (!this.profileData) {
+        return "";
+      }
+      return this.profileData.username;
     },
   },
   methods: {

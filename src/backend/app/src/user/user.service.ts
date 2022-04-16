@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
-import { IUser } from 'src/user/user.interface';
+import { IntraUser } from 'src/user/user.interface';
 import { AvatarService } from 'src/avatar/avatar.service';
 import { Avatar, AvatarData } from 'src/orm/entities/avatar.entity';
 
@@ -33,11 +33,11 @@ export class UserService {
   // Getters //
   /////////////
 
-  private createFromDto(userDTO: IUser): User {
+  private createFromDto(userDTO: IntraUser): User {
     return this.userRepository.create(userDTO);
   }
 
-  async addUser(userDTO: IUser) {
+  async addUser(userDTO: IntraUser) {
     const user = this.createFromDto(userDTO);
     return await this.userRepository.save(user);
   }
@@ -54,7 +54,7 @@ export class UserService {
     return user;
   }
 
-  async findByIntraId(user: IUser): Promise<User | undefined> {
+  async findByIntraId(user: IntraUser): Promise<User | undefined> {
     return this.userRepository.findOne({ intraId: user.intraId });
   }
 

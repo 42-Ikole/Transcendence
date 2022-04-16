@@ -73,9 +73,10 @@ export class UserController {
 
   @Get('achievements/:id')
   async findAchievements(@Param('id', ParseIntPipe) id: number) {
-    return await this.userService.findById(id, {
+    const user = await this.userService.findById(id, {
       relations: ["achievements"]
     });
+    return user.achievements;
   }
 
   @Patch('update')

@@ -28,7 +28,7 @@ export class User {
   @Column()
   intraId: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   username: string;
 
   @OneToOne(() => Avatar, { nullable: true, onDelete: 'CASCADE' })

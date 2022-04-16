@@ -43,6 +43,8 @@ export class AuthController {
       state = 'OAUTH';
     } else if (!req.user.twoFactorPassed) {
       state = '2FA';
+    } else if (req.user.username === null) {
+      state = 'ACCOUNT_SETUP';
     } else {
       state = 'AUTHENTICATED';
     }
