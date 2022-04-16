@@ -48,6 +48,16 @@ export const useUserStore = defineStore("user", {
     },
   },
   actions: {
+    setListeners() {
+      const status = useSocketStore().status;
+      if (status) {
+        status.on('updateAvatar', () => {
+          console.log("updating avatar!");
+          updateCount += 1;
+          this.updateAvatar();
+        });
+      }
+    },
     setState(state: UserState) {
       console.log("New UserState:", state);
       this.state = state;
@@ -73,6 +83,7 @@ export const useUserStore = defineStore("user", {
       useSocketStore().init();
       await this.refreshUserData();
       useFriendStore().init();
+      this.setListeners();
     },
     async refreshUserData() {
       this.profileData = await initUserData();
@@ -80,7 +91,6 @@ export const useUserStore = defineStore("user", {
     },
     updateAvatar() {
       this.avatarUrl = `http://localhost:3000/user/avatar/${this.profileData.id}/${updateCount}`;
-      updateCount += 1;
     },
     logout() {
       this.setAuthState("OAUTH");
