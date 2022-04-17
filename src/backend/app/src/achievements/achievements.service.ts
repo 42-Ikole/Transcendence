@@ -32,6 +32,11 @@ export class AchievementService {
   async addAchievement(userId: number, achievementId: Achievements) {
     const user = await this.userRepository.findOne(userId, { relations: ["achievements"] });
     const cheevo = await this.achievementRepository.findOne(achievementId);
+    for (let achievement of user.achievements) {
+      if (achievement.id === cheevo.id) {
+        return;
+      }
+    }
     user.achievements.push(cheevo);
     console.log(user.id, "earned", cheevo.name);
     this.userRepository.save(user);

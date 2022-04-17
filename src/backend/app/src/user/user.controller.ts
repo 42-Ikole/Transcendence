@@ -27,6 +27,8 @@ import { createReadStream } from 'fs';
 import { join } from 'path';
 import { imageFileFilter } from 'src/avatar/avatar.utils';
 import { SocketService } from 'src/websocket/socket.service';
+import { AchievementService } from 'src/achievements/achievements.service';
+import { Achievements } from 'src/achievements/achievements';
 
 @ApiTags('user')
 @Controller('user')
@@ -34,6 +36,7 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly socketService: SocketService,
+    private readonly achievementService: AchievementService,
   ) {}
 
   ////////////
@@ -88,6 +91,7 @@ export class UserController {
   async updateUser(@Req() request: RequestWithUser, @Body() user: PartialUser) {
     await this.userService.update(request.user.id, user);
     this.socketService.statusServer.emit('friendUpdate');
+    this.achievementService.addAchievement(request.user.id, Achievements.SETUP_ACCOUNT);
   }
 
   @Post('uploadAvatar')
@@ -100,10 +104,12 @@ export class UserController {
     @Req() request: RequestWithUser,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.userService.addAvatar(request.user.id, {
+    const avatar = await this.userService.addAvatar(request.user.id, {
       filename: file.originalname,
       data: file.buffer,
     });
+    this.achievementService.addAchievement(request.user.id, Achievements.UPLOAD_AVATAR);
+    return avatar;
   }
 
   @Get('avatar/:id/:hahagetrektbitch')

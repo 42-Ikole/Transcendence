@@ -10,6 +10,8 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Achievements } from 'src/achievements/achievements';
+import { AchievementService } from 'src/achievements/achievements.service';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
 import { RequestWithUser } from 'src/auth/auth.types';
 import { FriendService } from './friend.service';
@@ -19,7 +21,10 @@ import { FriendDto } from './friend.types';
 @Controller('friend')
 @UseGuards(AuthenticatedGuard)
 export class FriendController {
-  constructor(private friendService: FriendService) {}
+  constructor(
+    private friendService: FriendService,
+    private achievementService: AchievementService
+  ) {}
 
   /*
 	1. Store friend request in DB (if not blocked or not already friends)
@@ -30,9 +35,10 @@ export class FriendController {
     @Req() request: RequestWithUser,
     @Body('id', ParseIntPipe) targetId: number,
   ) {
-    console.log('Friend Request:', request.user.id, '-', targetId);
     const friendRequest = new FriendDto(request.user.id, targetId, 'REQUEST');
-    return await this.friendService.friendRequest(friendRequest);
+    const relation = await this.friendService.friendRequest(friendRequest);
+    this.achievementService.addAchievement(request.user.id, Achievements.SEND_FRIEND_REQUEST);
+    return relation;
   }
 
   /*
@@ -56,7 +62,10 @@ export class FriendController {
   ) {
     console.log('Accept Friend:', request.user.id, '-', targetId);
     const accept = new FriendDto(targetId, request.user.id, 'FRIEND');
-    return await this.friendService.acceptFriendRequest(accept);
+    const relation = await this.friendService.acceptFriendRequest(accept);
+    this.achievementService.addAchievement(request.user.id, Achievements.MAKE_FRIEND);
+    this.achievementService.addAchievement(targetId, Achievements.MAKE_FRIEND);
+    return relation;
   }
 
   @Delete('request/cancel/:id')
@@ -80,7 +89,9 @@ export class FriendController {
   ) {
     console.log('Remove Friend:', req.user.id, '-', targetId);
     const unfriend = new FriendDto(targetId, req.user.id, 'FRIEND');
-    return await this.friendService.removeEither(unfriend);
+    const result = await this.friendService.removeEither(unfriend);
+    this.achievementService.addAchievement(req.user.id, Achievements.UNFRIEND);
+    return result;
   }
 
   /*
@@ -94,7 +105,9 @@ export class FriendController {
     @Body('id', ParseIntPipe) targetId: number,
   ) {
     const block = new FriendDto(req.user.id, targetId, 'BLOCK');
-    return await this.friendService.blockUser(block);
+    const relation = await this.friendService.blockUser(block);
+    this.achievementService.addAchievement(req.user.id, Achievements.BLOCK_USER);
+    return relation;
   }
 
   @Delete('unblock/:id')
