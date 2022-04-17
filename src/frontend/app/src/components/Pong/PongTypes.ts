@@ -27,3 +27,8 @@ export interface GameState {
   ball: Ball;
   default: boolean;
 }
+
+export interface LiveGameData {
+  state: GameState;
+  name: string;
+}

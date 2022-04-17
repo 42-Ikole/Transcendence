@@ -37,7 +37,7 @@ export default defineComponent({
             return this.playerOne.username;
         },
         playerTwoName() {
-            if (!this.playerOne) {
+            if (!this.playerTwo) {
                 return "unknown";
             }
             return this.playerTwo.username;

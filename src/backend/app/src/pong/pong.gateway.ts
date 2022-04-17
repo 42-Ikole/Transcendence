@@ -134,6 +134,7 @@ export class PongGateway
     this.socketService.pongServer.to(roomName).emit('endGame', gameState);
     this.pongService.deleteGameRoom(roomName);
     this.socketService.pongServer.socketsLeave(roomName);
+    this.emitGameUpdate();
   }
 
   async endGame(roomName: string, winner: PlayerIndex, loser: PlayerIndex) {
@@ -351,6 +352,7 @@ export class PongGateway
         gameState,
       });
       this.startGameLoop(roomName, gameState);
+      this.emitGameUpdate();
     }, 100);
   }
 
@@ -435,5 +437,22 @@ export class PongGateway
   @SubscribeMessage('exitScoreScreen')
   exitScoreScreen(@ConnectedSocket() client: SocketWithUser) {
     this.setStateIfOnline(client.user.id, 'ONLINE');
+  }
+
+  @SubscribeMessage('subscribeGameUpdate')
+  subscribeGameUpdate(@ConnectedSocket() client: SocketWithUser) {
+    console.log("client subscribe update", client.user.id);
+    client.join('gameUpdate');
+  }
+
+  @SubscribeMessage('unsubscribeGameUpdate')
+  unsubscribeGameUpdate(@ConnectedSocket() client: SocketWithUser) {
+    console.log("client unsubscribe update", client.user.id);
+    client.leave('gameUpdate');
+  }
+
+  emitGameUpdate() {
+    console.log("emitting game update");
+    this.socketService.pongServer.to('gameUpdate').emit('gameUpdate');
   }
 }
