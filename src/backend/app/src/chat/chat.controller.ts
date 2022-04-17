@@ -241,7 +241,7 @@ export class ChatController {
 	async getDmMessages(@Req() request: RequestWithUser, @Param('id', ParseIntPipe) id: number) {
 		await this.authorizeId(request, id);
 		const dm = await this.chatService.findDirectMessageById(id, {
-			relations: ["userOne", "userTwo", "messages"],
+			relations: ["userOne", "userTwo", "messages", "messages.author"],
 		});
 		return dm;
 	}

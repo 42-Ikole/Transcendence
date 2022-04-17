@@ -10,6 +10,7 @@ import {
   IncomingMessageDtO,
   CreateChatInterface,
   AllChatsDto,
+  DirectMessageDto,
 } from './chat.types';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
@@ -19,6 +20,7 @@ import { User } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { SocketService } from 'src/websocket/socket.service';
 import { DirectMessage } from 'src/orm/entities/directmessage.entity';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class ChatService {
@@ -508,5 +510,28 @@ export class ChatService {
 			throw new NotFoundException();
 		}
 		return user.id === dm.userOne.id || user.id === dm.userTwo.id;
+	}
+
+	async validateUserDM(userId: number, directMessageId: number) {
+		const dm = await this.findDirectMessageById(directMessageId, {
+			relations: ["userOne", "userTwo"],
+		});
+		if (dm.userOne.id !== userId && dm.userTwo.id !== userId) {
+			throw new UnauthorizedException();
+		}
+		return dm;
+	}
+
+	async addMessageDM(authorId: number, data: DirectMessageDto) {
+		const dm = await this.validateUserDM(authorId, data.id);
+		const user = await this.userService.findById(authorId);
+		const entity = this.messageRepository.create({
+			author: user,
+			directMessage: dm,
+			message: data.message,
+		});
+		await this.messageRepository.save(entity);
+		delete entity.directMessage;
+		return entity;
 	}
 }

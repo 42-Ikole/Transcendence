@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsIn, IsInt } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsIn, IsInt, IsNumber } from 'class-validator';
 import { User } from 'src/orm/entities/user.entity';
 import { Chat } from 'src/orm/entities/chat.entity';
 
@@ -65,4 +65,14 @@ export class ChatPasswordDto {
 	@IsString()
 	@IsOptional()
 	password: string;
+}
+
+export class DirectMessageDto {
+  @IsNumber()
+  @IsNotEmpty()
+  id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  message: string;
 }
