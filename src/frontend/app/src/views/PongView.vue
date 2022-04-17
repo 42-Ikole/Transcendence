@@ -3,18 +3,25 @@
     <h1>PongHub Hub</h1>
     <hr />
     <div v-if="isPlaying">
+      <button class="btn btn-outline-light" @click="surrenderMatch">
+        Surrender
+      </button>
       <PongGame :observing="isObserving" />
     </div>
     <div v-else-if="isObserving">
+      <button class="btn btn-outline-light" @click="cancelObserve">
+        Leave
+      </button>
       <PongGame :observing="isObserving" />
     </div>
     <div v-else-if="isSearching">
-      <!-- TODO: some kind of searching/loading component -->
-      <p>Searching...</p>
+      <SearchingComponent />
     </div>
-    <div v-else-if="showScoreScreen">
+    <div v-else-if="isChallenging">
+      <ChallengingComponent />
+    </div>
+    <div v-else-if="isViewingScoreScreen">
       <ScoreScreen :game-state="gameState" />
-      <button @click="showScoreScreen = false">Continue</button>
     </div>
     <div v-else-if="isChallenged">
       <ChallengedRequest />
@@ -57,12 +64,20 @@ import type { GameState } from "@/components/Pong/PongTypes";
 import ActiveGames from "../components/Pong/ActiveGames.vue";
 import ChallengeUsers from "../components/Pong/ChallengeUsers.vue";
 import ChallengedRequest from "../components/Pong/ChallengedRequest.vue";
+import { useFriendStore } from "@/stores/FriendStore";
+import ChallengingComponent from "../components/Pong/ChallengingComponent.vue";
+import SearchingComponent from "../components/Pong/SearchingComponent.vue";
+
+interface DataObject {
+  showScoreScreen: boolean;
+  gameState: GameState | undefined;
+}
 
 export default defineComponent({
-  data() {
+  data(): DataObject {
     return {
       showScoreScreen: false,
-      gameState: undefined as GameState | undefined,
+      gameState: undefined,
     };
   },
   components: {
@@ -72,6 +87,8 @@ export default defineComponent({
     ActiveGames,
     ChallengeUsers,
     ChallengedRequest,
+    ChallengingComponent,
+    SearchingComponent,
   },
   computed: {
     isPlaying() {
@@ -87,18 +104,32 @@ export default defineComponent({
     isChallenged() {
       return useUserStore().state === "CHALLENGED";
     },
+    isChallenging() {
+      return useUserStore().state === "CHALLENGING";
+    },
+    isViewingScoreScreen() {
+      return useUserStore().state === "VIEWING_SCORE_SCREEN";
+    },
   },
   methods: {
     endGame(data: GameState) {
       this.gameState = data;
       this.showScoreScreen = true;
     },
+    cancelObserve() {
+      useSocketStore().pong!.emit("cancelObserve");
+    },
+    surrenderMatch() {
+      useSocketStore().pong!.emit("surrenderMatch");
+    },
   },
   mounted() {
     useSocketStore().pong!.on("endGame", this.endGame);
+    useFriendStore().stopListening();
   },
   unmounted() {
     useSocketStore().pong!.removeListener("endGame", this.endGame);
+    useFriendStore().init();
   },
 });
 </script>
