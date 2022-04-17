@@ -1,4 +1,7 @@
 <template>
+  <div v-if="isSpecialMode" class="hotkeys">
+    <p>Hotkeys : speed-up: [Q], grow: [R], shrink: [F]</p>
+  </div>
   <div class="text-center">
     <h2 class="p1-score inline">{{ playerOneScore }}</h2>
     <h2 class="inline">:</h2>
@@ -15,11 +18,22 @@ import type { Ball, GameState, PongBar } from "./PongTypes";
 import { mapState } from "pinia";
 import { useSocketStore } from "@/stores/SocketStore";
 
+interface PressedKeys {
+  w: boolean;
+  s: boolean;
+  ArrowUp: boolean;
+  ArrowDown: boolean;
+  q: boolean;
+  r: boolean;
+  f: boolean;
+}
+
 interface DataObject {
   context: CanvasRenderingContext2D | null;
   playerOneScore: number;
   playerTwoScore: number;
-  PressedKeys: Set<string>;
+  pressedKeys: PressedKeys;
+  isSpecialMode: boolean;
 }
 
 export default defineComponent({
@@ -31,7 +45,16 @@ export default defineComponent({
       context: null,
       playerOneScore: 0,
       playerTwoScore: 0,
-      PressedKeys: new Set<string>(),
+      pressedKeys: {
+        w: false,
+        s: false,
+        ArrowUp: false,
+        ArrowDown: false,
+        q: false,
+        r: false,
+        f: false,
+      },
+      isSpecialMode: true,
     };
   },
   computed: {
@@ -47,12 +70,12 @@ export default defineComponent({
   },
   methods: {
     updatePlayer(data: GameState) {
-      this.socket!.emit("movement", Array.from(this.PressedKeys));
       this.updateObserver(data);
     },
 
     updateObserver(data: GameState) {
       this.render(data);
+      this.isSpecialMode = !data.default;
       this.playerOneScore = data.playerOne.score;
       this.playerTwoScore = data.playerTwo.score;
     },
@@ -88,16 +111,34 @@ export default defineComponent({
     },
 
     keyDown(data: any) {
-      this.PressedKeys.add(data.key);
-      console.log("->", data.key, "<-");
+      if (this.pressedKeys[data.key] !== undefined) {
+        this.pressedKeys[data.key] = true;
+      }
     },
 
     keyUp(data: any) {
-      this.PressedKeys.delete(data.key);
+      if (this.pressedKeys[data.key] !== undefined) {
+        this.pressedKeys[data.key] = false;
+      }
+    },
+
+    releaseKeys() {
+      for (let key in this.pressedKeys) {
+        this.pressedKeys[key] = false;
+      }
     },
 
     clear() {
       this.context!.clearRect(0, 0, this.width, this.height);
+    },
+  },
+
+  watch: {
+    pressedKeys: {
+      deep: true,
+      handler() {
+        this.socket!.emit("movement", this.pressedKeys);
+      },
     },
   },
 
@@ -111,6 +152,7 @@ export default defineComponent({
     } else {
       this.socket!.on("updatePosition", this.updateObserver);
     }
+    window.onblur = this.releaseKeys;
   },
 
   unmounted() {
@@ -122,13 +164,14 @@ export default defineComponent({
     } else {
       this.socket!.removeListener("updatePosition", this.updateObserver);
     }
+    window.onblur = null;
   },
 });
 </script>
 
 <style>
 .game-bg {
-  background-image: url("@/assets/new\ coders.png");
+  /* background-image: url("@/assets/new\ coders.png"); */
   background-repeat: no-repeat;
   background-position: center;
 }
@@ -159,5 +202,9 @@ export default defineComponent({
 
 .inline {
   display: inline !important;
+}
+
+.hotkeys {
+  position: absolute;
 }
 </style>

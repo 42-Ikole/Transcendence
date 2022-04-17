@@ -6,6 +6,7 @@ export type UserState =
   | "CHALLENGING"
   | "PLAYING"
   | "OBSERVING"
+  | "VIEWING_SCORE_SCREEN"
   | "CHALLENGED";
 export type AuthenticatedState = "AUTHENTICATED" | "2FA" | "OAUTH";
 

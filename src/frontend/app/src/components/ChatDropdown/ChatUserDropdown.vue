@@ -36,6 +36,11 @@
             Send Challenge
           </button>
         </li>
+        <li v-if="canObserve">
+          <button @click="observeUser" class="dropdown-item" type="button">
+            Observe Game
+          </button>
+        </li>
         <li>
           <hr class="dropdown-divider" />
         </li>
@@ -178,6 +183,9 @@ export default defineComponent({
     isOffline() {
       return this.status === "OFFLINE";
     },
+    canObserve() {
+      return ["PLAYING", "OBSERVING"].includes(this.status);
+    },
     isAdmin() {
       return useChatStore().isAdmin(this.chatId) || this.isOwner;
     },
@@ -255,6 +263,9 @@ export default defineComponent({
 			if (roleResponse.ok) {
         this.role = await roleResponse.text();
       }
+    },
+    observeUser() {
+      useSocketStore().pong!.emit("requestObserve", { userId: this.user.id });
     },
   },
   mounted() {
