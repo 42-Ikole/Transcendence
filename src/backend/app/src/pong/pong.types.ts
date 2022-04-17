@@ -38,6 +38,7 @@ export interface GameState {
 interface PongUser {
   userId: number;
   disconnected: boolean;
+  pressedKeys: PressedKeys;
 }
 
 export interface GameDto {
@@ -46,9 +47,19 @@ export interface GameDto {
 }
 
 export interface GameRoom {
-  intervalId: NodeJS.Timer;
+  intervalId: NodeJS.Timer | undefined;
   playerOne: PongUser;
   playerTwo: PongUser;
   observers: Set<number>; // set of userIds
   gameState: GameState;
+}
+
+export interface PressedKeys {
+  w: boolean;
+  s: boolean;
+  ArrowUp: boolean;
+  ArrowDown: boolean;
+  q: boolean;
+  r: boolean;
+  f: boolean;
 }

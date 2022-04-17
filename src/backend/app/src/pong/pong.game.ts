@@ -1,18 +1,31 @@
-import { Ball, GameState, Player, PongBar, SpecialMoves } from './pong.types';
+import {
+  Ball,
+  GameState,
+  Player,
+  PongBar,
+  SpecialMoves,
+  PressedKeys,
+  GameRoom,
+} from './pong.types';
 
 /*
 Concept: all coordinates are in range [0, 1] and used in the frontend as a percentage relative to the screen size.
 So position `x = 0.5` is half of the screen/game width in the frontend.
 */
 
-// TODO: add BALL acceleration and key input (like space) for some special move
-//
 const BALL_SPEED = 0.01;
 const PLAYER_SPEED = 0.01;
 const VERTICAL_FACTOR = 0.4;
 const BAR_SHRINK = 0.006;
 const BAR_CORRECTION = 0.003;
 const SPEEDUP = 1.2;
+
+function invertDirection(pos: number, dir: number): number {
+  if ((pos < 0.5 && dir < 0) || (pos > 0.5 && dir > 0)) {
+    return -dir;
+  }
+  return dir;
+}
 
 function newBall(): Ball {
   return {
@@ -78,14 +91,12 @@ function resetGameState(state: GameState) {
 }
 
 // directions is an array of pressed keys, add functionality
-export function movePlayer(bar: PongBar, directions: Array<string>) {
-  for (const item of directions) {
-    if (item === 'ArrowUp' || item === 'w') {
-      bar.position.y -= PLAYER_SPEED;
-    }
-    if (item === 'ArrowDown' || item === 's') {
-      bar.position.y += PLAYER_SPEED;
-    }
+export function movePlayer(bar: PongBar, directions: PressedKeys) {
+  if (directions.ArrowUp || directions.w) {
+    bar.position.y -= PLAYER_SPEED;
+  }
+  if (directions.ArrowDown || directions.s) {
+    bar.position.y += PLAYER_SPEED;
   }
   // so that the bar doesn't go beyond the edge (top/bottom)
   if (bar.position.y > 1 - bar.height) {
@@ -115,19 +126,11 @@ export function specialMoves(state: GameState) {
   }
 }
 
-export function checkSpecialMoves(special: SpecialMoves, keys: Array<string>) {
-  special.speedUp = false;
-  special.grow = false;
-  special.shrink = false;
-  for (const item of keys) {
-    if (item === 'q') {
-      special.speedUp = true;
-    } else if (item === 'r') {
-      special.grow = true;
-    } else if (item === 'f') {
-      special.shrink = true;
-    }
-  }
+export function checkSpecialMoves(special: SpecialMoves, keys: PressedKeys) {
+  // boolean values should be defined
+  special.speedUp = keys.q;
+  special.grow = keys.r;
+  special.shrink = keys.f;
 }
 
 function roundHasEnded(state: GameState): boolean {
@@ -146,7 +149,7 @@ function handleRoundEnd(state: GameState) {
 }
 
 function ballBarDirection(ball: Ball, bar: PongBar, mode: boolean) {
-  ball.direction.x *= -1;
+  ball.direction.x = invertDirection(ball.position.x, ball.direction.x);
   const offset = ball.position.y - bar.position.y - bar.height / 2;
   ball.direction.y += ((offset / (bar.height / 2)) * 1.2) / 2;
   if (bar.height > 0.025 && mode == false) {
@@ -177,8 +180,14 @@ function updateBallPosition(state: GameState) {
     state.ball.position.x += state.ball.direction.x * BALL_SPEED;
   }
   state.ball.position.y += state.ball.direction.y * BALL_SPEED;
-  if (state.ball.position.y <= 0 || state.ball.position.y >= 1) {
-    state.ball.direction.y *= -1;
+  if (
+    state.ball.position.y - state.ball.radius <= 0 ||
+    state.ball.position.y + state.ball.radius >= 1
+  ) {
+    state.ball.direction.y = invertDirection(
+      state.ball.position.y,
+      state.ball.direction.y,
+    );
     if (state.default == false && state.ball.position.y <= 0) {
       state.ball.radius += 0.001;
     } else if (state.default == false && state.ball.position.y >= 1) {
@@ -196,10 +205,22 @@ export function gameHasEnded(state: GameState): boolean {
   );
 }
 
-export function updateGamestate(state: GameState): GameState {
-  updateBallPosition(state);
-  if (roundHasEnded(state)) {
-    handleRoundEnd(state);
+export function updateGamestate(room: GameRoom) {
+  updateBallPosition(room.gameState);
+  movePlayer(room.gameState.playerOne.bar, room.playerOne.pressedKeys);
+  movePlayer(room.gameState.playerTwo.bar, room.playerTwo.pressedKeys);
+  if (!room.gameState.default) {
+    checkSpecialMoves(
+      room.gameState.playerOne.specialMoves,
+      room.playerOne.pressedKeys,
+    );
+    checkSpecialMoves(
+      room.gameState.playerTwo.specialMoves,
+      room.playerTwo.pressedKeys,
+    );
+    specialMoves(room.gameState);
   }
-  return state;
+  if (roundHasEnded(room.gameState)) {
+    handleRoundEnd(room.gameState);
+  }
 }

@@ -5,7 +5,7 @@ import LoginView from "@/views/LoginView.vue";
 import { isLoggedIn } from "@/utils/Login";
 import RoomsView from "@/components/chatrooms/RoomsList.vue";
 import ProfileView from "@/views/ProfileView.vue";
-import PongView from "@/views/PongView.vue";
+import FindMatchView from "@/views/FindMatchView.vue";
 import EditProfileView from "@/views/EditProfileView.vue";
 import FriendListView from "@/views/FriendListView.vue";
 
@@ -43,7 +43,7 @@ const routes = [
   {
     path: "/pong",
     name: "pong",
-    component: PongView,
+    component: FindMatchView,
   },
   {
     path: "/friend-list",

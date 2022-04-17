@@ -28,6 +28,9 @@ export class Match {
   @Column()
   loserScore: number;
 
+  // DEFAULT | SPECIAL
+  @Column()
+  mode: string;
   @CreateDateColumn()
   createdDate: Date;
 }
