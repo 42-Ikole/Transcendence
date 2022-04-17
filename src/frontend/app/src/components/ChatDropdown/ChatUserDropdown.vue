@@ -282,12 +282,16 @@ export default defineComponent({
   mounted() {
     this.status = this.user.status;
     trackUserStatus(this.user.id, this.trackState);
-    this.refreshRole();
-    useSocketStore().chat.on(`roleUpdate_${this.user.id}`, this.refreshRole);
+    if (this.showChatOptions) {
+      this.refreshRole();
+      useSocketStore().chat!.on(`roleUpdate_${this.user.id}`, this.refreshRole);
+    }
   },
   unmounted() {
     stopTrackingUserStatus(this.user.id, this.trackState);
-    useSocketStore().chat.removeListener(`roleUpdate_${this.user.id}`, this.refreshRole);
+    if (this.showChatOptions) {
+      useSocketStore().chat!.removeListener(`roleUpdate_${this.user.id}`, this.refreshRole);
+    }
   },
 });
 </script>
