@@ -21,6 +21,7 @@ import { UserService } from 'src/user/user.service';
 import { SocketService } from 'src/websocket/socket.service';
 import { DirectMessage } from 'src/orm/entities/directmessage.entity';
 import { WsException } from '@nestjs/websockets';
+import { FriendService } from 'src/friend/friend.service';
 
 @Injectable()
 export class ChatService {
@@ -30,6 +31,7 @@ export class ChatService {
 		@InjectRepository(DirectMessage) private directMessageRepository: Repository<DirectMessage>,
 		private userService: UserService,
 		private socketService: SocketService,
+		private friendService: FriendService,
   ) {}
 
   async findAll(user: User): Promise<AllChatsDto> {
@@ -530,6 +532,9 @@ export class ChatService {
 			directMessage: dm,
 			message: data.message,
 		});
+		if (await this.friendService.haveBlockRelation(dm.userOne, dm.userTwo)) {
+			throw new UnauthorizedException();
+		}
 		await this.messageRepository.save(entity);
 		delete entity.directMessage;
 		return entity;
