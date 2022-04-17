@@ -11,6 +11,7 @@ import {
 	Delete,
 	ParseIntPipe,
 	Patch,
+	BadRequestException,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto, CreateChatInterface, AllChatsDto, ChatUserDto, ChatPasswordDto } from './chat.types';
@@ -20,6 +21,7 @@ import { Message } from 'src/orm/entities/message.entity';
 import { SocketService } from 'src/websocket/socket.service';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
 import { RequestWithUser } from '../auth/auth.types';
+import { UserIdDto } from 'src/status/status.types';
 
 @ApiTags('chat')
 @Controller('chat')
@@ -34,6 +36,11 @@ export class ChatController {
   async findAll(@Req() request: RequestWithUser): Promise<AllChatsDto> {
     // Get all basic information about the chat rooms.
     return await this.chatService.findAll(request.user);
+  }
+
+  @Get('messages')
+  async getMessages() {
+	return await this.chatService.findMessages();
   }
 
   @Get('/messages/:chatname')
@@ -199,5 +206,24 @@ export class ChatController {
 	): Promise<void> {
 		// Uninvite a user to a private chat.
 		await this.chatService.removeInviteToChat(request.user, body.chatId, body.userId);
+	}
+
+	@Get('directMessage/all')
+	async findAllDirectMessages() {
+		return await this.chatService.findAllDirectMessages();
+	}
+
+	@Get('directMessage')
+	async getDirectMessages(@Req() request: RequestWithUser) {
+		return await this.chatService.findDirectMessages(request.user);
+	}
+
+	// Create the DM if it doesn't exist, return the new DM
+	@Post('directMessage')
+	async createDirectMessage(@Req() request: RequestWithUser, @Body() body: UserIdDto) {
+		if (request.user.id === body.id) {
+			throw new BadRequestException();
+		}
+		return await this.chatService.createDirectMessage(request.user, body.id);
 	}
 }

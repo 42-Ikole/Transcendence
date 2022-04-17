@@ -18,12 +18,14 @@ import { Message } from 'src/orm/entities/message.entity';
 import { User } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { SocketService } from 'src/websocket/socket.service';
+import { DirectMessage } from 'src/orm/entities/directmessage.entity';
 
 @Injectable()
 export class ChatService {
   constructor(
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
 		@InjectRepository(Message) private messageRepository: Repository<Message>,
+		@InjectRepository(DirectMessage) private directMessageRepository: Repository<DirectMessage>,
 		private userService: UserService,
 		private socketService: SocketService,
   ) {}
@@ -45,6 +47,10 @@ export class ChatService {
       }
     }
     return allChats;
+  }
+
+  async findMessages(): Promise<Message[]> {
+	  return await this.messageRepository.find();
   }
 
   async matchPassword(roomName: string, password: string): Promise<boolean> {
@@ -443,5 +449,47 @@ export class ChatService {
 		this.socketService.emitToUser(userId, 'chatroom', 'roleUpdate')
 		// 2. roleUpdate_{id}. To all users in the chat room where it happened.
 		this.socketService.chatServer.to(chatName).emit('roleUpdate_' + userId);
+	}
+
+	async createDirectMessage(userOne: User, userTwoId: number): Promise<DirectMessage> {
+		const userTwo = await this.userService.findById(userTwoId); // throws NOT_FOUND
+		const dm = await this.findDirectMessage(userOne, userTwo);
+		if (dm) {
+			return dm;
+		}
+		const entity = this.directMessageRepository.create({
+			userOne, userTwo,
+		});
+		await this.directMessageRepository.save(entity);
+		return entity;
+	}
+
+	async findDirectMessage(userOne: User, userTwo: User) {
+		const dm = await this.directMessageRepository.findOne({
+			where: [
+				{ userOne: userOne, userTwo: userTwo },
+				{ userOne: userTwo, userTwo: userOne},
+			]
+		});
+		return dm;
+	}
+
+	async findDirectMessages(user: User) {
+		const dm = await this.directMessageRepository.find({
+			where: [
+				{ userOne: user },
+				{ userTwo: user},
+			]
+		});
+		if (!dm) {
+			throw new NotFoundException();
+		}
+		return dm;
+	}
+
+	async findAllDirectMessages() {
+		return await this.directMessageRepository.find({
+			relations: ["userOne", "userTwo", "messages"]
+		});
 	}
 }

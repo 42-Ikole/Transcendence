@@ -22,7 +22,7 @@
         </button>
       </li>
       <div v-if="!isSelf">
-        <li>
+        <li v-if="canMessage">
           <button
             @click="startDirectMessage"
             class="dropdown-item"
@@ -160,6 +160,9 @@ export default defineComponent({
     };
   },
   computed: {
+    canMessage() {
+      return !this.isBlocked && !useFriendStore().isPartOfSet(this.user.id, "BLOCKED_BY");
+    },
     isBlocked() {
       return useFriendStore().isPartOfSet(this.user.id, "BLOCKED");
     },
@@ -227,7 +230,15 @@ export default defineComponent({
     trackState(update: StatusUpdate) {
       this.status = update.newState;
     },
-    startDirectMessage() {
+    async startDirectMessage() {
+      const response = await makeApiCallJson('/chat/directMessage', "POST", {
+        id: this.user.id,
+      });
+      if (response.ok) {
+        const dm = await response.json();
+        console.log(dm);
+        this.$router.push(`/dm/${dm.id}`);
+      }
       return;
     },
     muteUser() {

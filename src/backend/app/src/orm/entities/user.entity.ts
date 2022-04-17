@@ -13,6 +13,7 @@ import { Exclude } from 'class-transformer';
 import { Friend } from './friend.entity';
 import { Chat } from './chat.entity';
 import { Avatar } from './avatar.entity';
+import { DirectMessage } from './directmessage.entity';
 
 //////     //////
 // User Entity //
@@ -64,6 +65,12 @@ export class User {
 	
 	@ManyToMany(() => Chat, (chat) => chat.invitedUsers)
 	chatInvites: Chat[];
+
+  @OneToMany(() => DirectMessage, (dm) => dm.userOne)
+  relatingDM: DirectMessage[];
+
+  @OneToMany(() => DirectMessage, (dm) => dm.userTwo)
+  relatedDM: DirectMessage[];
 
   // Two Factor
   @Column({ nullable: true })
