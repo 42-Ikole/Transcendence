@@ -1,9 +1,9 @@
 <template>
 <div v-if="isDefined">
-    <div v-for="message in messages" :key="message.id">
-        <DisplayMessage :message="message" />
+    <div class="container">
+        <DisplayMessages :messages="messages" />
+        <SendMessage :chat-id="directMessageId" />
     </div>
-	<SendMessage :chat-id="directMessageId" />
 </div>
 <div v-else>
 	<p> Loading Chat... </p>
@@ -18,7 +18,7 @@ import SendMessage from "./SendMessage.vue";
 import { useSocketStore } from "@/stores/SocketStore";
 import { mapState } from "pinia";
 import type { Message } from "./DirectMessage.types";
-import DisplayMessage from "./DisplayMessage.vue";
+import DisplayMessages from "./DisplayMessages.vue";
 
 interface DataObject {
 	userOne: PublicUser | undefined;
@@ -73,6 +73,6 @@ export default defineComponent({
             id: this.directMessageId,
         });
     },
-    components: { SendMessage, DisplayMessage }
+    components: { SendMessage, DisplayMessages }
 })
 </script>

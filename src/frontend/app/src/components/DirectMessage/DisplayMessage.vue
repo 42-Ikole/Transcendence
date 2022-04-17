@@ -1,16 +1,20 @@
 <template>
-<div>
-	<p class="text-white">
-		{{ message.author.username }}:
-		{{ message.message }}
-	</p>
-</div>
+  <div class="message">
+    <div>
+        <ChatUserDropdown :user="message.author" :show-chat-options="false"/>
+    </div>
+    <div class="flex mx-2">
+      <slot />
+    </div>
+    <hr/>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
 import type { Message } from "./DirectMessage.types";
 import ChatUserDropdown from "../ChatDropdown/ChatUserDropdown.vue";
+import { useUserStore } from "@/stores/UserStore";
 
 export default defineComponent({
     props: {
@@ -19,6 +23,11 @@ export default defineComponent({
             required: true,
         }
     },
-    components: { ChatUserDropdown }
+    computed: {
+      isSender() {
+        return useUserStore().profileData!.id === this.message.author.id;
+      },
+    },
+    components: { ChatUserDropdown },
 });
 </script>
