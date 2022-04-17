@@ -8,6 +8,7 @@ import ProfileView from "@/views/ProfileView.vue";
 import FindMatchView from "@/views/FindMatchView.vue";
 import EditProfileView from "@/views/EditProfileView.vue";
 import FriendListView from "@/views/FriendListView.vue";
+import DirectMessageView from "@/views/DirectMessageView.vue";
 
 const routes = [
   {
@@ -49,6 +50,11 @@ const routes = [
     path: "/friend-list",
     name: "friend-list",
     component: FriendListView,
+  },
+  {
+    path: "/dm/:id",
+    name: "dm",
+    component: DirectMessageView
   },
 ];
 

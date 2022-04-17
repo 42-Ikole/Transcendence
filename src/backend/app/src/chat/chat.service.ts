@@ -12,7 +12,7 @@ import {
   AllChatsDto,
 } from './chat.types';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { Chat } from 'src/orm/entities/chat.entity';
 import { Message } from 'src/orm/entities/message.entity';
 import { User } from 'src/orm/entities/user.entity';
@@ -453,7 +453,7 @@ export class ChatService {
 
 	async createDirectMessage(userOne: User, userTwoId: number): Promise<DirectMessage> {
 		const userTwo = await this.userService.findById(userTwoId); // throws NOT_FOUND
-		const dm = await this.findDirectMessage(userOne, userTwo);
+		const dm = await this.findDirectMessageByUsers(userOne, userTwo);
 		if (dm) {
 			return dm;
 		}
@@ -461,10 +461,12 @@ export class ChatService {
 			userOne, userTwo,
 		});
 		await this.directMessageRepository.save(entity);
+		this.socketService.emitToUser(userOne.id, "chatroom", "dmCreated");
+		this.socketService.emitToUser(userTwo.id, "chatroom", "dmCreated");
 		return entity;
 	}
 
-	async findDirectMessage(userOne: User, userTwo: User) {
+	async findDirectMessageByUsers(userOne: User, userTwo: User) {
 		const dm = await this.directMessageRepository.findOne({
 			where: [
 				{ userOne: userOne, userTwo: userTwo },
@@ -474,13 +476,20 @@ export class ChatService {
 		return dm;
 	}
 
-	async findDirectMessages(user: User) {
-		const dm = await this.directMessageRepository.find({
-			where: [
-				{ userOne: user },
-				{ userTwo: user},
-			]
-		});
+	async findDirectMessageById(id: number, options?: FindOneOptions<DirectMessage>) {
+		const dm = await this.directMessageRepository.findOne(id, options);
+		if (!dm) {
+			throw new NotFoundException();
+		}
+		return dm;
+	}
+
+	async findDirectMessages(user: User, options?: FindManyOptions<DirectMessage>) {
+		options.where = [
+			{ userOne: user },
+			{ userTwo: user },
+		];
+		const dm = await this.directMessageRepository.find(options);
 		if (!dm) {
 			throw new NotFoundException();
 		}
@@ -491,5 +500,13 @@ export class ChatService {
 		return await this.directMessageRepository.find({
 			relations: ["userOne", "userTwo", "messages"]
 		});
+	}
+
+	async authorizeDirectMessage(user: User, id: number) {
+		const dm = await this.directMessageRepository.findOne(id, { relations: ["userOne", "userTwo"] });
+		if (!dm) {
+			throw new NotFoundException();
+		}
+		return user.id === dm.userOne.id || user.id === dm.userTwo.id;
 	}
 }

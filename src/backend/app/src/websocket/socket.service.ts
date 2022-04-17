@@ -53,6 +53,9 @@ export class SocketService {
   }
 
   emitToUser(userId: number, socketType: SocketTypes, message: string, ...args: any[]) {
+    if (!this.sockets[userId] || !this.sockets[userId][socketType]) {
+      return;
+    }
     this.sockets[userId][socketType].emit(message, args);
   }
 
