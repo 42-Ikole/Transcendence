@@ -1,6 +1,7 @@
 import { IsString, IsNotEmpty, IsOptional, IsIn, IsInt } from 'class-validator';
 import { User } from 'src/orm/entities/user.entity';
 import { Chat } from 'src/orm/entities/chat.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 const CHATROOM_TYPES = ['private', 'protected', 'public'];
 
@@ -60,9 +61,13 @@ export class ChatUserDto {
 export class ChatPasswordDto {
 	@IsInt()
 	@IsNotEmpty()
+	@ApiProperty({
+		type: Number,
+	})
 	chatId: number;
 
 	@IsString()
 	@IsOptional()
+	@ApiProperty()
 	password: string;
 }
