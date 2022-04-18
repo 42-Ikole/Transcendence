@@ -29,10 +29,14 @@ export class SocketService {
 
   addSocket(userId: number, type: SocketTypes, socket: SocketWithUser) {
     if (!this.sockets[userId]) {
-      this.sockets[userId] = { pong: null, status: null, chatroom: null };
+      this.reserveSocket(userId);
     }
     console.log('adding socket:', userId, type);
     this.sockets[userId][type] = socket;
+  }
+
+  reserveSocket(userId: number) {
+    this.sockets[userId] = { pong: null, status: null, chatroom: null };
   }
 
   deleteSocket(userId: number) {
