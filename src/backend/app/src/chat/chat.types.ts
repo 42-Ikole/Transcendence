@@ -52,9 +52,16 @@ export class ChatRoomDto {
 export class ChatUserDto {
 	@IsInt()
 	@IsNotEmpty()
+	@ApiProperty({
+		type: Number,
+	})
 	chatId: number;
 
 	@IsInt()
+	@IsNotEmpty()
+	@ApiProperty({
+		type: Number,
+	})
 	userId: number;
 }
 
