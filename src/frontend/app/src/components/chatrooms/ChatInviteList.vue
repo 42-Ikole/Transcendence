@@ -12,7 +12,7 @@
 <script lang="ts">
 
 import { defineComponent, type PropType } from "vue";
-import { makeApiCall } from "@/utils/ApiCall";
+import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
 
 interface DataObject {
 	allUsers: Users[],
@@ -25,6 +25,10 @@ export default defineComponent ({
 			users: Object as PropType<PublicUser>,
 			required: true,
 		},
+		chatId: {
+			id: Number,
+			required: true,
+		},
 	},
 	data(): DataObject {
 		return {
@@ -33,8 +37,8 @@ export default defineComponent ({
 		}
 	},
 	methods: {
-		inviteUser(user: User) {
-			console.log('id invite: ', user.id);
+		async inviteUser(user: User) {
+			const inviteResponse = await makeApiCallJson("/chat/invite", "POST", {chatId: this.chatId, userId: user.id} );
 		}
 	},
 	computed: {
