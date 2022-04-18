@@ -13,6 +13,8 @@ import { Exclude } from 'class-transformer';
 import { Friend } from './friend.entity';
 import { Chat } from './chat.entity';
 import { Avatar } from './avatar.entity';
+import { Ban } from './ban.entity';
+import { Mute } from './mute.entity';
 
 //////     //////
 // User Entity //
@@ -64,6 +66,12 @@ export class User {
 	
 	@ManyToMany(() => Chat, (chat) => chat.invitedUsers)
 	chatInvites: Chat[];
+
+	@OneToMany(() => Ban, (ban: Ban) => ban.user)
+	bans: Ban[];
+
+	@OneToMany(() => Mute, (mute: Mute) => mute.user)
+	mutes: Mute[];
 
   // Two Factor
   @Column({ nullable: true })

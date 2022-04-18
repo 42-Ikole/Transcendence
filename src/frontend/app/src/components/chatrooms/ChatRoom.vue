@@ -25,16 +25,14 @@
             <h3 class="mb-0 cr-name">{{ this.chat.name }}</h3>
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group me-2" role="group">
-                <button
-                  type="button"
-                  class="btn btn-outline-info btn-lg"
-                  data-mdb-ripple-color="dark"
-                  style="line-height: 1"
-                  @click="inviteUser"
-                  v-if="chat.type === 'private' && (isOwner || isAdmin)"
-                >
-                  Invite
-                </button>
+                <div class="dropdown">
+                  <button class="btn btn-outline-info dropdown btn-lg" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    Invite
+                  </button>
+                  <ul class="dropdown-menu">
+                    <ChatInviteList :usersInChat="this.chat.members" :chatId="chat.id"/>
+                  </ul>
+                </div>
               </div>
               <div class="btn-group me-2" role="group">
                 <button
@@ -134,6 +132,7 @@ import { Chat, SendChatMessage } from "./Chatrooms.types.ts";
 import { makeApiCall } from "@/utils/ApiCall";
 import ChatUserDropdown from "../ChatDropdown/ChatUserDropdown.vue";
 import { useChatStore} from "@/stores/ChatStore";
+import ChatInviteList from "./ChatInviteList.vue";
 
 interface DataObject {
   myMessage: string;
@@ -200,9 +199,6 @@ export default defineComponent({
         this.switchToRoomList();
       }
     },
-    inviteUser() {
-      console.log('ja pannenkoek');
-    },
     async refreshChat() {
       const messagesResponse = await makeApiCall(
         "/chat/messages/" + this.chat.name
@@ -256,6 +252,7 @@ export default defineComponent({
   },
   components: {
     ChatUserDropdown,
+    ChatInviteList,
   },
 });
 </script>

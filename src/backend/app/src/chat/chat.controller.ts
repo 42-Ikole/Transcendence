@@ -77,7 +77,6 @@ export class ChatController {
 	async getAdminsForChat(@Param('chatname') chatname: string): Promise<User[]> {
 		// Get all the admins for a particular chat.
 		const chat: Chat = await this.chatService.findByName(chatname, ['admins']);
-		console.log(chat);
 		if (chat === undefined) {
 			throw new NotFoundException();
 		}
@@ -116,20 +115,6 @@ export class ChatController {
     return await this.chatService.createChat(createChatInterface);
 	}
 
-	@Delete('/:chatid')
-	@ApiParam({
-		name: 'chatid',
-		required: true,
-		description: 'Id of a chatroom',
-		type: Number,
-	})
-	async deleteChat(
-		@Req() request: RequestWithUser,
-		@Param('chatid', ParseIntPipe) chatId: number,
-		): Promise<void> {
-		await this.chatService.deleteChat(request.user, chatId);
-	}
-
 	@Post('/password')
 	async addPassword(
 		@Req() request: RequestWithUser,
@@ -149,10 +134,17 @@ export class ChatController {
 	}
 
 	@Delete('/password/:chatid')
+	@ApiParam({
+		name: 'chatid',
+		required: true,
+		description: 'Id of a chatroom',
+		type: Number,
+	})
 	async removePassword(
 		@Req() request: RequestWithUser,
 		@Param('chatid', ParseIntPipe) chatId: number,
 	): Promise<void> {
+		// Remove a password from a room.
 		await this.chatService.removePassword(request.user, chatId);
 	}
 
@@ -172,6 +164,20 @@ export class ChatController {
 	): Promise<void> {
 		// Remove the user as admin, if possible.
 		await this.chatService.demoteAdmin(request.user, body.chatId, body.userId);
+	}
+
+	@Delete('/:chatid')
+	@ApiParam({
+		name: 'chatid',
+		required: true,
+		description: 'Id of a chatroom',
+		type: Number,
+	})
+	async deleteChat(
+		@Req() request: RequestWithUser,
+		@Param('chatid', ParseIntPipe) chatId: number,
+		): Promise<void> {
+		await this.chatService.deleteChat(request.user, chatId);
 	}
 
 	@Post('/owner')
@@ -199,5 +205,28 @@ export class ChatController {
 	): Promise<void> {
 		// Uninvite a user to a private chat.
 		await this.chatService.removeInviteToChat(request.user, body.chatId, body.userId);
+	}
+
+	@Get('/user/invite')
+	async getUserInvites(
+		@Req() request: RequestWithUser,
+	): Promise<Chat[]> {
+		// Get the chats where the requesting user has been invited.
+		return await this.chatService.getUserInvites(request.user);
+	}
+
+	@Get('/invite/:chatid')
+	@ApiParam({
+		name: 'chatid',
+		required: true,
+		description: 'Id of a chatroom',
+		type: Number,
+	})
+	async getChatInvites(
+		@Req() request: RequestWithUser,
+		@Param('chatid', ParseIntPipe) chatId: number,
+	): Promise<User[]> {
+		// Get the users that are invited to a particular chat.
+		return await this.chatService.getChatInvites(request.user, chatId);
 	}
 }

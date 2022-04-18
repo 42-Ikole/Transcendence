@@ -63,12 +63,12 @@
             Send Friend Request
           </button>
         </li>
+        <li v-if="isFriend">
+          <button @click="unfriendUser" class="dropdown-item" type="button">
+            Unfriend
+          </button>
+        </li>
         <div v-if="showChatOptions">
-          <li v-if="isFriend">
-            <button @click="unfriendUser" class="dropdown-item" type="button">
-              Unfriend
-            </button>
-          </li>
           <li v-if="isAdmin">
             <hr class="dropdown-divider" />
             <div v-if="!isMuted">
@@ -245,8 +245,8 @@ export default defineComponent({
     async makeAdmin() {
       if (this.role === "MEMBER") {
         const makeAdminResponse = await makeApiCallJson("/chat/admin", "POST", {
-        chatId: this.chatId,
-        userId: this.user.id,
+          chatId: this.chatId,
+          userId: this.user.id,
         });
       }
     },

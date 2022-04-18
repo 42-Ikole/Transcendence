@@ -45,8 +45,6 @@ export class ChatGateway
       return;
 		}
 		this.socketService.deleteSocket(client.user.id);
-    console.log('chat gateway: OnDisconnect');
-    console.log('client id:', client.id);
   }
 
   async handleConnection(client: SocketWithUser) {
@@ -54,12 +52,9 @@ export class ChatGateway
       client.handshake.headers.cookie,
     );
     if (!client.user) {
-      console.log('/chat connection denied:', client.id);
       client.disconnect();
       return;
     }
-    console.log('chat gateway: OnConnection');
-    console.log('client id:', client.id);
     const chats: AllChatsDto = await this.chatService.findAll(client.user);
     for (const chat of chats.joinedChats) {
       client.join(chat.name);
@@ -86,7 +81,6 @@ export class ChatGateway
           chatName: chat.name,
           message: addedMessage,
         });
-        console.log('sent message to room [' + chat.name + ']');
         return;
       }
     }
