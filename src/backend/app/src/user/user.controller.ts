@@ -92,7 +92,8 @@ export class UserController {
   @UseInterceptors(
     FileInterceptor('file', {
       fileFilter: imageFileFilter,
-    }))
+    }),
+  )
   async uploadAvatar(
     @Req() request: RequestWithUser,
     @UploadedFile() file: Express.Multer.File,

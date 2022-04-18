@@ -31,7 +31,7 @@ interface DataObject {
   status: string;
 }
 
-const MAX_FILE_SIZE = 1024 * 1024 * 10
+const MAX_FILE_SIZE = 1024 * 1024 * 10;
 
 export default defineComponent({
   data(): DataObject {
@@ -57,7 +57,7 @@ export default defineComponent({
         useUserStore().updateAvatar();
         this.status = "Successfully updated avatar!";
       } else {
-      this.status = "Couldn't update avatar!";
+        this.status = "Couldn't update avatar!";
       }
       this.file = null;
     },
@@ -68,7 +68,7 @@ export default defineComponent({
     },
     validateFile() {
       if (!this.file.type || !this.isImage()) {
-        this.handleError('Invalid file type!');
+        this.handleError("Invalid file type!");
         return;
       }
       if (this.file.size > MAX_FILE_SIZE) {
@@ -77,7 +77,7 @@ export default defineComponent({
       }
     },
     isImage() {
-      return this.file.type.startsWith('image/');
+      return this.file.type.startsWith("image/");
     },
     handleError(status: string) {
       this.status = status;
