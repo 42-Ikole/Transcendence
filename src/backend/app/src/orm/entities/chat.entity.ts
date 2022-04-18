@@ -10,6 +10,8 @@ import {
 import { User } from './user.entity';
 import { Message } from './message.entity';
 import { Exclude } from 'class-transformer';
+import { Ban } from './ban.entity';
+import { Mute } from './mute.entity';
 
 @Entity()
 export class Chat {
@@ -45,4 +47,10 @@ export class Chat {
 	@ManyToMany(() => User, (user) => user.chatInvites)
 	@JoinTable()
 	invitedUsers: User[];
+
+	@OneToMany(() => Ban, (ban: Ban) => ban.chat)
+	bans: Ban[];
+
+	@OneToMany(() => Mute, (mute: Mute) => mute.chat)
+	mutes: Mute[];
 }
