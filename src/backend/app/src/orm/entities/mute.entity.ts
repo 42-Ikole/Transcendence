@@ -5,11 +5,11 @@ import { Chat } from "./chat.entity";
 @Entity()
 export class Mute {
 	@PrimaryColumn()
-	@ManyToOne(() => User)
+	@ManyToOne(() => User, (user: User) => user.mutes)
 	user: User;
 
 	@PrimaryColumn()
-	@ManyToOne(() => Chat)
+	@ManyToOne(() => Chat, (chat: Chat) => chat.mutes)
 	chat: Chat;
 
 	@Column({type: 'timestamp'})
