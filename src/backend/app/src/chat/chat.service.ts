@@ -125,11 +125,7 @@ export class ChatService {
 
 	async addPassword(requestingUser: User, chatId: number, password: string): Promise<Chat> {
 		// Get the chat.
-		const chat: Chat = await this.chatRepository.findOne({
-			select: ['password', 'owner', 'type'],
-			where: [{ id: chatId }],
-			relations: ['owner'],
-		});
+		const chat: Chat = await this.findById(chatId, ['owner']);
 		if (chat === undefined) {
 			throw new NotFoundException();
 		}
@@ -142,18 +138,14 @@ export class ChatService {
 			return;
 		}
 		// Add the password.
-		chat.type = 'private';
+		chat.type = 'protected';
 		chat.password = password;
 		return await this.chatRepository.save(chat);
 	}
 
 	async changePassword(requestingUser: User, chatId: number, password: string): Promise<Chat> {
 		// Get the chat.
-		const chat: Chat = await this.chatRepository.findOne({
-			select: ['password', 'owner', 'type'],
-			where: [{ id: chatId }],
-			relations: ['owner'],
-		});
+		const chat: Chat = await this.findById(chatId, ['owner']);
 		if (chat === undefined) {
 			throw new NotFoundException();
 		}
@@ -161,8 +153,8 @@ export class ChatService {
 		if (!this.userIsOwner(requestingUser, chat)) {
 			throw new UnauthorizedException();
 		}
-		// Check if chat is of type private.
-		if (chat.type !== 'private') {
+		// Check if chat is of type protected.
+		if (chat.type !== 'protected') {
 			return;
 		}
 		// Change the password.
@@ -172,11 +164,7 @@ export class ChatService {
 
 	async removePassword(requestingUser: User, chatId: number): Promise<Chat> {
 		// Get the chat.
-		const chat: Chat = await this.chatRepository.findOne({
-			select: ['password', 'owner', 'type'],
-			where: [{ id: chatId }],
-			relations: ['owner'],
-		});
+		const chat: Chat = await this.findById(chatId, ['owner']);
 		if (chat === undefined) {
 			throw new NotFoundException();
 		}
@@ -184,8 +172,8 @@ export class ChatService {
 		if (!this.userIsOwner(requestingUser, chat)) {
 			throw new UnauthorizedException();
 		}
-		// Check if the chat is private.
-		if (chat.type !== 'private') {
+		// Check if the chat is protected.
+		if (chat.type !== 'protected') {
 			return;
 		}
 		// Remove the password.
@@ -208,7 +196,6 @@ export class ChatService {
   async userJoinsRoom(user: User, chat: Chat): Promise<void> {
     // Only let a user join if they're not in the room already.
     if (this.userIsInChat(user, chat)) {
-      console.log('User was not added.');
       return;
     }
     chat.members.push(user);
