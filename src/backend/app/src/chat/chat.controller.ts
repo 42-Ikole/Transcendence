@@ -149,10 +149,17 @@ export class ChatController {
 	}
 
 	@Delete('/password/:chatid')
+	@ApiParam({
+		name: 'chatid',
+		required: true,
+		description: 'Id of a chatroom',
+		type: Number,
+	})
 	async removePassword(
 		@Req() request: RequestWithUser,
 		@Param('chatid', ParseIntPipe) chatId: number,
 	): Promise<void> {
+		// Remove a password from a room.
 		await this.chatService.removePassword(request.user, chatId);
 	}
 
