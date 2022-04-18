@@ -63,12 +63,12 @@
             Send Friend Request
           </button>
         </li>
+        <li v-if="isFriend">
+          <button @click="unfriendUser" class="dropdown-item" type="button">
+            Unfriend
+          </button>
+        </li>
         <div v-if="showChatOptions">
-          <li v-if="isFriend">
-            <button @click="unfriendUser" class="dropdown-item" type="button">
-              Unfriend
-            </button>
-          </li>
           <li v-if="isAdmin">
             <hr class="dropdown-divider" />
             <div v-if="!isMuted">
