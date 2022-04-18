@@ -207,11 +207,26 @@ export class ChatController {
 		await this.chatService.removeInviteToChat(request.user, body.chatId, body.userId);
 	}
 
-	@Get('/invite')
-	async getInvites(
+	@Get('/user/invite')
+	async getUserInvites(
 		@Req() request: RequestWithUser,
 	): Promise<Chat[]> {
 		// Get the chats where the requesting user has been invited.
 		return await this.chatService.getUserInvites(request.user);
+	}
+
+	@Get('/invite/:chatid')
+	@ApiParam({
+		name: 'chatid',
+		required: true,
+		description: 'Id of a chatroom',
+		type: Number,
+	})
+	async getChatInvites(
+		@Req() request: RequestWithUser,
+		@Param('chatid', ParseIntPipe) chatId: number,
+	): Promise<User[]> {
+		// Get the users that are invited to a particular chat.
+		return await this.chatService.getChatInvites(request.user, chatId);
 	}
 }

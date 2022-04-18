@@ -373,6 +373,18 @@ export class ChatService {
 		return await this.userService.getInvites(requestingUser.id);
 	}
 
+	async getChatInvites(
+		requestingUser: User,
+		chatId: number,
+	): Promise<User[]> {
+		// Get the invites for a particular chat.
+		const chat: Chat = await this.findById(chatId, ['invitedUsers', 'admins', 'owner']);
+		if (!this.userHasAdminPrivilege(requestingUser, chat)) {
+			throw new UnauthorizedException();
+		}
+		return chat.invitedUsers;
+	}
+
   userIsInChat(user: User, chat: Chat): boolean {
     // Look through the members and see if the user is in there.
     for (const member of chat.members) {
