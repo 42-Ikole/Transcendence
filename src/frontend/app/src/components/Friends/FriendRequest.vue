@@ -105,7 +105,7 @@ export default defineComponent({
     },
   },
   async mounted() {
-    const chatInvitesResponse = await makeApiCall("/user/chat/invite");
+    const chatInvitesResponse = await makeApiCall("/chat/user/invite");
     if (chatInvitesResponse.ok) {
       this.chatInvites = await chatInvitesResponse.json();
     }
