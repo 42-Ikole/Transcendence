@@ -156,6 +156,7 @@ export default defineComponent({
       this.showPassword = !this.showPassword;
     },
     setWaiting() {
+      this.refreshChatList();
       this.state = State.WAITING;
       this.selectedChatName = "";
       this.typedPassword = "";
