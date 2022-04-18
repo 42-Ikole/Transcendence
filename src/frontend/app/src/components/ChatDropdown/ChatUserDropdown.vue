@@ -245,8 +245,8 @@ export default defineComponent({
     async makeAdmin() {
       if (this.role === "MEMBER") {
         const makeAdminResponse = await makeApiCallJson("/chat/admin", "POST", {
-        chatId: this.chatId,
-        userId: this.user.id,
+          chatId: this.chatId,
+          userId: this.user.id,
         });
       }
     },
