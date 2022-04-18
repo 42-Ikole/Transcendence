@@ -366,6 +366,13 @@ export class ChatService {
 		this.socketService.emitToUser(user.id, 'chatroom', 'chatRoleUpdate');
 	}
 
+	async getUserInvites(
+		requestingUser: User,
+	): Promise<Chat[]> {
+		// Get the invites through the user service.
+		return await this.userService.getInvites(requestingUser.id);
+	}
+
   userIsInChat(user: User, chat: Chat): boolean {
     // Look through the members and see if the user is in there.
     for (const member of chat.members) {

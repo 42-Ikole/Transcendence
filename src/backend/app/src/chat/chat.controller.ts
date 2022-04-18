@@ -206,4 +206,12 @@ export class ChatController {
 		// Uninvite a user to a private chat.
 		await this.chatService.removeInviteToChat(request.user, body.chatId, body.userId);
 	}
+
+	@Get('/invite')
+	async getInvites(
+		@Req() request: RequestWithUser,
+	): Promise<Chat[]> {
+		// Get the chats where the requesting user has been invited.
+		return await this.chatService.getUserInvites(request.user);
+	}
 }
