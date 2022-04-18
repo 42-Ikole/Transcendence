@@ -77,7 +77,6 @@ export class ChatController {
 	async getAdminsForChat(@Param('chatname') chatname: string): Promise<User[]> {
 		// Get all the admins for a particular chat.
 		const chat: Chat = await this.chatService.findByName(chatname, ['admins']);
-		console.log(chat);
 		if (chat === undefined) {
 			throw new NotFoundException();
 		}
