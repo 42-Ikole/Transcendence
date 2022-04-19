@@ -101,6 +101,7 @@
                 placeholder="Type message"
                 v-model="myMessage"
                 ref="messageBox"
+                :disabled="isMuted"
               />
               <input
                 class="btn btn-lg btn-outline-info btn-rounded float-end"
@@ -236,6 +237,9 @@ export default defineComponent({
     isOwner() {
       return useChatStore().isOwner(this.chat.id);
     },
+    isMuted() {
+      return false; // checken of user muted is
+    }
   },
   async mounted() {
     this.socket.on("subscribeToChatSuccess", this.refreshChat);
