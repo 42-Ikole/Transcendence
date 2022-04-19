@@ -5,11 +5,15 @@ import { Chat } from "./chat.entity";
 @Entity()
 export class Ban {
 	@PrimaryColumn()
-	@ManyToOne(() => User, (user: User) => user.bans)
+	@ManyToOne(() => User, (user: User) => user.bans, {
+		onDelete: "CASCADE",
+	})
 	userId: number;
 
 	@PrimaryColumn()
-	@ManyToOne(() => Chat, (chat: Chat) => chat.bans)
+	@ManyToOne(() => Chat, (chat: Chat) => chat.bans, {
+		onDelete: "CASCADE",
+	})
 	chatId: number;
 
 	@Column({type: 'timestamp'})
