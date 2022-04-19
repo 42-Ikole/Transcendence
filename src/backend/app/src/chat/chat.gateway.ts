@@ -97,10 +97,7 @@ export class ChatGateway
     // If user is already in the room, skip password check
 
     // Verify password
-    const success: boolean = await this.chatService.matchPassword(
-      data.roomName,
-      data.password,
-    );
+
     const chat: Chat = await this.chatService.findByName(data.roomName, [
       'members', 'bans'
 		]);
@@ -112,6 +109,10 @@ export class ChatGateway
       client.emit('joinRoomSuccess');
       return;
     }
+    const success: boolean = await this.chatService.matchPassword(
+      data.roomName,
+      data.password,
+    );
     if (!success || chat === undefined) {
       client.emit('joinRoomFailure');
       return;

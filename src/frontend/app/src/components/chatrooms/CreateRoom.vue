@@ -128,6 +128,7 @@ export default defineComponent({
         name: this.name,
         password: this.pass,
       });
+      this.pass = "";
       console.log(response);
       if (response.ok) {
         this.$emit("roomCreated");

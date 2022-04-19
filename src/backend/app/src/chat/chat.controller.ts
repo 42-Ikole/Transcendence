@@ -20,7 +20,7 @@ import { Message } from 'src/orm/entities/message.entity';
 import { SocketService } from 'src/websocket/socket.service';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
 import { RequestWithUser } from '../auth/auth.types';
-import { request } from 'http';
+import * as bcrypt from "bcrypt";
 
 @ApiTags('chat')
 @Controller('chat')
@@ -108,10 +108,15 @@ export class ChatController {
   ): Promise<Chat> {
     // Create an interface from the DTO.
     const createChatInterface: CreateChatInterface = {
-      ...body,
+      name: body.name,
+      type: body.type,
       owner: request.user,
       members: [request.user],
-		};
+    };
+    if (body.password) {
+      const hashedPassword = await bcrypt.hash(body.password, 10);
+      createChatInterface.password = hashedPassword;
+    }
     // Add the chat to the database.
     return await this.chatService.createChat(createChatInterface);
 	}

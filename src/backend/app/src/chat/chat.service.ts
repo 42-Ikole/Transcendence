@@ -22,7 +22,7 @@ import { UserService } from 'src/user/user.service';
 import { SocketService } from 'src/websocket/socket.service';
 import { Ban } from 'src/orm/entities/ban.entity';
 import { Mute } from 'src/orm/entities/mute.entity';
-import { SocketWithUser } from 'src/websocket/websocket.types';
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class ChatService {
@@ -54,7 +54,7 @@ export class ChatService {
     return allChats;
   }
 
-  async matchPassword(roomName: string, password: string): Promise<boolean> {
+  async matchPassword(roomName: string, plainTextPassword: string): Promise<boolean> {
     const chat = await this.chatRepository.findOne({
       select: ['password', 'type'],
       where: [{ name: roomName }],
@@ -65,7 +65,10 @@ export class ChatService {
     if (chat.type !== 'protected') {
       return true;
     }
-    return chat.password === password;
+    return await bcrypt.compare(
+      plainTextPassword,
+      chat.password,
+    );
   }
 
   async findByName(name: string, relations = []): Promise<Chat> {
@@ -130,7 +133,7 @@ export class ChatService {
     return chat;
   }
 
-  async addPassword(requestingUser: User, chatId: number, password: string): Promise<Chat> {
+  async addPassword(requestingUser: User, chatId: number, plainTextPassword: string): Promise<Chat> {
     // Get the chat.
     const chat: Chat = await this.findById(chatId, ['owner']);
     if (chat === undefined) {
@@ -146,11 +149,12 @@ export class ChatService {
     }
     // Add the password.
     chat.type = 'protected';
-    chat.password = password;
+    const hashedPassword = await bcrypt.hash(plainTextPassword, 10);
+    chat.password = hashedPassword;
     return await this.chatRepository.save(chat);
   }
-
-  async changePassword(requestingUser: User, chatId: number, password: string): Promise<Chat> {
+  
+  async changePassword(requestingUser: User, chatId: number, plainTextPassword: string): Promise<Chat> {
     // Get the chat.
     const chat: Chat = await this.findById(chatId, ['owner']);
     if (chat === undefined) {
@@ -165,7 +169,8 @@ export class ChatService {
       return;
     }
     // Change the password.
-    chat.password = password;
+    const hashedPassword = await bcrypt.hash(plainTextPassword, 10);
+    chat.password = hashedPassword;
     return await this.chatRepository.save(chat);
   }
 
@@ -770,7 +775,6 @@ export class ChatService {
 
   private broadcastBanMuteUpdate(chatId: number) {
     const name = `banMuteUpdate_${chatId}`;
-    console.log("Emit:", name);
     this.socketService.chatServer.to(name).emit(name);
   }
 
