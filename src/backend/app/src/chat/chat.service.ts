@@ -417,6 +417,23 @@ export class ChatService {
 		return chat.invitedUsers;
 	}
 
+	async getChatUninvites(
+		requestingUser: User,
+	): Promise<Chat[]> {
+		let returnChats: Chat[] = [];
+		// Get all the chats where this user is owner or admin.
+		const userChats: User = await this.userService.findById(requestingUser.id, {
+			relations: ['adminChats', 'ownedChats'],
+		});
+		const chats: Chat[] = userChats.ownedChats.concat(userChats.adminChats).filter((item) => item.type === 'private');
+		// Cycle through the chats and find the invited users for those chats.
+		for (let adminChat of chats) {
+			const chat: Chat = await this.findById(adminChat.id, ['invitedUsers']);
+			returnChats.push(chat);
+		}
+		return returnChats;
+	}
+
   userIsInChat(user: User, chat: Chat): boolean {
     // Look through the members and see if the user is in there.
     for (const member of chat.members) {

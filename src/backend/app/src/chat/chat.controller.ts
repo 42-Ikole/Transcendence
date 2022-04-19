@@ -230,6 +230,14 @@ export class ChatController {
 		return await this.chatService.getChatInvites(request.user, chatId);
 	}
 
+	@Get('/uninvite')
+	async getChatUninvites(
+		@Req() request: RequestWithUser,
+	): Promise<Chat[]> {
+		// Return a list of chats with lists of users that are invited to chats.
+		return await this.chatService.getChatUninvites(request.user);
+	}
+
 	@Post('/invite/accept')
 	async acceptInvite(
 		@Req() request: RequestWithUser,
