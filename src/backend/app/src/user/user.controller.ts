@@ -58,6 +58,7 @@ export class UserController {
   }
 
   @Get()
+  // Returns private user specifically because there is more information
   @UseGuards(AuthenticatedGuard)
   async findUser(@Req() req: RequestWithUser): Promise<PrivateUser> {
     const user = await this.userService.findById(req.user.id);
@@ -66,7 +67,7 @@ export class UserController {
 
   @Get('/:id')
   async findById(@Param('id', ParseIntPipe) id: number): Promise<PublicUser> {
-    return new PublicUser(await this.userService.findById(id));
+    return await this.userService.findById(id);
   }
 
   @Get('matches_won/:id')
