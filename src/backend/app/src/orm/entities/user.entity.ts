@@ -67,10 +67,10 @@ export class User {
 	@ManyToMany(() => Chat, (chat) => chat.invitedUsers)
 	chatInvites: Chat[];
 
-	@OneToMany(() => Ban, (ban: Ban) => ban.user)
+	@OneToMany(() => Ban, (ban: Ban) => ban.userId)
 	bans: Ban[];
 
-	@OneToMany(() => Mute, (mute: Mute) => mute.user)
+	@OneToMany(() => Mute, (mute: Mute) => mute.userId)
 	mutes: Mute[];
 
   // Two Factor

@@ -6,11 +6,11 @@ import { Chat } from "./chat.entity";
 export class Ban {
 	@PrimaryColumn()
 	@ManyToOne(() => User, (user: User) => user.bans)
-	user: number;
+	userId: number;
 
 	@PrimaryColumn()
 	@ManyToOne(() => Chat, (chat: Chat) => chat.bans)
-	chat: number;
+	chatId: number;
 
 	@Column({type: 'timestamp'})
 	expirationDate: Date;

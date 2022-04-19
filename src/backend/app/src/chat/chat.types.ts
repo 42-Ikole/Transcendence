@@ -2,6 +2,7 @@ import { IsString, IsNotEmpty, IsOptional, IsIn, IsInt } from 'class-validator';
 import { User } from 'src/orm/entities/user.entity';
 import { Chat } from 'src/orm/entities/chat.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { Timestamp } from 'typeorm';
 
 const CHATROOM_TYPES = ['private', 'protected', 'public'];
 
@@ -83,7 +84,7 @@ export class ChatActionDto extends ChatUserDto {
 	@IsInt()
 	@IsNotEmpty()
 	@ApiProperty({
-		type: Number,
+		type: Date,
 	})
-	duration: number;
+	expirationDate: Date;
 }

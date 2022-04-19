@@ -6,11 +6,11 @@ import { Chat } from "./chat.entity";
 export class Mute {
 	@PrimaryColumn()
 	@ManyToOne(() => User, (user: User) => user.mutes)
-	user: number;
+	userId: number;
 
 	@PrimaryColumn()
 	@ManyToOne(() => Chat, (chat: Chat) => chat.mutes)
-	chat: number;
+	chatId: number;
 
 	@Column({type: 'timestamp'})
 	expirationDate: Date;
