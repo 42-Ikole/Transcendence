@@ -56,8 +56,9 @@
           </div>
         </div>
       </form>
-      <div v-if="showDeleted" class="text-danger" style="padding-bottom: 5px">'{{ this.roomDeleted }}' is succesfully deleted!</div>
-      <div v-if="correctPassword === false" class="text-danger" style="padding-bottom: 5px;">Invalid password!</div>
+      <div v-if="showDeleted" class="text-danger" style="padding-bottom: 5px">"{{ this.roomDeleted }}" is successfully deleted!</div>
+      <div v-if="!correctPassword" class="text-danger" style="padding-bottom: 5px;">Invalid password!</div>
+      <div v-if="userBanned" class="text-danger" style="padding-bottom: 5px;">You are banned from this chatroom!</div>
       <button class="btn btn-info btn-sm float-end" @click="createRoom">
         Create room
       </button>
@@ -107,6 +108,7 @@ interface DataObject {
   correctPassword: boolean;
   showDeleted: boolean;
   roomDeleted: string;
+  showBanned: boolean;
 }
 
 export default defineComponent({
@@ -121,6 +123,7 @@ export default defineComponent({
       correctPassword: true,
       showDeleted: false,
       roomDeleted: "",
+      showBanned: false,
     };
   },
   computed: {
@@ -178,8 +181,11 @@ export default defineComponent({
       this.selectedChat = this.findChatByName(this.selectedChatName);
       this.state = State.JOINING;
     },
-    joinRoomFailed() {
+    joinRoomFailedPassword() {
       this.correctPassword = false;
+    },
+    joinRoomFailedBanned() {
+      this.userBanned = true;
     },
     findChatByName(name: string): Chat {
       for (let chat of this.chats.joinedChats) {
@@ -200,15 +206,17 @@ export default defineComponent({
   async mounted() {
     await this.getAllChats();
     this.socket.on("joinRoomSuccess", this.joinRoomSuccessfully);
-    this.socket.on("joinRoomFailure", this.joinRoomFailed);
+    this.socket.on("joinRoomFailure", this.joinRoomFailedPassword);
     this.socket.on("roomCreated", this.refreshChatList);
     this.socket.on("roomDeleted", this.refreshChatList);
+    this.socket.on("joinRoomBanned", this.joinRoomFailedBanned);
   },
   unmounted() {
     this.socket.removeListener("joinRoomSuccess", this.joinRoomSuccessfully);
-    this.socket.removeListener("joinRoomFailure", this.joinRoomFailed);
+    this.socket.removeListener("joinRoomFailure", this.joinRoomFailedPassword);
     this.socket.removeListener("roomCreated", this.refreshChatList);
     this.socket.removeListener("roomDeleted", this.refreshChatList);
+    this.socket.removeListener("joinRoomBanned", this.joinRoomFailedBanned);
   },
   watch: {
     selectedChatName(newRoom, oldRoom) {
@@ -217,6 +225,7 @@ export default defineComponent({
         this.correctPassword = true;
         this.showDeleted = false;
         this.roomDeleted = "";
+        this.showBanned = false;
       }
     },
   },
