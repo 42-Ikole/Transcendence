@@ -462,7 +462,7 @@ export class ChatService {
 		}
 		// See if the user is already banned, if so, update it. Else, create it.
 		if (this.userIsBanned(user, chat)) {
-			let ban: Ban = user.bans.filter((item) => item.chatId === chat.id)[0];
+			let ban: Ban = chat.bans.filter((item) => item.userId === user.id)[0];
 			ban.expirationDate = banInfo.expirationDate;
 			await this.banRepository.save(ban);
 		} else {
@@ -520,7 +520,7 @@ export class ChatService {
 		}
 		// See if the user is already muted, if so, update it. Else, create it.
 		if (this.userIsMuted(user, chat)) {
-			let mute: Mute = user.mutes.filter((item) => item.chatId === chat.id)[0];
+			let mute: Mute = chat.mutes.filter((item) => item.userId === user.id)[0];
 			mute.expirationDate = muteInfo.expirationDate;
 			await this.muteRepository.save(mute);
 		} else {
