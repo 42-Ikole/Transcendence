@@ -44,7 +44,7 @@ export const useUserStore = defineStore("user", {
     setListeners() {
       const status = useSocketStore().status;
       if (status) {
-        status.on('updateAvatar', () => {
+        status.on("updateAvatar", () => {
           this.updateCount += 1;
           this.updateAvatar();
         });
