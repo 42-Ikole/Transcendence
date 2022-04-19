@@ -8,7 +8,7 @@
     <li class="text-white">
       {{ achievement.name }}
     </li>
-    <p class="text-white">{{ achievement.description }}</p>
+    <p class="text-white-50">{{ achievement.description }}</p>
   </div>
 </template>
 
