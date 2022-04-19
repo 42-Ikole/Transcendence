@@ -86,6 +86,14 @@ hr {
 	border-radius: 5px !important;
 }
 
+/* general styling */
+
+.icon-big {
+	width: 2rem !important;
+	height: 2rem !important;
+	font-size: 2rem !important;
+}
+
 /* Id styling */
 
 #navbarLogo {

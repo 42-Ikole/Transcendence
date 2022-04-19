@@ -25,4 +25,5 @@ export interface GameState {
   playerOne: Player;
   playerTwo: Player;
   ball: Ball;
+  default: boolean;
 }

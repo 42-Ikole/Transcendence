@@ -9,16 +9,12 @@ export function loginUser(provider: OAuthProvider) {
 }
 
 export async function logoutUser(router: Router) {
-  const response = await makeApiCall("/auth/logout", {
+  await makeApiCall("/auth/logout", {
     method: "DELETE",
   });
   const userStore = useUserStore();
   router.push("/login");
   userStore.logout();
-}
-
-export async function getUserInfo() {
-  return useUserStore().$state;
 }
 
 export async function canMakeConnection(): Promise<boolean> {

@@ -1,6 +1,15 @@
 <template>
-  <button class="btn btn-outline-light btn-lg px-5 me-2" @click="requestMatch">
+  <button
+    class="btn btn-outline-light btn-lg px-5 me-2"
+    @click="requestMatch(false)"
+  >
     Find Match
+  </button>
+  <button
+    class="btn btn-outline-light btn-lg px-5 me-2"
+    @click="requestMatch(true)"
+  >
+    Find Match [Default Mode]
   </button>
 </template>
 
@@ -10,10 +19,11 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
   methods: {
-    requestMatch() {
+    requestMatch(mode: boolean) {
       useSocketStore().pong?.emit("requestMatch", {
         type: "matchmaking",
         targetId: null,
+        default: mode,
       });
     },
   },

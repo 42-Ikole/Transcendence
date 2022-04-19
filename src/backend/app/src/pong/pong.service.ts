@@ -1,9 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { SocketWithUser } from 'src/websocket/websocket.types';
 import { GameDto, GameRoom } from './pong.types';
 import { CookieService } from 'src/websocket/cookie.service';
 import { SocketService } from 'src/websocket/socket.service';
 import { StatusService } from 'src/status/status.service';
+
+interface Challenger {
+  id: number;
+  defaultMode: boolean;
+}
 
 @Injectable()
 export class PongService {
@@ -14,9 +19,11 @@ export class PongService {
   ) {}
 
   private waitingUser: SocketWithUser | null = null;
+  private waitingDefaultUser: SocketWithUser | null = null;
   private gameRooms: Record<string, GameRoom> = {}; // roomName -> extra room Data
   private disconnectedUsers: Record<number, string> = {}; // userId -> roomName
-  private challengers: Record<number, number> = {}; // challengedUserId -> challengerUserId
+  private challengers: Record<number, Challenger> = {}; // challengedUserId -> challengerUserId
+  private challenged: Record<number, number> = {}; // challengerUserId -> challengedUserId
 
   addClient(client: SocketWithUser) {
     this.socketService.addSocket(client.user.id, 'pong', client);
@@ -32,6 +39,7 @@ export class PongService {
       this.waitingUser = null;
     }
     delete this.challengers[client.user.id];
+    delete this.challenged[client.user.id];
   }
 
   isPlaying(client: SocketWithUser) {
@@ -72,15 +80,27 @@ export class PongService {
     }
   }
 
-  enterMatchmakingQueue(client: SocketWithUser) {
+  enterMatchmakingQueue(client: SocketWithUser, defaultMode: boolean) {
+    if (defaultMode) {
+      this.waitingDefaultUser = client;
+      return;
+    }
     this.waitingUser = client;
   }
 
-  canMatch(): boolean {
+  canMatch(defaultMode: boolean): boolean {
+    if (defaultMode) {
+      return this.waitingDefaultUser !== null;
+    }
     return this.waitingUser !== null;
   }
 
-  getMatch() {
+  getMatch(defaultMode: boolean) {
+    if (defaultMode) {
+      const waiting = this.waitingDefaultUser;
+      this.waitingDefaultUser = null;
+      return waiting;
+    }
     const waiting = this.waitingUser;
     this.waitingUser = null;
     return waiting;
@@ -95,7 +115,9 @@ export class PongService {
   }
 
   deleteGameRoom(roomName: string) {
-    clearInterval(this.gameRooms[roomName].intervalId);
+    if (this.gameRooms[roomName].intervalId) {
+      clearInterval(this.gameRooms[roomName].intervalId);
+    }
     this.deleteDisconnectedUser(this.gameRooms[roomName].playerOne.userId);
     this.deleteDisconnectedUser(this.gameRooms[roomName].playerTwo.userId);
     const gameRoom = this.getGameRoom(roomName);
@@ -176,16 +198,37 @@ export class PongService {
 
   cancelObserve(client: SocketWithUser) {
     client.leave(client.gameRoom);
+    if (this.gameRooms[client.gameRoom]) {
+      this.gameRooms[client.gameRoom].observers.delete(client.user.id);
+    }
     client.gameRoom = null;
-    this.gameRooms[client.gameRoom].observers.delete(client.user.id);
+  }
+
+  cancelMatchmaking(client: SocketWithUser) {
+    if (this.waitingUser && client.user.id === this.waitingUser.user.id) {
+      this.waitingUser = null;
+    } else if (
+      this.waitingDefaultUser &&
+      client.user.id === this.waitingDefaultUser.user.id
+    ) {
+      this.waitingDefaultUser = null;
+    }
   }
 
   isChallenged(client: SocketWithUser) {
     return !!this.challengers[client.user.id];
   }
 
-  addChallenger(client: SocketWithUser, target: SocketWithUser) {
-    this.challengers[target.user.id] = client.user.id;
+  addChallenger(
+    client: SocketWithUser,
+    target: SocketWithUser,
+    defaultMode: boolean,
+  ) {
+    this.challengers[target.user.id] = {
+      id: client.user.id,
+      defaultMode,
+    };
+    this.challenged[client.user.id] = target.user.id;
   }
 
   // Return true IF:
@@ -193,20 +236,52 @@ export class PongService {
   //  - the challenger still exists
   //  - the challenger is still searching
   hasChallenger(client: SocketWithUser): boolean {
-    const challengerId = this.challengers[client.user.id];
+    const challengerId = this.challengers[client.user.id].id;
     return (
       !!this.challengers[client.user.id] &&
       !!this.socketService.userExistsType(challengerId, 'pong') &&
-      this.statusService.getState(challengerId) === 'SEARCHING'
+      this.statusService.getState(challengerId) === 'CHALLENGING'
     );
+  }
+
+  isChallenger(client: SocketWithUser): boolean {
+    return !!this.challenged[client.user.id];
   }
 
   deleteChallenger(client: SocketWithUser) {
     delete this.challengers[client.user.id];
   }
 
+  deleteChallenge(challenger: SocketWithUser, challenged: SocketWithUser) {
+    if (challenger) {
+      delete this.challenged[challenger.user.id];
+    }
+    if (challenged) {
+      delete this.challengers[challenged.user.id];
+    }
+  }
+
   getChallenger(client: SocketWithUser) {
-    const id = this.challengers[client.user.id];
+    const id = this.challengers[client.user.id].id;
     return this.socketService.sockets[id].pong;
+  }
+
+  getChallenged(client: SocketWithUser) {
+    const id = this.challenged[client.user.id];
+    return this.socketService.sockets[id].pong;
+  }
+
+  getMode(client: SocketWithUser): boolean {
+    return this.challengers[client.user.id].defaultMode;
+  }
+
+  getChallengeData(id: number) {
+    if (!this.challengers[id]) {
+      throw new NotFoundException();
+    }
+    return {
+      id: this.challengers[id].id,
+      defaultMode: this.challengers[id].defaultMode,
+    };
   }
 }

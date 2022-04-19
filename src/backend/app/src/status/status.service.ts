@@ -1,9 +1,6 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/orm/entities/user.entity';
+import { Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { SocketService } from 'src/websocket/socket.service';
-import { Repository } from 'typeorm';
 import { UserState } from './status.types';
 
 /*
@@ -28,6 +25,14 @@ export class StatusService {
 
   updateUserState(id: number, state: UserState) {
     this.userService.update(id, { status: state });
+    console.log(
+      'changing state of',
+      id,
+      'from',
+      this.getState(id),
+      'to',
+      state,
+    );
     if (state === 'OFFLINE') {
       delete this.userStatus[id];
     } else {
@@ -38,10 +43,11 @@ export class StatusService {
       newState: state,
     };
     if (this.socketService.userExistsType(id, 'status')) {
+      this.socketService.statusServer
+        .to(`statusUpdate_${id}`)
+        .emit(`statusUpdate_${id}`, updatedState);
       this.socketService.sockets[id].status.emit('statusUpdate', updatedState);
     }
-    this.socketService.statusServer.emit('friendUpdate');
-    this.socketService.statusServer.emit('friendStatusUpdate', updatedState);
   }
 
   getStates(): UserStatusMap {

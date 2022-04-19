@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
@@ -21,4 +27,10 @@ export class Match {
 
   @Column()
   loserScore: number;
+
+  // DEFAULT | SPECIAL
+  @Column()
+  mode: string;
+  @CreateDateColumn()
+  createdDate: Date;
 }

@@ -3,10 +3,11 @@ import HomeView from "@/views/HomeView.vue";
 import AboutView from "@/views/AboutView.vue";
 import LoginView from "@/views/LoginView.vue";
 import { isLoggedIn } from "@/utils/Login";
-import Enable2FaView from "@/views/Enable2FaView.vue";
+import RoomsView from "@/components/chatrooms/RoomsList.vue";
 import ProfileView from "@/views/ProfileView.vue";
-import PongView from "@/views/PongView.vue";
-import FriendView from "@/views/FriendView.vue";
+import FindMatchView from "@/views/FindMatchView.vue";
+import EditProfileView from "@/views/EditProfileView.vue";
+import FriendListView from "@/views/FriendListView.vue";
 
 const routes = [
   {
@@ -25,24 +26,29 @@ const routes = [
     component: LoginView,
   },
   {
-    path: "/2fa",
-    name: "2fa",
-    component: Enable2FaView,
+    path: "/chatrooms",
+    name: "chatrooms",
+    component: RoomsView,
   },
   {
-    path: "/profile",
+    path: "/profile/:id?",
     name: "profile",
     component: ProfileView,
   },
   {
-    path: "/pong",
-    name: "pong",
-    component: PongView,
+    path: "/profile/edit",
+    name: "profile-edit",
+    component: EditProfileView,
   },
   {
-    path: "/friend-view",
-    name: "friend-view",
-    component: FriendView,
+    path: "/pong",
+    name: "pong",
+    component: FindMatchView,
+  },
+  {
+    path: "/friend-list",
+    name: "friend-list",
+    component: FriendListView,
   },
 ];
 
@@ -54,7 +60,7 @@ const router = createRouter({
 // Global redirect to login page if not authenticated
 // Uncomment to add forced redirect
 
-router.beforeEach((to, from) => {
+router.beforeEach((to) => {
   if (to.name === "login") {
     return true;
   }

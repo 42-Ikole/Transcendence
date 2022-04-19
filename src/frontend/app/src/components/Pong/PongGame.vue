@@ -1,26 +1,39 @@
 <template>
+  <div v-if="isSpecialMode" class="hotkeys">
+    <p>Hotkeys : speed-up: [Q], grow: [R], shrink: [F]</p>
+  </div>
   <div class="text-center">
     <h2 class="p1-score inline">{{ playerOneScore }}</h2>
     <h2 class="inline">:</h2>
     <h2 class="inline p2-score">{{ playerTwoScore }}</h2>
   </div>
-  <canvas class="game" ref="game" width="600" height="480"> </canvas>
+  <div class="game-bg">
+    <canvas class="game" ref="game" width="600" height="480"> </canvas>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import io from "socket.io-client";
-import type { Socket } from "socket.io-client";
 import type { Ball, GameState, PongBar } from "./PongTypes";
 import { mapState } from "pinia";
-import { useUserStore } from "@/stores/UserStore";
 import { useSocketStore } from "@/stores/SocketStore";
+
+interface PressedKeys {
+  w: boolean;
+  s: boolean;
+  ArrowUp: boolean;
+  ArrowDown: boolean;
+  q: boolean;
+  r: boolean;
+  f: boolean;
+}
 
 interface DataObject {
   context: CanvasRenderingContext2D | null;
   playerOneScore: number;
   playerTwoScore: number;
-  PressedKeys: Set<string>;
+  pressedKeys: PressedKeys;
+  isSpecialMode: boolean;
 }
 
 export default defineComponent({
@@ -32,7 +45,16 @@ export default defineComponent({
       context: null,
       playerOneScore: 0,
       playerTwoScore: 0,
-      PressedKeys: new Set<string>(),
+      pressedKeys: {
+        w: false,
+        s: false,
+        ArrowUp: false,
+        ArrowDown: false,
+        q: false,
+        r: false,
+        f: false,
+      },
+      isSpecialMode: true,
     };
   },
   computed: {
@@ -48,12 +70,12 @@ export default defineComponent({
   },
   methods: {
     updatePlayer(data: GameState) {
-      this.socket!.emit("movement", Array.from(this.PressedKeys));
       this.updateObserver(data);
     },
 
     updateObserver(data: GameState) {
       this.render(data);
+      this.isSpecialMode = !data.default;
       this.playerOneScore = data.playerOne.score;
       this.playerTwoScore = data.playerTwo.score;
     },
@@ -89,15 +111,34 @@ export default defineComponent({
     },
 
     keyDown(data: any) {
-      this.PressedKeys.add(data.key);
+      if (this.pressedKeys[data.key] !== undefined) {
+        this.pressedKeys[data.key] = true;
+      }
     },
 
     keyUp(data: any) {
-      this.PressedKeys.delete(data.key);
+      if (this.pressedKeys[data.key] !== undefined) {
+        this.pressedKeys[data.key] = false;
+      }
+    },
+
+    releaseKeys() {
+      for (let key in this.pressedKeys) {
+        this.pressedKeys[key] = false;
+      }
     },
 
     clear() {
       this.context!.clearRect(0, 0, this.width, this.height);
+    },
+  },
+
+  watch: {
+    pressedKeys: {
+      deep: true,
+      handler() {
+        this.socket!.emit("movement", this.pressedKeys);
+      },
     },
   },
 
@@ -111,6 +152,7 @@ export default defineComponent({
     } else {
       this.socket!.on("updatePosition", this.updateObserver);
     }
+    window.onblur = this.releaseKeys;
   },
 
   unmounted() {
@@ -122,29 +164,32 @@ export default defineComponent({
     } else {
       this.socket!.removeListener("updatePosition", this.updateObserver);
     }
+    window.onblur = null;
   },
 });
 </script>
 
 <style>
+.game-bg {
+  /* background-image: url("@/assets/new\ coders.png"); */
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 .game {
-  width: 60vw;
+  width: 80vw;
   height: 80vh;
   border-top: 5px solid black;
   border-bottom: 5px solid black;
   border-left: 8px solid #b52b24;
   border-right: 8px solid #32a852;
   display: block;
-  background-color: white;
   margin: auto;
+  background-color: rgba(0, 0, 0, 0.3);
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  background-image: url("@/assets/new\ coders.png");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
 }
 
 .p1-score {
@@ -157,5 +202,9 @@ export default defineComponent({
 
 .inline {
   display: inline !important;
+}
+
+.hotkeys {
+  position: absolute;
 }
 </style>
