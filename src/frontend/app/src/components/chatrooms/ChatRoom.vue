@@ -24,7 +24,7 @@
           >
             <h3 class="mb-0 cr-name">{{ this.chat.name }}</h3>
             <div class="btn-toolbar" role="toolbar">
-              <div class="btn-group me-2" role="group" v-if="isAdmin || isOwner">
+              <div class="btn-group me-2" role="group" v-if="(isAdmin || isOwner) && chat.type === 'private'">
                 <div class="dropdown">
                   <button class="btn btn-outline-success dropdown btn-lg" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" >
                     Invite
