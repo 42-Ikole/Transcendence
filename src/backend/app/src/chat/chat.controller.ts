@@ -245,6 +245,6 @@ export class ChatController {
 		@Body() body: ChatPasswordDto,
 	): Promise<void> {
 		// Decline the invite.
-		return await this.chatService.declineInvite(request.user, body.chatid);
+		return await this.chatService.declineInvite(request.user, body.chatId);
 	}
 }
