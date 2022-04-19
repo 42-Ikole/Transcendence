@@ -30,23 +30,23 @@
   </div>
   <div v-for="chat in chatInvites" :key="chat.id">
     <p> Chat invite: {{ chat.name }}
-      <button class="btn btn-outline-light btn-sm" @click="acceptChatInvite(chat)">
+      <button class="btn btn-outline-light btn-sm" @click="acceptChatInvite()">
         Accept
       </button>
-      <button class="btn btn-outline-light btn-sm" @click="rejectChatInvite(chat)">
+      <button class="btn btn-outline-light btn-sm" @click="rejectChatInvite()">
         Reject
       </button>
     </p>
   </div>
 
-  <!-- <div v-for="chat in sentChatRequests" :key="">
+  <div v-for="user in chatRequests" :key="user.id">
     <p>
-      {{ chat.name }}
-      <button class="btn btn-outline-light btn-sm" @click="cancelChatRequest(chat)">
+      {{ user.name }}
+      <button class="btn btn-outline-light btn-sm" @click="cancelChatRequest(user)">
         Cancel
       </button>
     </p>
-  </div> -->
+  </div>
 </template>
 
 <script lang="ts">
@@ -59,12 +59,16 @@ import { Chat } from "../chatrooms/Chatrooms.types.ts";
 
 interface dataObject {
   chatInvites: Chat[],
+  chatRequests: User[],
+  adminChats: Chat[],
 }
 
 export default defineComponent({
   data() {
     return {
       chatInvites: [],
+      chatRequests: [],
+      adminChats: [],
     }
   },
   computed: {
@@ -94,20 +98,42 @@ export default defineComponent({
         id: user.id,
       });
     },
-    cancelChatRequest(chat: Chat) {
-      
+    async cancelChatRequest(user: User) {
+      const cancelChatResponse = await makeApiCallJson("/chat/invite", "DELETE", {
+        chatId: chat.id,
+        userId: user.id,
+      });
+      if (cancelChatResponse.ok) {
+        console.log('cancelen gelukt');
+      }
     },
-    acceptChatInvite(chat: Chat) {
-
+    async acceptChatInvite() {
+      const acceptChatResponse = await makeApiCall("/chat/invite/accept");
+      if (acceptChatResponse.ok) {
+        console.log('acceptatie gelukt');
+      }
     },
-    rejectChatInvite(chat: Chat) {
-
+    async rejectChatInvite() {
+      const acceptChatResponse = await makeApiCall("/chat/invite/decline");
+      if (acceptChatResponse.ok) {
+        console.log('afgewezen gelukt');
+      }
     },
   },
   async mounted() {
     const chatInvitesResponse = await makeApiCall("/chat/user/invite");
     if (chatInvitesResponse.ok) {
       this.chatInvites = await chatInvitesResponse.json();
+    }
+
+    const chatAdminResponse = await makeApiCall("/user/chat/admin");
+    if (chatAdminResponse.ok) {
+      this.adminChats = await chatAdminResponse.json();
+    }
+
+    const chatRequestsResponse = await makeApiCall("/chat/invite/" + this.chat.id);
+    if (chatRequestsResponse.ok) {
+      this.chatRequests = await chatRequestsResponse.json();
     }
   },
 });
