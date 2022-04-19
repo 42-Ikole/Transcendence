@@ -371,7 +371,7 @@ export class ChatService {
 		chatId: number,
 	): Promise<void> {
 		// Get the chat.
-		const chat: Chat = await this.findById(chatId, ['invitedUsers']);
+		const chat: Chat = await this.findById(chatId, ['invitedUsers', 'members']);
 		// Check if this user is invited.
 		if (!this.userIsInvited(requestingUser, chat)) {
 			return ;
