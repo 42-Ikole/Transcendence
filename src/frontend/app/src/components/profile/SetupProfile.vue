@@ -1,7 +1,14 @@
 <template>
   <div>
-    <EditUsername @update="finishSetup" />
+    <EditUsername  />
     <EditAvatar />
+	<button
+		type="button"
+		class="btn-lg btn-success"
+		@click="finishSetup"
+	>
+	Finish setup!
+	</button>
   </div>
 </template>
 
