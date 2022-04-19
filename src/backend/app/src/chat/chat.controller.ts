@@ -283,7 +283,7 @@ export class ChatController {
 		await this.chatService.muteUser(request.user, body);
 	}
 
-	@Delete('/ban')
+	@Delete('/mute')
 	async unmuteUser(
 		@Req() request: RequestWithUser,
 		@Body() body: ChatUserDto,
