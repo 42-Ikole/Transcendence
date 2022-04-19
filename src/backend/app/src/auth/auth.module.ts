@@ -8,9 +8,10 @@ import { IntraStrategy } from './oauth/intra.guard';
 import { ConfigModule } from '@nestjs/config';
 import { GithubStrategy } from './oauth/github.guard';
 import { DiscordStrategy } from './oauth/discord.guard';
+import { SocketModule } from 'src/websocket/socket.module';
 
 @Module({
-  imports: [HttpModule, UserModule, ConfigModule],
+  imports: [HttpModule, UserModule, ConfigModule, SocketModule],
   controllers: [AuthController],
   providers: [
     UserSerializer,

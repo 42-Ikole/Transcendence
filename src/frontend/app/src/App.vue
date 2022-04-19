@@ -3,7 +3,7 @@
     <ConnectionDenied />
   </div>
 
-  <div v-if="pongMode">
+  <div v-else-if="pongMode">
     <PongView />
   </div>
   <div v-else>

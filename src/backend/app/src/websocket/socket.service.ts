@@ -29,10 +29,14 @@ export class SocketService {
 
   addSocket(userId: number, type: SocketTypes, socket: SocketWithUser) {
     if (!this.sockets[userId]) {
-      this.sockets[userId] = { pong: null, status: null, chatroom: null };
+      this.reserveSocket(userId);
     }
     console.log('adding socket:', userId, type);
     this.sockets[userId][type] = socket;
+  }
+
+  reserveSocket(userId: number) {
+    this.sockets[userId] = { pong: null, status: null, chatroom: null };
   }
 
   deleteSocket(userId: number) {
@@ -42,12 +46,16 @@ export class SocketService {
 
   disconnectUser(userId: number) {
     if (this.userExists(userId)) {
+      console.log(this.sockets[userId]);
       if (this.sockets[userId].pong) {
         this.sockets[userId].pong.disconnect();
       }
       if (this.sockets[userId].status) {
         this.sockets[userId].status.disconnect();
       }
+      // if (this.sockets[userId].chatroom) {
+      //   this.sockets[userId].chatroom.disconnect();
+      // }
     }
     this.deleteSocket(userId);
   }
