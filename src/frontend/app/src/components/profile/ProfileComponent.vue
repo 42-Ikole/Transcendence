@@ -10,12 +10,12 @@
         <AchievementList :userId="userId" />
       </div>
       <div class="col-md-7">
-        <h1> {{ profileData.username }} </h1>
+        <h1>{{ profileData.username }}</h1>
         <ChatUserDropdown :user="profileData" :showChatOptions="false" />
         <p class="status" v-bind:class="statusStyling">{{ userStatus }}</p>
-        <p class="text-white"> Game Wins: {{ matchStats.winCount }} </p> 
-        <p class="text-white"> Game Losses: {{ matchStats.lossCount }} </p> 
-        <p class="text-white"> Matchmaking Rating: {{ matchStats.rating }} </p>
+        <p class="text-white">Game Wins: {{ matchStats.winCount }}</p>
+        <p class="text-white">Game Losses: {{ matchStats.lossCount }}</p>
+        <p class="text-white">Matchmaking Rating: {{ matchStats.rating }}</p>
         <hr />
         <MatchHistory :userId="userId" />
       </div>
@@ -63,9 +63,9 @@ import AchievementList from "./AchievementList.vue";
 import ChatUserDropdown from "../ChatDropdown/ChatUserDropdown.vue";
 
 interface MatchStats {
-	winCount: number;
-	lossCount: number;
-	rating: number;
+  winCount: number;
+  lossCount: number;
+  rating: number;
 }
 
 interface DataObject {
@@ -81,7 +81,7 @@ export default defineComponent({
   },
   data(): DataObject {
     return {
-      matchStats: { winCount: 0, lossCount: 0, rating: 0}
+      matchStats: { winCount: 0, lossCount: 0, rating: 0 },
     };
   },
   computed: {
@@ -111,11 +111,11 @@ export default defineComponent({
   components: {
     MatchHistory,
     AchievementList,
-    ChatUserDropdown
-},
+    ChatUserDropdown,
+  },
   async mounted() {
     const response = await makeApiCall(`/match/stats/${this.userId}`);
-    this.matchStats = await response.json();;
+    this.matchStats = await response.json();
   },
 });
 </script>

@@ -10,7 +10,14 @@ import { StatusModule } from 'src/status/status.module';
 import { AchievementModule } from 'src/achievements/achievements.module';
 
 @Module({
-  imports: [UserModule, ConfigModule, MatchModule, CookieModule, StatusModule, AchievementModule],
+  imports: [
+    UserModule,
+    ConfigModule,
+    MatchModule,
+    CookieModule,
+    StatusModule,
+    AchievementModule,
+  ],
   controllers: [PongController],
   providers: [PongGateway, PongService],
 })

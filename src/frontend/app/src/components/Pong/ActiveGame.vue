@@ -1,13 +1,13 @@
 <template>
-    <p class="text-white">
-      {{ gameMessage }}
-      <button
-        class="btn btn-outline-light btn-sm px-5 me-2 mt-1"
-        @click="observe"
-      >
-        Observe
-      </button>
-    </p>
+  <p class="text-white">
+    {{ gameMessage }}
+    <button
+      class="btn btn-outline-light btn-sm px-5 me-2 mt-1"
+      @click="observe"
+    >
+      Observe
+    </button>
+  </p>
 </template>
 
 <script lang="ts">
@@ -24,33 +24,33 @@ interface DataObject {
 }
 
 export default defineComponent({
-	props: {
-		game: {
-			type: Object as PropType<LiveGameData>,
-			required: true,
-		},
-	},
+  props: {
+    game: {
+      type: Object as PropType<LiveGameData>,
+      required: true,
+    },
+  },
   data(): DataObject {
     return {
       playerOne: undefined,
-      playerTwo: undefined
-    }
+      playerTwo: undefined,
+    };
   },
-	computed: {
-		...mapState(useSocketStore, ["pong"]),
-		gameMessage() {
-			return `${this.playerOneName} (${this.game.state.playerOne.score}) vs (${this.game.state.playerTwo.score}) ${this.playerTwoName}`;
-		},
+  computed: {
+    ...mapState(useSocketStore, ["pong"]),
+    gameMessage() {
+      return `${this.playerOneName} (${this.game.state.playerOne.score}) vs (${this.game.state.playerTwo.score}) ${this.playerTwoName}`;
+    },
     playerOneName() {
       return this.playerName(this.playerOne);
     },
     playerTwoName() {
       return this.playerName(this.playerTwo);
     },
-	},
-	methods: {
+  },
+  methods: {
     async observe() {
-			this.pong!.emit("requestObserve", { roomName: this.game.name });
+      this.pong!.emit("requestObserve", { roomName: this.game.name });
     },
     playerName(player: PublicUser | undefined) {
       return player !== undefined ? player.username : "unknown";
@@ -58,11 +58,11 @@ export default defineComponent({
     async loadPlayer(id: number): Promise<PublicUser> {
       const response = await makeApiCall(`/user/${id}`);
       return await response.json();
-    }
-	},
-	async mounted() {
+    },
+  },
+  async mounted() {
     this.playerOne = await this.loadPlayer(this.game.state.playerOne.id);
     this.playerTwo = await this.loadPlayer(this.game.state.playerTwo.id);
-	},
+  },
 });
 </script>

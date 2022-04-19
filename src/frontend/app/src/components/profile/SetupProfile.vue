@@ -1,8 +1,8 @@
 <template>
-<div>
-	<EditUsername @update="finishSetup" />
-	<EditAvatar />
-</div>
+  <div>
+    <EditUsername @update="finishSetup" />
+    <EditAvatar />
+  </div>
 </template>
 
 <script lang="ts">
@@ -12,11 +12,11 @@ import EditAvatar from "./edit/EditAvatar.vue";
 import EditUsername from "./edit/EditUsername.vue";
 
 export default defineComponent({
-    components: { EditAvatar, EditUsername },
-	methods: {
-		finishSetup() {
-			useUserStore().login();
-		}
-	}
+  components: { EditAvatar, EditUsername },
+  methods: {
+    finishSetup() {
+      useUserStore().login();
+    },
+  },
 });
 </script>

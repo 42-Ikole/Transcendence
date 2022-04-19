@@ -22,4 +22,8 @@ export class TwoFactorCodeDto {
   twoFactorCode: string;
 }
 
-export type AuthenticatedState = 'AUTHENTICATED' | '2FA' | 'OAUTH' | 'ACCOUNT_SETUP';
+export type AuthenticatedState =
+  | 'AUTHENTICATED'
+  | '2FA'
+  | 'OAUTH'
+  | 'ACCOUNT_SETUP';

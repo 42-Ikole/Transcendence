@@ -23,7 +23,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useUserStore } from "@/stores/UserStore";
 import { makeApiCall } from "@/utils/ApiCall";
 
 interface DataObject {

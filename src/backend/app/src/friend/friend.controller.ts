@@ -23,7 +23,7 @@ import { FriendDto } from './friend.types';
 export class FriendController {
   constructor(
     private friendService: FriendService,
-    private achievementService: AchievementService
+    private achievementService: AchievementService,
   ) {}
 
   /*
@@ -37,7 +37,10 @@ export class FriendController {
   ) {
     const friendRequest = new FriendDto(request.user.id, targetId, 'REQUEST');
     const relation = await this.friendService.friendRequest(friendRequest);
-    this.achievementService.addAchievement(request.user.id, Achievements.SEND_FRIEND_REQUEST);
+    this.achievementService.addAchievement(
+      request.user.id,
+      Achievements.SEND_FRIEND_REQUEST,
+    );
     return relation;
   }
 
@@ -63,7 +66,10 @@ export class FriendController {
     console.log('Accept Friend:', request.user.id, '-', targetId);
     const accept = new FriendDto(targetId, request.user.id, 'FRIEND');
     const relation = await this.friendService.acceptFriendRequest(accept);
-    this.achievementService.addAchievement(request.user.id, Achievements.MAKE_FRIEND);
+    this.achievementService.addAchievement(
+      request.user.id,
+      Achievements.MAKE_FRIEND,
+    );
     this.achievementService.addAchievement(targetId, Achievements.MAKE_FRIEND);
     return relation;
   }
@@ -106,7 +112,10 @@ export class FriendController {
   ) {
     const block = new FriendDto(req.user.id, targetId, 'BLOCK');
     const relation = await this.friendService.blockUser(block);
-    this.achievementService.addAchievement(req.user.id, Achievements.BLOCK_USER);
+    this.achievementService.addAchievement(
+      req.user.id,
+      Achievements.BLOCK_USER,
+    );
     return relation;
   }
 

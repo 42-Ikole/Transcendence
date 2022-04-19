@@ -41,8 +41,8 @@ export default defineComponent({
     LoggedIn,
     LoggedOut,
     TwoFactorApp,
-    SetupProfile
-},
+    SetupProfile,
+  },
   computed: {
     ...mapState(useUserStore, {
       state: "authenticatedState",

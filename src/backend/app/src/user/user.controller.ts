@@ -58,6 +58,7 @@ export class UserController {
   }
 
   @Get()
+  // Returns private user specifically because there is more information
   @UseGuards(AuthenticatedGuard)
   async findUser(@Req() req: RequestWithUser): Promise<PrivateUser> {
     const user = await this.userService.findById(req.user.id);
@@ -66,7 +67,7 @@ export class UserController {
 
   @Get('/:id')
   async findById(@Param('id', ParseIntPipe) id: number): Promise<PublicUser> {
-    return new PublicUser(await this.userService.findById(id));
+    return await this.userService.findById(id);
   }
 
   @Get('matches_won/:id')
@@ -82,7 +83,7 @@ export class UserController {
   @Get('achievements/:id')
   async findAchievements(@Param('id', ParseIntPipe) id: number) {
     const user = await this.userService.findById(id, {
-      relations: ["achievements"]
+      relations: ['achievements'],
     });
     return user.achievements;
   }
@@ -91,7 +92,10 @@ export class UserController {
   async updateUser(@Req() request: RequestWithUser, @Body() user: PartialUser) {
     await this.userService.update(request.user.id, user);
     this.socketService.statusServer.emit('friendUpdate');
-    this.achievementService.addAchievement(request.user.id, Achievements.SETUP_ACCOUNT);
+    this.achievementService.addAchievement(
+      request.user.id,
+      Achievements.SETUP_ACCOUNT,
+    );
   }
 
   @Post('uploadAvatar')
@@ -109,7 +113,10 @@ export class UserController {
       filename: file.originalname,
       data: file.buffer,
     });
-    this.achievementService.addAchievement(request.user.id, Achievements.UPLOAD_AVATAR);
+    this.achievementService.addAchievement(
+      request.user.id,
+      Achievements.UPLOAD_AVATAR,
+    );
     return avatar;
   }
 

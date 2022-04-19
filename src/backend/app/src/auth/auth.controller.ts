@@ -1,4 +1,13 @@
-import { Controller, Delete, Get, Req, Res, UseGuards, Post } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Req,
+  Res,
+  UseGuards,
+  Post,
+  UseFilters,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { IntraGuard } from './oauth/intra.guard';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -9,27 +18,32 @@ import { ConfigService } from '@nestjs/config';
 import { GithubGuard } from './oauth/github.guard';
 import { DiscordGuard } from './oauth/discord.guard';
 import { SocketService } from 'src/websocket/socket.service';
+import { OAuthExceptionFilter } from './auth.unauthorized.filter';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
     private configService: ConfigService,
-    private socketService: SocketService) {}
+    private socketService: SocketService,
+  ) {}
 
   @Get('login/intra')
+  @UseFilters(OAuthExceptionFilter)
   @UseGuards(IntraGuard)
   async loginIntra(@Res() res: Response) {
     res.redirect(this.configService.get('oauth.REDIRECT_URL'));
   }
 
   @Get('login/github')
+  @UseFilters(OAuthExceptionFilter)
   @UseGuards(GithubGuard)
   async loginGithub(@Res() res: Response) {
     res.redirect(this.configService.get('oauth.REDIRECT_URL'));
   }
 
   @Get('login/discord')
+  @UseFilters(OAuthExceptionFilter)
   @UseGuards(DiscordGuard)
   async loginDiscord(@Res() res: Response) {
     res.redirect(this.configService.get('oauth.REDIRECT_URL'));

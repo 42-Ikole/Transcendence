@@ -8,7 +8,12 @@ import { FriendController } from './friend.controller';
 import { FriendService } from './friend.service';
 
 @Module({
-  imports: [UserModule, StatusModule, TypeOrmModule.forFeature([Friend]), AchievementModule],
+  imports: [
+    UserModule,
+    StatusModule,
+    TypeOrmModule.forFeature([Friend]),
+    AchievementModule,
+  ],
   controllers: [FriendController],
   providers: [FriendService],
 })
