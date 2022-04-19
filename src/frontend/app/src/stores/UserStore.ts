@@ -90,7 +90,6 @@ export const useUserStore = defineStore("user", {
       this.setAuthState("OAUTH");
       this.setState("OFFLINE");
       this.profileData = null;
-      useSocketStore().disconnectSockets();
     },
   },
 });
