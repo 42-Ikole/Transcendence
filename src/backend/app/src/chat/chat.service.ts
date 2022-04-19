@@ -493,7 +493,7 @@ export class ChatService {
 			throw new NotFoundException();
 		}
 		// Get the ban.
-		const ban: Ban = user.bans.filter((item) => item.chatId === chat.id)[0];
+		const ban: Ban = chat.bans.filter((item) => item.userId === user.id)[0];
 		// Unban the user.
 		await this.banRepository.remove(ban);
 	}
@@ -551,7 +551,7 @@ export class ChatService {
 			throw new NotFoundException();
 		}
 		// Get the mute.
-		const mute: Mute = user.mutes.filter((item) => item.chatId === chat.id)[0];
+		const mute: Mute = chat.mutes.filter((item) => item.userId === user.id)[0];
 		// Unban the user.
 		await this.muteRepository.remove(mute);
 	}
