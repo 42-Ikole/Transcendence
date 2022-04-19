@@ -379,7 +379,7 @@ export class ChatService {
 		const chat: Chat = await this.findById(chatId, ['invitedUsers', 'members']);
 		// Check if this user is invited.
 		if (!this.userIsInvited(requestingUser, chat)) {
-			return ;
+			throw new NotFoundException();
 		}
 		// Remove from invitedUsers, add to members.
 		chat.invitedUsers = chat.invitedUsers.filter((item) => item.id != requestingUser.id);
@@ -397,7 +397,7 @@ export class ChatService {
 		const chat: Chat = await this.findById(chatId, ['invitedUsers']);
 		// Check if this user is invited.
 		if (!this.userIsInvited(requestingUser, chat)) {
-			return ;
+			throw new NotFoundException();
 		}
 		// Remove from the invitedUsers.
 		chat.invitedUsers = chat.invitedUsers.filter((item) => item.id != requestingUser.id);
@@ -444,7 +444,31 @@ export class ChatService {
 		requestingUser: User,
 		banInfo: ChatActionDto,
 	): Promise<void> {
-
+		// Is the user banning themselves?
+		if (requestingUser.id === banInfo.userId) {
+			return ;
+		}
+		// Get the chat.
+		const chat: Chat = await this.findById(banInfo.chatId, ['admins', 'owner', 'members', 'bans']);
+		// Check if the requesting user has the right permissions.
+		if (!this.userHasAdminPrivilege(requestingUser, chat)) {
+			throw new UnauthorizedException();
+		}
+		// Get the user.
+		const user: User = await this.userService.findById(banInfo.userId);
+		// Check if the user to be banned is not an admin.
+		if (this.userHasAdminPrivilege(user, chat)) {
+			throw new UnauthorizedException();
+		}
+		// See if the user is already banned, if so, update it. Else, create it.
+		if (this.userIsBanned(user, chat)) {
+			let ban: Ban = user.bans.filter((item) => item.chatId === chat.id)[0];
+			ban.expirationDate = banInfo.expirationDate;
+			await this.banRepository.save(ban);
+		} else {
+			const ban: Ban = this.banRepository.create(banInfo);
+			await this.banRepository.save(ban);
+		}
 	}
 
 	async unbanUser(
@@ -452,14 +476,57 @@ export class ChatService {
 		chatId: number,
 		userId: number,
 	): Promise<void> {
-
+		// Are we unbanning ourselves?
+		if (requestingUser.id === userId) {
+			return ;
+		}
+		// Get the chat.
+		const chat: Chat = await this.findById(chatId, ['admins', 'owner', 'members', 'bans']);
+		// Check if the requesting user has the right permissions.
+		if (!this.userHasAdminPrivilege(requestingUser, chat)) {
+			throw new UnauthorizedException();
+		}
+		// Get the user.
+		const user: User = await this.userService.findById(userId);
+		// Is this user banned in this chat?
+		if (!this.userIsBanned(user, chat)) {
+			throw new NotFoundException();
+		}
+		// Get the ban.
+		const ban: Ban = user.bans.filter((item) => item.chatId === chat.id)[0];
+		// Unban the user.
+		await this.banRepository.remove(ban);
 	}
 
 	async muteUser(
 		requestingUser: User,
 		muteInfo: ChatActionDto,
 	): Promise<void> {
-
+		// Is the user muting themselves?
+		if (requestingUser.id === muteInfo.userId) {
+			return ;
+		}
+		// Get the chat.
+		const chat: Chat = await this.findById(muteInfo.chatId, ['owner', 'admins', 'members', 'mutes']);
+		// Check if the requesting user has the right permissions.
+		if (!this.userHasAdminPrivilege(requestingUser, chat)) {
+			throw new UnauthorizedException();
+		}
+		// Get the user.
+		const user: User = await this.userService.findById(muteInfo.userId);
+		// Check if the user to be muted is not an admin.
+		if (this.userHasAdminPrivilege(user, chat)) {
+			throw new UnauthorizedException();
+		}
+		// See if the user is already muted, if so, update it. Else, create it.
+		if (this.userIsMuted(user, chat)) {
+			let mute: Mute = user.mutes.filter((item) => item.chatId === chat.id)[0];
+			mute.expirationDate = muteInfo.expirationDate;
+			await this.muteRepository.save(mute);
+		} else {
+			const mute: Mute = this.banRepository.create(muteInfo);
+			await this.muteRepository.save(mute);
+		}
 	}
 
 	async unmuteUser(
@@ -467,7 +534,26 @@ export class ChatService {
 		chatId: number,
 		userId: number,
 	): Promise<void> {
-
+		// Are we unmuting ourselves?
+		if (requestingUser.id === userId) {
+			return ;
+		}
+		// Get the chat.
+		const chat: Chat = await this.findById(chatId, ['admins', 'owner', 'members', 'mutes']);
+		// Check if the requesting user has the right permissions.
+		if (!this.userHasAdminPrivilege(requestingUser, chat)) {
+			throw new UnauthorizedException();
+		}
+		// Get the user.
+		const user: User = await this.userService.findById(userId);
+		// Is this user muted in this chat?
+		if (!this.userIsMuted(user, chat)) {
+			throw new NotFoundException();
+		}
+		// Get the mute.
+		const mute: Mute = user.mutes.filter((item) => item.chatId === chat.id)[0];
+		// Unban the user.
+		await this.muteRepository.remove(mute);
 	}
 
   userIsInChat(user: User, chat: Chat): boolean {
@@ -504,7 +590,25 @@ export class ChatService {
       }
     }
     return false;
-  }
+	}
+
+	userIsBanned(user: User, chat: Chat): boolean {
+		for (const ban of chat.bans) {
+			if (ban.userId === user.id) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	userIsMuted(user: User, chat: Chat): boolean {
+		for (const mute of chat.mutes) {
+			if (mute.userId === user.id) {
+				return true;
+			}
+		}
+		return false;
+	}
 
   isValidRoomname(name: string): boolean {
 		const len = name.length;
