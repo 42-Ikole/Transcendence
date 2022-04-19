@@ -1,15 +1,15 @@
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  #
+# **************************************************************************** #
 #                                                                              #
-#               __    __   ______    ______   ________  _______                #
-#              /  \  /  | /      \  /      \ /        |/       \               #
-#              $$  \ $$ |/$$$$$$  |/$$$$$$  |$$$$$$$$/ $$$$$$$  |              #
-#              $$$  \$$ |$$ |  $$/ $$ |  $$ |   $$ |   $$ |__$$ |              #
-#              $$$$  $$ |$$ |      $$ |  $$ |   $$ |   $$    $$<               #
-#              $$ $$ $$ |$$ |   __ $$ |  $$ |   $$ |   $$$$$$$  |              #
-#              $$ |$$$$ |$$ \__/  |$$ \__$$ |   $$ |   $$ |__$$ |              #
-#              $$ | $$$ |$$    $$/ $$    $$/    $$ |   $$    $$/               #
-#              $$/   $$/  $$$$$$/   $$$$$$/     $$/    $$$$$$$/                #
+#                                                         ::::::::             #
+#    docker-compose.yml                                 :+:    :+:             #
+#                                                      +:+                     #
+#    By:       $$$  \$$ |$$ |  $$/ $$ |  $$ |         +#+                      #
+#                                                    +#+                       #
+#    Created: Invalid date        by  |  $$ |      #+#    #+#                  #
+#    Updated: 2022/04/19 13:59:18 by mraasvel      ########   odam.nl          #
 #                                                                              #
+# **************************************************************************** #
+
 #                                                                              #
 #                           New Coders on the Block                            #
 #    ——————————————————————————————————————————————————————————————————————    #
@@ -39,8 +39,7 @@ services:
     container_name: backend
     build: ./src/backend
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     volumes:
       - ./src/backend/app:/app
     env_file:
@@ -56,11 +55,6 @@ services:
       - "./src/postgres/postgres.env"
     volumes:
       - pgdata:/var/lib/postgresql/data/
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     restart: on-failure
 # PgAdmin (v4) Service
   pgadmin:
