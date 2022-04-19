@@ -1,4 +1,12 @@
-import { Controller, Delete, Get, Req, Res, UseGuards, Post } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Req,
+  Res,
+  UseGuards,
+  Post,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { IntraGuard } from './oauth/intra.guard';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -15,7 +23,8 @@ import { SocketService } from 'src/websocket/socket.service';
 export class AuthController {
   constructor(
     private configService: ConfigService,
-    private socketService: SocketService) {}
+    private socketService: SocketService,
+  ) {}
 
   @Get('login/intra')
   @UseGuards(IntraGuard)
