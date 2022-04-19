@@ -43,7 +43,7 @@ export default defineComponent ({
 	},
 	computed: {
 		filteredUsersInChat() {
-			return this.allUsers.filter((el) => { return this.usersInChat.find((element) => el.id !== element.id) });
+			return this.allUsers.filter((el) => { return !this.usersInChat.find((element) => el.id === element.id) });
 		}
 	},
 	async mounted() {
