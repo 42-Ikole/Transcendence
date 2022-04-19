@@ -20,6 +20,7 @@ import { Message } from 'src/orm/entities/message.entity';
 import { SocketService } from 'src/websocket/socket.service';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
 import { RequestWithUser } from '../auth/auth.types';
+import { request } from 'http';
 
 @ApiTags('chat')
 @Controller('chat')
@@ -276,6 +277,15 @@ export class ChatController {
 	): Promise<void> {
 		// Unmute a user from a chat.
 		await this.chatService.unmuteUser(request.user, body.chatId, body.userId);
+	}
+
+	@Delete('/kick')
+	async kickUser(
+		@Req() request: RequestWithUser,
+		@Body() body: ChatUserDto,
+	): Promise<void> {
+		// forcefully removes user from chat
+		await this.chatService.kickUser(request.user, body.chatId, body.userId);
 	}
 
 	@Get('/ban/:chatid')

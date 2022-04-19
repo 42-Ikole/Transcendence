@@ -235,7 +235,11 @@ export default defineComponent({
         userId: this.user.id,
       });
     },
-    kickUser() {
+    async kickUser() {
+      const kickResponse = await makeApiCallJson("/chat/kick", "DELETE", {
+        chatId: this.chatId,
+        userId: this.user.id,
+      });
     },
     async banUser() {
       const banResponse = await makeApiCallJson("/chat/ban", "POST", {

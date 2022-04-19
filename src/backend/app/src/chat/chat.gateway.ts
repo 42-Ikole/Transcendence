@@ -105,7 +105,7 @@ export class ChatGateway
       'members', 'bans'
 		]);
 		if (await this.chatService.userIsBanned(client.user, chat)) {
-			client.emit('joinRoomFailure');
+			client.emit('joinRoomBanned');
 			return ;
 		}
     if (this.chatService.userIsInChat(client.user, chat)) {
@@ -129,7 +129,7 @@ export class ChatGateway
     @ConnectedSocket() client: SocketWithUser,
   ): Promise<void> {
     const chat: Chat = await this.chatService.findByName(data.roomName, [
-      'members',
+      'members', 'admins'
     ]);
     if (
       chat === undefined ||
@@ -140,10 +140,6 @@ export class ChatGateway
     }
     client.leave(data.roomName);
     await this.chatService.userLeavesRoom(client.user, chat);
-    client.emit('leaveRoomSuccess');
-    this.wss
-      .to(chat.name)
-      .emit('userLeftRoom', { chatName: chat.name, user: client.user });
   }
 
   @SubscribeMessage('subscribeToChat')

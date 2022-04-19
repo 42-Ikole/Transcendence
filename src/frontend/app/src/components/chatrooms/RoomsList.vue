@@ -58,7 +58,7 @@
       </form>
       <div v-if="showDeleted" class="text-danger" style="padding-bottom: 5px">"{{ this.roomDeleted }}" is successfully deleted!</div>
       <div v-if="!correctPassword" class="text-danger" style="padding-bottom: 5px;">Invalid password!</div>
-      <!-- <div v-if="userBanned" class="text-danger" style="padding-bottom: 5px;">You are banned from this chatroom!</div> -->
+      <div v-if="userBanned" class="text-danger" style="padding-bottom: 5px;">You are banned from this chatroom!</div>
       <button class="btn btn-info btn-sm float-end" @click="createRoom">
         Create room
       </button>
@@ -121,6 +121,7 @@ export default defineComponent({
       typedPassword: "",
       showPassword: false,
       correctPassword: true,
+      userBanned: false,
       showDeleted: false,
       roomDeleted: "",
       showBanned: false,
@@ -209,20 +210,21 @@ export default defineComponent({
     this.socket.on("joinRoomFailure", this.joinRoomFailedPassword);
     this.socket.on("roomCreated", this.refreshChatList);
     this.socket.on("roomDeleted", this.refreshChatList);
-    // this.socket.on("joinRoomBanned", this.joinRoomFailedBanned);
+    this.socket.on("joinRoomBanned", this.joinRoomFailedBanned);
   },
   unmounted() {
     this.socket.removeListener("joinRoomSuccess", this.joinRoomSuccessfully);
     this.socket.removeListener("joinRoomFailure", this.joinRoomFailedPassword);
     this.socket.removeListener("roomCreated", this.refreshChatList);
     this.socket.removeListener("roomDeleted", this.refreshChatList);
-    // this.socket.removeListener("joinRoomBanned", this.joinRoomFailedBanned);
+    this.socket.removeListener("joinRoomBanned", this.joinRoomFailedBanned);
   },
   watch: {
     selectedChatName(newRoom, oldRoom) {
       if (oldRoom !== this.selectedChatName) {
         this.typedPassword = "";
         this.correctPassword = true;
+        this.userBanned = false;
         this.showDeleted = false;
         this.roomDeleted = "";
         this.showBanned = false;
