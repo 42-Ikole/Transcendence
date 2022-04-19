@@ -464,14 +464,10 @@ export class ChatService {
     }
     // Get the chat.
     const chat: Chat = await this.findById(banInfo.chatId, ['admins', 'owner', 'members', 'bans']);
-    // Check if the requesting user has the right permissions.
-    if (!this.userHasAdminPrivilege(requestingUser, chat)) {
-      throw new UnauthorizedException();
-    }
     // Get the user.
     const user: User = await this.userService.findById(banInfo.userId);
-    // Check if the user to be banned is not an admin.
-    if (this.userHasAdminPrivilege(user, chat)) {
+    // Check if the requesting user can ban the target user.
+    if (!this.canBanKickMute(requestingUser, user, chat)) {
       throw new UnauthorizedException();
     }
     const expirationDate = this.getExpirationDate();
@@ -505,12 +501,12 @@ export class ChatService {
     }
     // Get the chat.
     const chat: Chat = await this.findById(chatId, ['admins', 'owner', 'members', 'bans']);
-    // Check if the requesting user has the right permissions.
-    if (!this.userHasAdminPrivilege(requestingUser, chat)) {
-      throw new UnauthorizedException();
-    }
     // Get the user.
     const user: User = await this.userService.findById(userId);
+    // Check if the requesting user has the right permissions.
+    if (!this.canBanKickMute(requestingUser, user, chat)) {
+      throw new UnauthorizedException();
+    }
     const ban = chat.bans.find((item) => item.userId === user.id);
     if (!ban) {
       throw new NotFoundException();
@@ -529,14 +525,10 @@ export class ChatService {
     }
     // Get the chat.
     const chat: Chat = await this.findById(muteInfo.chatId, ['owner', 'admins', 'members', 'mutes']);
-    // Check if the requesting user has the right permissions.
-    if (!this.userHasAdminPrivilege(requestingUser, chat)) {
-      throw new UnauthorizedException();
-    }
     // Get the user.
     const user: User = await this.userService.findById(muteInfo.userId);
-    // Check if the user to be muted is not an admin.
-    if (this.userHasAdminPrivilege(user, chat)) {
+    // Check if the requesting user can mute the target user.
+    if (!this.canBanKickMute(requestingUser, user, chat)) {
       throw new UnauthorizedException();
     }
     const expirationDate = this.getExpirationDate();
@@ -566,12 +558,12 @@ export class ChatService {
     }
     // Get the chat.
     const chat: Chat = await this.findById(chatId, ['admins', 'owner', 'members', 'mutes']);
-    // Check if the requesting user has the right permissions.
-    if (!this.userHasAdminPrivilege(requestingUser, chat)) {
-      throw new UnauthorizedException();
-    }
     // Get the user.
     const user: User = await this.userService.findById(userId);
+    // Check if the requesting user has the right permissions.
+    if (!this.canBanKickMute(requestingUser, user, chat)) {
+      throw new UnauthorizedException();
+    }
     // Get the mute.
     const mute = chat.mutes.find((item) => item.userId === user.id);
     if (!mute) {
@@ -592,14 +584,10 @@ export class ChatService {
     }
     // Get the chat.
     const chat: Chat = await this.findById(chatId, ['admins', 'owner', 'members']);
-    // Check if the requesting user has the right permissions.
-    if (!this.userHasAdminPrivilege(requestingUser, chat)) {
-      throw new UnauthorizedException();
-    }
     // Get the user.
     const user: User = await this.userService.findById(userId);
-    // Check if the user to be kicked is not an admin.
-    if (this.userHasAdminPrivilege(user, chat)) {
+    // Check if the requesting user has the right permissions.
+    if (!this.canBanKickMute(requestingUser, user, chat)) {
       throw new UnauthorizedException();
     }
     // remove the user
@@ -791,5 +779,14 @@ export class ChatService {
     this.socketService.chatServer.to(chatName).emit('userLeftRoom', {
       chatName: chatName, user: client,
     });
+  }
+
+  private canBanKickMute(requestingUser: User, targetUser: User, chat: Chat) {
+    // owner can do anything
+    if (this.userIsOwner(requestingUser, chat)) {
+      return true;
+    }
+    // requesting user is admin and other user is a regular user
+    return this.userHasAdminPrivilege(requestingUser, chat) && !this.userHasAdminPrivilege(targetUser, chat);
   }
 }

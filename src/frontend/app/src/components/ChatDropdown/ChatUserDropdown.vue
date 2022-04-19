@@ -69,7 +69,7 @@
           </button>
         </li>
         <div v-if="showChatOptions">
-          <li v-if="isAdmin">
+          <li v-if="canBanKickMute">
             <hr class="dropdown-divider" />
             <div v-if="!isMuted">
               <button @click="muteUser" class="dropdown-item" type="button">
@@ -85,7 +85,7 @@
               Kick
             </button>
           </li>
-          <li v-if="isAdmin">
+          <li v-if="canBanKickMute">
             <button @click="banUser" class="dropdown-item" type="button">
               Ban
             </button>
@@ -194,8 +194,11 @@ export default defineComponent({
       if (!this.mutedUsers) {
         return false;
       }
-      console.log(this.mutedUsers);
       return !!this.mutedUsers.find((muted) => this.user.id === muted.id);
+    },
+    canBanKickMute() {
+      console.log(this.user.username, this.role);
+      return this.role !== "OWNER" && (this.isOwner || (this.isAdmin && this.role !== "ADMIN"));
     },
   },
   methods: {
