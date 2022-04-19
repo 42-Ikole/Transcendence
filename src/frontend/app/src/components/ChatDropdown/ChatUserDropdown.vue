@@ -140,6 +140,10 @@ export default defineComponent({
       type: Number,
       required: false,
     },
+    mutedUsers: {
+      type: Array as PropType<Array<PublicUser>>,
+      required: false,
+    },
   },
   data(): DataObject {
     return {
@@ -187,7 +191,11 @@ export default defineComponent({
       return this.isOwner && this.role === "ADMIN";
     },
     isMuted() {
-      //return this.user.isMuted;
+      if (!this.mutedUsers) {
+        return false;
+      }
+      console.log(this.mutedUsers);
+      return !!this.mutedUsers.find((muted) => this.user.id === muted.id);
     },
   },
   methods: {
@@ -215,11 +223,17 @@ export default defineComponent({
     startDirectMessage() {
       return;
     },
-    muteUser() {
-      return;
+    async muteUser() {
+      const muteResponse = await makeApiCallJson("/chat/mute", "POST", {
+        chatId: this.chatId,
+        userId: this.user.id,
+      });
     },
-    unmuteUser() {
-      return ;
+    async unmuteUser() {
+      const unmuteResponse = await makeApiCallJson("/chat/mute", "DELETE", {
+        chatId: this.chatId,
+        userId: this.user.id,
+      });
     },
     kickUser() {
     },
@@ -227,9 +241,7 @@ export default defineComponent({
       const banResponse = await makeApiCallJson("/chat/ban", "POST", {
         chatId: this.chatId,
         userId: this.user.id,
-        expirationDate: new Date(),
       });
-      this.kickUser();
     },
     async makeAdmin() {
       if (this.role === "MEMBER") {

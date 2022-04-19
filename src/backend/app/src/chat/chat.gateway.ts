@@ -189,4 +189,20 @@ export class ChatGateway
   async unsubscribeChatUpdateInvite(@ConnectedSocket() client: SocketWithUser, @MessageBody() data: UserIdDto) {
     client.leave(`chatUpdateInvite_${data.id}`)
   }
+
+  @SubscribeMessage("subscribeBanMuteUpdate")
+  async subscribeBanMuteUpdate(@ConnectedSocket() client: SocketWithUser, @MessageBody() data: UserIdDto) {
+    // validate that user is in the chatroom
+    const chat = await this.chatService.findById(data.id, ["owner", "admins"]);
+    if (!this.chatService.userHasAdminPrivilege(client.user, chat)) {
+      throw new UnauthorizedException();
+    }
+    // subscribe to updates on invites
+    client.join(`banMuteUpdate_${data.id}`)
+  }
+
+  @SubscribeMessage("unsubscrubeBanMuteUpdate")
+  async unsubscrubeBanMuteUpdate(@ConnectedSocket() client: SocketWithUser, @MessageBody() data: UserIdDto) {
+    client.leave(`banMuteUpdate_${data.id}`)
+  }
 }

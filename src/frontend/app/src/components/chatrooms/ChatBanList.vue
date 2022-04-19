@@ -21,58 +21,37 @@
 <script lang="ts">
 
 import { defineComponent, type PropType } from "vue";
-import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
-
-interface DataObject {
-	bannedUsers: User[],
-	mutedUsers: User[],
-}
+import { makeApiCallJson } from "@/utils/ApiCall";
+import type { PublicUser } from "@/types/UserType";
 
 export default defineComponent({
 	props: {
 		chatId: {
-			id: Number,
+			type: Number,
+			required: true,
+		},
+		bannedUsers: {
+			type: Array as PropType<PublicUser[]>,
+			required: true,
+		},
+		mutedUsers: {
+			type: Array as PropType<PublicUser[]>,
 			required: true,
 		},
 	},
-	data(): DataObject {
-		return {
-			bannedUsers: [],
-			mutedUsers: [],
-		}
-	},
 	methods: {
-		async unbanUser(user: User) {
-			console.log("chat id: ", this.chatId);
-			console.log("user id: ", user.id);
+		async unbanUser(user: PublicUser) {
 			const unbanResponse = await makeApiCallJson("/chat/ban", "DELETE", {
 				chatId: this.chatId,
 				userId: user.id,
 			});
-			if (unbanResponse.ok) {
-				console.log(user.id, " is unbanned from chat: ", this.chatId);
-			}
 		},
-		async unmuteUser(user: User) {
+		async unmuteUser(user: PublicUser) {
 			const unmuteResponse = await makeApiCallJson("/chat/mute", "DELETE", {
 				chatId: this.chatId,
 				userId: user.id,
 			});
-			if (unmuteResponse.ok) {
-				console.log(user.id, " is unmuted from chat: ", this.chatId);
-			}
 		},
-	},
-	async mounted() {
-		const banListResponse = await makeApiCall("/chat/ban/" + this.chatId);
-    	if (banListResponse.ok) {
-			this.bannedUsers = await banListResponse.json();
-		}
-
-		const muteListResponse = await makeApiCall("/chat/mute/" + this.chatId);
-		if (muteListResponse.ok) {
-			this.mutedUsers = await muteListResponse.json();
-		}
 	},
 })
 </script>

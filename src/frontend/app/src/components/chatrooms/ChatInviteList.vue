@@ -88,12 +88,12 @@ export default defineComponent ({
 			this.allUsers = await usersResponse.json();
     	}
 		await this.refreshInvites();
-		this.chat!.emit('subscribeChatUpdateInvite');
+		this.chat!.emit('subscribeChatUpdateInvite', { id: this.chatId });
 		this.chat!.on(`chatUpdateInvite_${this.chatId}`, this.refreshInvites);
 	},
 	unmounted() {
 		this.chat!.removeListener(`chatUpdateInvite_${this.chatId}`, this.refreshInvites);
-		this.chat!.emit('unsubscribeChatUpdateInvite');
+		this.chat!.emit('unsubscribeChatUpdateInvite', { id: this.chatId });
 	}
 })
 </script>

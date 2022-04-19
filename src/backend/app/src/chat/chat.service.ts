@@ -468,15 +468,21 @@ export class ChatService {
 		if (this.userHasAdminPrivilege(user, chat)) {
 			throw new UnauthorizedException();
 		}
+		const expirationDate = this.getExpirationDate();
 		// See if the user is already banned, if so, update it. Else, create it.
 		if (await this.userIsBanned(user, chat)) {
 			let ban: Ban = chat.bans.filter((item) => item.userId === user.id)[0];
-			ban.expirationDate = banInfo.expirationDate;
+			ban.expirationDate = expirationDate;
 			await this.banRepository.update(ban, ban);
 		} else {
-			const ban: Ban = this.banRepository.create(banInfo);
+			const ban: Ban = this.banRepository.create({
+				...banInfo,
+				expirationDate,
+			});
 			await this.banRepository.save(ban);
 		}
+    this.broadcastBanMuteUpdate(banInfo.chatId);
+		// if the user is a member, remove it as a member
 	}
 
 	async unbanUser(
@@ -496,14 +502,12 @@ export class ChatService {
 		}
 		// Get the user.
 		const user: User = await this.userService.findById(userId);
-		// Is this user banned in this chat?
-		if (!(await this.userIsBanned(user, chat))) {
-			throw new NotFoundException();
-		}
-		// Get the ban.
-		const ban: Ban = chat.bans.filter((item) => item.userId === user.id)[0];
+    const ban = chat.bans.find((item) => item.userId === user.id);
+    if (!ban) {
+      throw new NotFoundException();
+    }
 		// Unban the user.
-		await this.banRepository.remove(ban);
+    this.removeBan(chatId, ban);
 	}
 
 	async muteUser(
@@ -526,15 +530,20 @@ export class ChatService {
 		if (this.userHasAdminPrivilege(user, chat)) {
 			throw new UnauthorizedException();
 		}
+		const expirationDate = this.getExpirationDate();
 		// See if the user is already muted, if so, update it. Else, create it.
 		if (await this.userIsMuted(user, chat)) {
 			let mute: Mute = chat.mutes.filter((item) => item.userId === user.id)[0];
-			mute.expirationDate = muteInfo.expirationDate;
+			mute.expirationDate = expirationDate;
 			await this.muteRepository.update(mute, mute);
 		} else {
-			const mute: Mute = this.banRepository.create(muteInfo);
+			const mute: Mute = this.muteRepository.create({
+				...muteInfo,
+				expirationDate,
+			});
 			await this.muteRepository.save(mute);
 		}
+    this.broadcastBanMuteUpdate(muteInfo.chatId);
 	}
 
 	async unmuteUser(
@@ -554,14 +563,13 @@ export class ChatService {
 		}
 		// Get the user.
 		const user: User = await this.userService.findById(userId);
-		// Is this user muted in this chat?
-		if (!(await this.userIsMuted(user, chat))) {
-			throw new NotFoundException();
-		}
 		// Get the mute.
-		const mute: Mute = chat.mutes.filter((item) => item.userId === user.id)[0];
-		// Unban the user.
-		await this.muteRepository.remove(mute);
+    const mute = chat.mutes.find((item) => item.userId === user.id);
+    if (!mute) {
+      throw new NotFoundException();
+    }
+		// Unmute user.
+    this.removeMute(chatId, mute);
 	}
 
 	async getBannedUsers(
@@ -609,7 +617,7 @@ export class ChatService {
 			return false;
 		}
 		// Remove it from the database.
-		await this.banRepository.remove(ban);
+    this.removeBan(ban.chatId, ban);
 		return true;
 	}
 
@@ -622,7 +630,7 @@ export class ChatService {
 			return false;
 		}
 		// Remove it from the database.
-		await this.muteRepository.remove(mute);
+    this.removeMute(mute.chatId, mute);
 		return true;
 	}
 
@@ -716,7 +724,31 @@ export class ChatService {
 		this.socketService.chatServer.to(chatName).emit('roleUpdate_' + userId);
 	}
 
-	broadcastInviteUpdate(chatId: number) {
-		this.socketService.chatServer.emit(`chatUpdateInvite_${chatId}`);
+	private broadcastInviteUpdate(chatId: number) {
+    const name = `chatUpdateInvite_${chatId}`;
+		this.socketService.chatServer.to(name).emit(name);
 	}
+
+	// Can return the correct expiration date based on a type (like 10s, 60s etc)
+	private getExpirationDate(): Date {
+		const date = new Date();
+		date.setSeconds(date.getSeconds() + 10);
+		return date;
+	}
+
+  private async removeMute(chatId: number, mute: Mute) {
+    await this.muteRepository.remove(mute);
+    this.broadcastBanMuteUpdate(chatId);
+  }
+
+  private async removeBan(chatId: number, ban: Ban) {
+    await this.banRepository.remove(ban);
+    this.broadcastBanMuteUpdate(chatId);
+  }
+
+  private broadcastBanMuteUpdate(chatId: number) {
+    const name = `banMuteUpdate_${chatId}`;
+    console.log("Emit:", name);
+    this.socketService.chatServer.to(name).emit(name);
+  }
 }

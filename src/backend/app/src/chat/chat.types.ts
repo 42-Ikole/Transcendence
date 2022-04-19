@@ -82,11 +82,11 @@ export class ChatPasswordDto {
 }
 
 export class ChatActionDto extends ChatUserDto {
-	@IsDate()
-	@IsNotEmpty()
-	@Type(() => Date)
-	@ApiProperty({
-		type: Date,
-	})
-	expirationDate: Date;
+	// @IsDate()
+	// @IsNotEmpty()
+	// @Type(() => Date)
+	// @ApiProperty({
+	// 	type: Date,
+	// })
+	// expirationDate: Date;
 }

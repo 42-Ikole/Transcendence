@@ -11,7 +11,7 @@
           <div class="card-body" style="height: auto; overflow-y: scroll">
             <div class="flex-row justify-content-start">
               <div class="small" v-for="user in users" :key="user.username">
-                <ChatUserDropdown :user="user" :show-chat-options="true" :chatId="chat.id" />
+                <ChatUserDropdown :user="user" :show-chat-options="true" :chatId="chat.id" :muted-users="mutedUsers" />
               </div>
             </div>
           </div>
@@ -40,7 +40,7 @@
                     Ban list
                   </button>
                   <ul class="dropdown-menu">
-                    <ChatBanList :chatId="chat.id" />
+                    <ChatBanList :chatId="chat.id" :banned-users="bannedUsers" :muted-users="mutedUsers" />
                   </ul>
                 </div>
               </div>
@@ -150,6 +150,8 @@ interface DataObject {
   messageToChat: SendChatMessage;
   messages: any[];
   admins: any[];
+  mutedUsers: PublicUser[];
+  bannedUsers: PublicUser[];
 }
 
 export default defineComponent({
@@ -169,6 +171,8 @@ export default defineComponent({
       },
       messages: [],
       admins: [],
+      mutedUsers: [],
+      bannedUsers: [],
     };
   },
   methods: {
@@ -226,11 +230,24 @@ export default defineComponent({
         this.admins = await adminResponse.json();
       }
     },
+    async refreshMuteBans() {
+      const muteResponse = await makeApiCall(`/chat/mute/${this.chat.id}`);
+      if (muteResponse.ok) {
+        this.mutedUsers = await muteResponse.json();
+      }
+      const banResponse = await makeApiCall(`/chat/ban/${this.chat.id}`);
+      if (banResponse.ok) {
+        this.bannedUsers = await banResponse.json();
+      }
+    },
   },
   computed: {
     ...mapState(useSocketStore, {
       socket: "chat",
     }),
+    hasAdminRights() {
+      return this.isAdmin || this.isOwner;
+    },
     isAdmin() {
       return useChatStore().isAdmin(this.chat.id);
     },
@@ -245,26 +262,36 @@ export default defineComponent({
     },
   },
   async mounted() {
-    this.socket.on("subscribeToChatSuccess", this.refreshChat);
-    this.socket.on("messageToClient", this.receivedMessage);
-    this.socket.on("userJoinedRoom", this.userJoinsChat);
-    this.socket.on("userLeftRoom", this.userLeavesChat);
-    this.socket.on("leaveRoomSuccess", this.switchToRoomList);
-    this.socket.emit("subscribeToChat", { roomName: this.chat.name });
-    this.socket.on("subscribeToChatFailure", () => {
+    if (this.hasAdminRights) {
+      this.socket!.emit("subscribeBanMuteUpdate", { id: this.chat.id });
+      await this.refreshMuteBans();
+      this.socket!.on(`banMuteUpdate_${this.chat.id}`, this.refreshMuteBans);
+    }
+
+    this.socket!.emit("subscribeToChat", { roomName: this.chat.name });
+    this.socket!.on("subscribeToChatSuccess", this.refreshChat);
+    this.socket!.on("messageToClient", this.receivedMessage);
+    this.socket!.on("userJoinedRoom", this.userJoinsChat);
+    this.socket!.on("userLeftRoom", this.userLeavesChat);
+    this.socket!.on("leaveRoomSuccess", this.switchToRoomList);
+    this.socket!.on("subscribeToChatFailure", () => {
       console.log("failed");
     });
-    this.socket.on("roomDeleted", this.switchToRoomList);
+    this.socket!.on("roomDeleted", this.switchToRoomList);
     useChatStore().refresh();
   },
   unmounted() {
-    this.socket.emit("unsubscribeToChat", { roomName: this.chat.name });
-    this.socket.removeListener("subscribeToChatSuccess", this.refreshChat);
-    this.socket.removeListener("messageToClient", this.receivedMessage);
-    this.socket.removeListener("userJoinedRoom", this.userJoinsChat);
-    this.socket.removeListener("userLeftRoom", this.userLeavesChat);
-    this.socket.removeListener("leaveRoomSuccess", this.switchToRoomList);
-    this.socket.removeListener("roomDeleted", this.switchToRoomList);
+    if (this.hasAdminRights) {
+      this.socket!.emit("unsubscribeBanMuteUpdate", { id: this.chat.id });
+      this.socket!.removeListener(`banMuteUpdate_${this.chat.id}`, this.refreshMuteBans);
+    }
+    this.socket!.emit("unsubscribeToChat", { roomName: this.chat.name });
+    this.socket!.removeListener("subscribeToChatSuccess", this.refreshChat);
+    this.socket!.removeListener("messageToClient", this.receivedMessage);
+    this.socket!.removeListener("userJoinedRoom", this.userJoinsChat);
+    this.socket!.removeListener("userLeftRoom", this.userLeavesChat);
+    this.socket!.removeListener("leaveRoomSuccess", this.switchToRoomList);
+    this.socket!.removeListener("roomDeleted", this.switchToRoomList);
   },
   components: {
     ChatUserDropdown,
