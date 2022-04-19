@@ -291,4 +291,32 @@ export class ChatController {
 		// Unmute a user from a chat.
 		await this.chatService.unmuteUser(request.user, body.chatId, body.userId);
 	}
+
+	@Get('/ban/:chatid')
+	@ApiParam({
+		name: 'chatid',
+		required: true,
+		description: 'Id of a chatroom',
+		type: Number,
+	})
+	async getBannedUsersInChat(
+		@Req() request: RequestWithUser,
+		@Param('chatid', ParseIntPipe) chatId: number,
+	): Promise<User[]> {
+		return await this.chatService.getBannedUsers(request.user, chatId);
+	}
+
+	@Get('/mute/:chatid')
+	@ApiParam({
+		name: 'chatid',
+		required: true,
+		description: 'Id of a chatroom',
+		type: Number,
+	})
+	async getMutedUsersInChat(
+		@Req() request: RequestWithUser,
+		@Param('chatid', ParseIntPipe) chatId: number,
+	): Promise<User[]> {
+		return await this.chatService.getMutedUsers(request.user, chatId);
+	}
 }

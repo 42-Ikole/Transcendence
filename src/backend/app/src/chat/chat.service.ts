@@ -556,6 +556,42 @@ export class ChatService {
 		await this.muteRepository.remove(mute);
 	}
 
+	async getBannedUsers(
+		requestingUser: User,
+		chatId: number,
+	): Promise<User[]> {
+		// Get the chat.
+		const chat: Chat = await this.findById(chatId, ['owner', 'admins', 'bans']);
+		// Check if the requesting user has the right permissions.
+		if (!this.userHasAdminPrivilege(requestingUser, chat)) {
+			throw new UnauthorizedException();
+		}
+		// Get a list of the banned users.
+		let userList: User[] = [];
+		for (const ban of chat.bans) {
+			userList.push(await this.userService.findById(ban.userId));
+		}
+		return userList;
+	}
+
+	async getMutedUsers(
+		requestingUser: User,
+		chatId: number,
+	): Promise<User[]> {
+		// Get the chat.
+		const chat: Chat = await this.findById(chatId, ['owner', 'admins', 'mutes']);
+		// Check if the requesting user has the right permissions.
+		if (!this.userHasAdminPrivilege(requestingUser, chat)) {
+			throw new UnauthorizedException();
+		}
+		// Get a list of the muted users.
+		let userList: User[] = [];
+		for (const mute of chat.mutes) {
+			userList.push(await this.userService.findById(mute.userId));
+		}
+		return userList;
+	}
+
   userIsInChat(user: User, chat: Chat): boolean {
     // Look through the members and see if the user is in there.
     for (const member of chat.members) {
