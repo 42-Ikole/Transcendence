@@ -124,10 +124,6 @@ type RoleType = "OWNER" | "ADMIN" | "MEMBER"
 interface DataObject {
   status: string;
   role: RoleType;
-  mute: {
-    on: boolean,
-    duration: number,
-  };
 }
 
 export default defineComponent({
@@ -149,10 +145,6 @@ export default defineComponent({
     return {
       status: "",
       role: "MEMBER",
-      mute: {
-        on: false,
-        duration: 0,
-      },
     };
   },
   computed: {
@@ -231,8 +223,12 @@ export default defineComponent({
     },
     kickUser() {
     },
-    banUser() {
-      //apicall
+    async banUser() {
+      const banResponse = await makeApiCallJson("/chat/ban", "POST", {
+        chatId: this.chatId,
+        userId: this.user.id,
+        expirationDate: new Date(),
+      });
       this.kickUser();
     },
     async makeAdmin() {
