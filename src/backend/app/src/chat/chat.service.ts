@@ -380,7 +380,8 @@ export class ChatService {
 		chat.invitedUsers = chat.invitedUsers.filter((item) => item.id != requestingUser.id);
 		chat.members.push(requestingUser);
 		await this.chatRepository.save(chat);
-		// Broadcast?
+		// Broadcast.
+		this.socketService.chatServer.to(chat.name).emit('userJoinedRoom', { chatName: chat.name, user: requestingUser });
 	}
 
 	async declineInvite(
