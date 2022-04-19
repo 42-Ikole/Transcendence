@@ -166,20 +166,6 @@ export class ChatController {
 		await this.chatService.demoteAdmin(request.user, body.chatId, body.userId);
 	}
 
-	@Delete('/:chatid')
-	@ApiParam({
-		name: 'chatid',
-		required: true,
-		description: 'Id of a chatroom',
-		type: Number,
-	})
-	async deleteChat(
-		@Req() request: RequestWithUser,
-		@Param('chatid', ParseIntPipe) chatId: number,
-		): Promise<void> {
-		await this.chatService.deleteChat(request.user, chatId);
-	}
-
 	@Post('/owner')
 	async changeRoomOwner(
 		@Req() request: RequestWithUser,
@@ -254,5 +240,19 @@ export class ChatController {
 	): Promise<void> {
 		// Decline the invite.
 		return await this.chatService.declineInvite(request.user, body.chatId);
+	}
+
+	@Delete('/:chatid')
+	@ApiParam({
+		name: 'chatid',
+		required: true,
+		description: 'Id of a chatroom',
+		type: Number,
+	})
+	async deleteChat(
+		@Req() request: RequestWithUser,
+		@Param('chatid', ParseIntPipe) chatId: number,
+		): Promise<void> {
+		await this.chatService.deleteChat(request.user, chatId);
 	}
 }
