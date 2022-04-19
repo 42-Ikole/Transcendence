@@ -4,9 +4,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
-import { IUser } from 'src/user/user.interface';
+import { IntraUser } from 'src/user/user.interface';
 import { AvatarService } from 'src/avatar/avatar.service';
 import { Avatar, AvatarData } from 'src/orm/entities/avatar.entity';
 import { SocketService } from 'src/websocket/socket.service';
@@ -35,11 +35,11 @@ export class UserService {
   // Getters //
   /////////////
 
-  private createFromDto(userDTO: IUser): User {
+  private createFromDto(userDTO: IntraUser): User {
     return this.userRepository.create(userDTO);
   }
 
-  async addUser(userDTO: IUser) {
+  async addUser(userDTO: IntraUser) {
     const user = this.createFromDto(userDTO);
     return await this.userRepository.save(user);
   }
@@ -48,15 +48,15 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findById(id: number): Promise<User> {
-    const user = await this.userRepository.findOne(id);
+  async findById(id: number, options?: FindOneOptions<User>): Promise<User> {
+    const user = await this.userRepository.findOne(id, options);
     if (!user) {
       throw new NotFoundException();
     }
     return user;
   }
 
-  async findByIntraId(user: IUser): Promise<User | undefined> {
+  async findByIntraId(user: IntraUser): Promise<User | undefined> {
     return this.userRepository.findOne({ intraId: user.intraId });
   }
 

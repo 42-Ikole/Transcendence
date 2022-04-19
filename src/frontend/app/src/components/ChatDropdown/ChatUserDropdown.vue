@@ -44,6 +44,11 @@
         <li>
           <hr class="dropdown-divider" />
         </li>
+        <li v-if="isFriend">
+          <button @click="unfriendUser" class="dropdown-item" type="button">
+            Unfriend
+          </button>
+        </li>
         <li v-if="!isBlocked">
           <button @click="blockUser" class="dropdown-item" type="button">
             Block
@@ -64,11 +69,6 @@
           </button>
         </li>
         <div v-if="showChatOptions">
-          <li v-if="isFriend">
-            <button @click="unfriendUser" class="dropdown-item" type="button">
-              Unfriend
-            </button>
-          </li>
           <li>
             <hr class="dropdown-divider" />
           </li>

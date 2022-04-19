@@ -6,6 +6,7 @@ import {
   OneToOne,
   JoinColumn,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Match } from './match.entity';
 import { IsString, IsOptional, Equals } from 'class-validator';
@@ -13,6 +14,7 @@ import { Exclude } from 'class-transformer';
 import { Friend } from './friend.entity';
 import { Chat } from './chat.entity';
 import { Avatar } from './avatar.entity';
+import { Achievement } from './achievement.entity';
 
 //////     //////
 // User Entity //
@@ -23,10 +25,11 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Exclude()
   @Column()
   intraId: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   username: string;
 
   @OneToOne(() => Avatar, { nullable: true, onDelete: 'CASCADE' })
@@ -60,8 +63,14 @@ export class User {
   @Exclude()
   twoFactorSecret: string;
 
+  @Exclude()
   @Column({ default: false })
   twoFactorEnabled: boolean;
+
+  // Achievements
+  @ManyToMany(() => Achievement, (cheevo) => cheevo.users)
+  @JoinTable()
+  achievements: Achievement[];
 }
 
 //////      //////

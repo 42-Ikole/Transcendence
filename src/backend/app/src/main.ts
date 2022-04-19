@@ -9,6 +9,7 @@ import { getRepository } from 'typeorm';
 import { TypeormStore } from 'connect-typeorm';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AchievementService } from './achievements/achievements.service';
 
 // Swagger = automatic API documentation
 async function setupSwagger(app: INestApplication) {
@@ -44,6 +45,11 @@ async function setupSession(app: INestApplication) {
   app.use(passport.session());
 }
 
+async function seed(app: INestApplication) {
+  const achievementService = app.get(AchievementService);
+  await achievementService.seedDatabase();
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   await setupSwagger(app);
@@ -51,6 +57,7 @@ async function bootstrap() {
   app.enableCors(); // For frontend API connection
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  await seed(app);
   await app.listen(3000);
 }
 bootstrap();

@@ -23,7 +23,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useUserStore } from "@/stores/UserStore";
 import { makeApiCall } from "@/utils/ApiCall";
 
 interface DataObject {
@@ -54,7 +53,6 @@ export default defineComponent({
         body: formData,
       });
       if (response.ok) {
-        useUserStore().updateAvatar();
         this.status = "Successfully updated avatar!";
       } else {
         this.status = "Couldn't update avatar!";
