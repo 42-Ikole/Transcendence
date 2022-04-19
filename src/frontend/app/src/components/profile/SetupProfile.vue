@@ -1,6 +1,6 @@
 <template>
   <div>
-    <EditUsername @updatedUsername="updatedUsername" />
+    <EditUsername @update="updatedUsername" />
     <EditAvatar />
     <button
       type="button"
