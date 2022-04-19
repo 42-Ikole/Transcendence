@@ -78,3 +78,12 @@ export class ChatPasswordDto {
 	@ApiProperty()
 	password: string;
 }
+
+export class ChatActionDto extends ChatUserDto {
+	@IsInt()
+	@IsNotEmpty()
+	@ApiProperty({
+		type: Number,
+	})
+	duration: number;
+}
