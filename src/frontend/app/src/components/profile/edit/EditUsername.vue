@@ -43,7 +43,7 @@ export default defineComponent({
     ...mapState(useUserStore, ["profileData"]),
     username() {
       if (!this.profileData) {
-        return "";
+        return "new username";
       }
       return this.profileData.username;
     },
