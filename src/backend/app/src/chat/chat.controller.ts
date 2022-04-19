@@ -229,4 +229,22 @@ export class ChatController {
 		// Get the users that are invited to a particular chat.
 		return await this.chatService.getChatInvites(request.user, chatId);
 	}
+
+	@Post('/invite/accept')
+	async acceptInvite(
+		@Req() request: RequestWithUser,
+		@Body() body: ChatPasswordDto,
+	): Promise<void> {
+		// Accept the invite.
+		return await this.chatService.acceptInvite(request.user, body.chatId);
+	}
+
+	@Post('/invite/decline')
+	async declineInvite(
+		@Req() request: RequestWithUser,
+		@Body() body: ChatPasswordDto,
+	): Promise<void> {
+		// Decline the invite.
+		return await this.chatService.declineInvite(request.user, body.chatid);
+	}
 }

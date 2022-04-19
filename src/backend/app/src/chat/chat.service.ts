@@ -366,6 +366,38 @@ export class ChatService {
 		this.socketService.emitToUser(user.id, 'chatroom', 'chatRoleUpdate');
 	}
 
+	async acceptInvite(
+		requestingUser: User,
+		chatId: number,
+	): Promise<void> {
+		// Get the chat.
+		const chat: Chat = await this.findById(chatId, ['invitedUsers']);
+		// Check if this user is invited.
+		if (!this.userIsInvited(requestingUser, chat)) {
+			return ;
+		}
+		// Remove from invitedUsers, add to members.
+		chat.invitedUsers = chat.invitedUsers.filter((item) => item.id != requestingUser.id);
+		chat.members.push(requestingUser);
+		await this.chatRepository.save(chat);
+		// Broadcast?
+	}
+
+	async declineInvite(
+		requestingUser: User,
+		chatId: number,
+	): Promise<void> {
+		// Get the chat.
+		const chat: Chat = await this.findById(chatId, ['invitedUsers']);
+		// Check if this user is invited.
+		if (!this.userIsInvited(requestingUser, chat)) {
+			return ;
+		}
+		// Remove from the invitedUsers.
+		chat.invitedUsers = chat.invitedUsers.filter((item) => item.id != requestingUser.id);
+		await this.chatRepository.save(chat);
+	}
+
 	async getUserInvites(
 		requestingUser: User,
 	): Promise<Chat[]> {
