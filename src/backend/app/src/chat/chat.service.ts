@@ -336,6 +336,8 @@ export class ChatService {
 		// Emit the event to both invited user and inviting user.
 		this.socketService.emitToUser(requestingUser.id, 'chatroom', 'chatRoleUpdate');
 		this.socketService.emitToUser(user.id, 'chatroom', 'chatRoleUpdate');
+		this.socketService.emitToUser(user.id, 'chatroom', 'chatInviteUpdate');
+		this.broadcastInviteUpdate(chat.id);
 	}
 
 	async removeInviteToChat(
@@ -369,6 +371,8 @@ export class ChatService {
 		// Emit the event to both invited user and uninviting user.
 		this.socketService.emitToUser(requestingUser.id, 'chatroom', 'chatRoleUpdate');
 		this.socketService.emitToUser(user.id, 'chatroom', 'chatRoleUpdate');
+		this.socketService.emitToUser(user.id, 'chatroom', 'chatInviteUpdate');
+		this.broadcastInviteUpdate(chat.id);
 	}
 
 	async acceptInvite(
@@ -387,6 +391,8 @@ export class ChatService {
 		await this.chatRepository.save(chat);
 		// Broadcast.
 		this.socketService.chatServer.to(chat.name).emit('userJoinedRoom', { chatName: chat.name, user: requestingUser });
+		this.socketService.emitToUser(requestingUser.id, 'chatroom', 'chatInviteUpdate');
+		this.broadcastInviteUpdate(chat.id);
 	}
 
 	async declineInvite(
@@ -402,6 +408,8 @@ export class ChatService {
 		// Remove from the invitedUsers.
 		chat.invitedUsers = chat.invitedUsers.filter((item) => item.id != requestingUser.id);
 		await this.chatRepository.save(chat);
+		this.socketService.emitToUser(requestingUser.id, 'chatroom', 'chatInviteUpdate');
+		this.broadcastInviteUpdate(chat.id);
 	}
 
 	async getUserInvites(
@@ -706,5 +714,9 @@ export class ChatService {
 		this.socketService.emitToUser(userId, 'chatroom', 'roleUpdate')
 		// 2. roleUpdate_{id}. To all users in the chat room where it happened.
 		this.socketService.chatServer.to(chatName).emit('roleUpdate_' + userId);
+	}
+
+	broadcastInviteUpdate(chatId: number) {
+		this.socketService.chatServer.emit(`chatUpdateInvite_${chatId}`);
 	}
 }

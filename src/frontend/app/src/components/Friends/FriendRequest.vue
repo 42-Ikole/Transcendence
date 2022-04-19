@@ -44,27 +44,13 @@
         </div>
     </p>
   </div>
-
-  <div v-for="chat in chatRequests" :key="chat.id">
-    <div v-for="user in chat.invitedUsers" :key="user.id">
-      <p>
-        {{ user.username }} ({{ chat.name }})
-        <button class="btn btn-outline-light btn-sm" @click="cancelChatRequest(chat.id, user.id)">
-          Cancel
-        </button>
-        <div v-if="hasCanceled && selectedChatId === chat.id && selectedUserId === user.id" class="text-warning">
-          You canceled the invitation for "{{ user.username }}" in chatroom "{{ chat.name }}"
-        </div>
-      </p>
-    </div>
-  </div>
-
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "pinia";
 import { useFriendStore } from "@/stores/FriendStore";
+import { useSocketStore } from "@/stores/SocketStore";
 import type { PublicUser } from "@/types/UserType";
 import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
 import { Chat } from "../chatrooms/Chatrooms.types.ts";
@@ -78,8 +64,6 @@ enum ChatRequest {
 
 interface DataObject {
   chatInvites: Chat[];
-  chatRequests: User[];
-  adminChats: Chat[];
   chatRequestStatus: ChatRequest;
   selectedChatId: Number;
   selectedUserId: Number;
@@ -89,8 +73,6 @@ export default defineComponent({
   data(): DataObject {
     return {
       chatInvites: [],
-      chatRequests: [],
-      adminChats: [],
       chatRequestStatus: ChatRequest.WAITING,
       selectedChatId: 0,
       selectedUserId: 0,
@@ -98,20 +80,18 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useFriendStore, ["sentRequests", "friendRequests"]),
+    ...mapState(useSocketStore, ["chat"]),
     hasRequests(): boolean {
       return this.friendRequests.length === 0 && this.sentRequests.length === 0;
     },
     hasChatRequests() {
-      return this.chatInvites.length !== 0 || this.chatRequests.length !== 0;
+      return this.chatInvites.length !== 0;
     },
     hasAccepted() {
       return this.chatRequestStatus === ChatRequest.ACCEPTED;
     },
     hasDeclined() {
       return this.chatRequestStatus === ChatRequest.DECLINED;
-    },
-    hasCanceled() {
-      return this.chatRequestStatus === ChatRequest.CANCELED;
     },
   },
   methods: {
@@ -131,17 +111,6 @@ export default defineComponent({
         id: user.id,
       });
     },
-    async cancelChatRequest(chatId: Number, userId: Number) {
-      const cancelChatResponse = await makeApiCallJson("/chat/invite", "DELETE", {
-        chatId: chatId,
-        userId: userId,
-      });
-      if (cancelChatResponse.ok) {
-        this.chatRequestStatus = ChatRequest.CANCELED;
-        this.selectedChatId = chatId;
-        this.selectedUserId = userId;
-      }
-    },
     async acceptChatInvite(chatId: Number) {
       const acceptChatResponse = await makeApiCallJson("/chat/invite/accept", "POST", {
         chatId: chatId,
@@ -160,22 +129,20 @@ export default defineComponent({
         this.selectedChatId = chatId;
       }
     },
+    async refreshChatData() {
+      this.chatRequestStatus = ChatRequest.WAITING;
+      const chatInvitesResponse = await makeApiCall("/chat/user/invite");
+      if (chatInvitesResponse.ok) {
+        this.chatInvites = await chatInvitesResponse.json();
+      }
+    }
   },
   async mounted() {
-    const chatAdminResponse = await makeApiCall("/user/chat/admin");
-    if (chatAdminResponse.ok) {
-      this.adminChats = await chatAdminResponse.json();
-    }
-
-    const chatInvitesResponse = await makeApiCall("/chat/user/invite");
-    if (chatInvitesResponse.ok) {
-      this.chatInvites = await chatInvitesResponse.json();
-    }
-
-    const chatRequestsResponse = await makeApiCall("/chat/uninvite");
-    if (chatRequestsResponse.ok) {
-      this.chatRequests = await chatRequestsResponse.json();
-    }
+    await this.refreshChatData();
+    this.chat!.on('chatInviteUpdate', this.refreshChatData);
+  },
+  unmounted() {
+    this.chat!.removeListener('chatInviteUpdate', this.refreshChatData);
   },
 });
 </script>

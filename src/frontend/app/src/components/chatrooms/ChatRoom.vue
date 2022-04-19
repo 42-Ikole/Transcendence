@@ -24,13 +24,13 @@
           >
             <h3 class="mb-0 cr-name">{{ this.chat.name }}</h3>
             <div class="btn-toolbar" role="toolbar">
-              <div class="btn-group me-2" role="group" v-if="(isAdmin || isOwner) && chat.type === 'private'">
+              <div class="btn-group me-2" role="group" v-if="(isAdmin || isOwner) && isPrivateChat">
                 <div class="dropdown">
                   <button class="btn btn-outline-success dropdown btn-lg" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" >
                     Invite
                   </button>
                   <ul class="dropdown-menu">
-                    <ChatInviteList :usersInChat="this.chat.members" :chatId="chat.id"/>
+                    <ChatInviteList :usersInChatArray="users" :chatId="chat.id"/>
                   </ul>
                 </div>
               </div>
@@ -239,7 +239,10 @@ export default defineComponent({
     },
     isMuted() {
       return false; // checken of user muted is
-    }
+    },
+    isPrivateChat() {
+      return this.chat.type === "private";
+    },
   },
   async mounted() {
     this.socket.on("subscribeToChatSuccess", this.refreshChat);

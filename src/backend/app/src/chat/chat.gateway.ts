@@ -9,7 +9,7 @@ import {
   OnGatewayConnection,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { ValidationPipe, UsePipes } from '@nestjs/common';
+import { ValidationPipe, UsePipes, UnauthorizedException } from '@nestjs/common';
 import { IncomingMessageDtO, ChatRoomDto, AllChatsDto } from './chat.types';
 import { SocketWithUser } from 'src/websocket/websocket.types';
 import { CookieService } from 'src/websocket/cookie.service';
@@ -17,6 +17,7 @@ import { ChatService } from './chat.service';
 import { Message } from 'src/orm/entities/message.entity';
 import { Chat } from 'src/orm/entities/chat.entity';
 import { SocketService } from 'src/websocket/socket.service';
+import { UserIdDto } from 'src/status/status.types';
 
 @UsePipes(new ValidationPipe())
 @WebSocketGateway({
@@ -44,7 +45,6 @@ export class ChatGateway
     if (!client.user) {
       return;
 		}
-		this.socketService.deleteSocket(client.user.id);
   }
 
   async handleConnection(client: SocketWithUser) {
@@ -172,5 +172,21 @@ export class ChatGateway
     @ConnectedSocket() client: SocketWithUser,
   ): Promise<void> {
     client.leave(data.roomName);
+  }
+
+  @SubscribeMessage("subscribeChatUpdateInvite")
+  async subscribeChatUpdateInvite(@ConnectedSocket() client: SocketWithUser, @MessageBody() data: UserIdDto) {
+    // validate that user is in the chatroom
+    const chat = await this.chatService.findById(data.id, ["owner", "admins"]);
+    if (!this.chatService.userHasAdminPrivilege(client.user, chat)) {
+      throw new UnauthorizedException();
+    }
+    // subscribe to updates on invites
+    client.join(`chatUpdateInvite_${data.id}`)
+  }
+
+  @SubscribeMessage("unsubscribeChatUpdateInvite")
+  async unsubscribeChatUpdateInvite(@ConnectedSocket() client: SocketWithUser, @MessageBody() data: UserIdDto) {
+    client.leave(`chatUpdateInvite_${data.id}`)
   }
 }
