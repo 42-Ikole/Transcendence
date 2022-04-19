@@ -71,7 +71,7 @@ export class ChatGateway
     const chat: Chat = await this.chatService.findByName(data.chatName, [
       'members', 'mutes', 'bans'
 		]);
-		if (this.chatService.userIsBanned(client.user, chat) || this.chatService.userIsMuted(client.user, chat)) {
+		if (await this.chatService.userIsBanned(client.user, chat) || await this.chatService.userIsMuted(client.user, chat)) {
 			return ;
 		}
     for (const member of chat.members) {
@@ -104,7 +104,7 @@ export class ChatGateway
     const chat: Chat = await this.chatService.findByName(data.roomName, [
       'members', 'bans'
 		]);
-		if (this.chatService.userIsBanned(client.user, chat)) {
+		if (await this.chatService.userIsBanned(client.user, chat)) {
 			client.emit('joinRoomFailure');
 			return ;
 		}

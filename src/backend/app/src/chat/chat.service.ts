@@ -461,10 +461,10 @@ export class ChatService {
 			throw new UnauthorizedException();
 		}
 		// See if the user is already banned, if so, update it. Else, create it.
-		if (this.userIsBanned(user, chat)) {
+		if (await this.userIsBanned(user, chat)) {
 			let ban: Ban = chat.bans.filter((item) => item.userId === user.id)[0];
 			ban.expirationDate = banInfo.expirationDate;
-			await this.banRepository.save(ban);
+			await this.banRepository.update(ban, ban);
 		} else {
 			const ban: Ban = this.banRepository.create(banInfo);
 			await this.banRepository.save(ban);
@@ -489,7 +489,7 @@ export class ChatService {
 		// Get the user.
 		const user: User = await this.userService.findById(userId);
 		// Is this user banned in this chat?
-		if (!this.userIsBanned(user, chat)) {
+		if (!(await this.userIsBanned(user, chat))) {
 			throw new NotFoundException();
 		}
 		// Get the ban.
@@ -519,10 +519,10 @@ export class ChatService {
 			throw new UnauthorizedException();
 		}
 		// See if the user is already muted, if so, update it. Else, create it.
-		if (this.userIsMuted(user, chat)) {
+		if (await this.userIsMuted(user, chat)) {
 			let mute: Mute = chat.mutes.filter((item) => item.userId === user.id)[0];
 			mute.expirationDate = muteInfo.expirationDate;
-			await this.muteRepository.save(mute);
+			await this.muteRepository.update(mute, mute);
 		} else {
 			const mute: Mute = this.banRepository.create(muteInfo);
 			await this.muteRepository.save(mute);
@@ -547,7 +547,7 @@ export class ChatService {
 		// Get the user.
 		const user: User = await this.userService.findById(userId);
 		// Is this user muted in this chat?
-		if (!this.userIsMuted(user, chat)) {
+		if (!(await this.userIsMuted(user, chat))) {
 			throw new NotFoundException();
 		}
 		// Get the mute.
@@ -592,6 +592,32 @@ export class ChatService {
 		return userList;
 	}
 
+	async IsBanExpired(
+		ban: Ban,
+	): Promise<boolean> {
+		// Check if the ban expiration date has passed.
+		const currentTime: Date = new Date();
+		if (ban.expirationDate > currentTime) {
+			return false;
+		}
+		// Remove it from the database.
+		await this.banRepository.remove(ban);
+		return true;
+	}
+
+	async IsMuteExpired(
+		mute: Mute,
+	): Promise<boolean> {
+		// Check if the mute expiration date has passed.
+		const currentTime: Date = new Date();
+		if (mute.expirationDate > currentTime) {
+			return false;
+		}
+		// Remove it from the database.
+		await this.muteRepository.remove(mute);
+		return true;
+	}
+
   userIsInChat(user: User, chat: Chat): boolean {
     // Look through the members and see if the user is in there.
     for (const member of chat.members) {
@@ -628,18 +654,24 @@ export class ChatService {
     return false;
 	}
 
-	userIsBanned(user: User, chat: Chat): boolean {
+	async userIsBanned(user: User, chat: Chat): Promise<boolean> {
 		for (const ban of chat.bans) {
 			if (ban.userId === user.id) {
+				if (await this.IsBanExpired(ban)) {
+					return false;
+				}
 				return true;
 			}
 		}
 		return false;
 	}
 
-	userIsMuted(user: User, chat: Chat): boolean {
+	async userIsMuted(user: User, chat: Chat): Promise<boolean> {
 		for (const mute of chat.mutes) {
 			if (mute.userId === user.id) {
+				if (await this.IsMuteExpired(mute)) {
+					return false;
+				}
 				return true;
 			}
 		}
