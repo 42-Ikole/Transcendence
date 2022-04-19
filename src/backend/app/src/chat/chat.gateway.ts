@@ -69,8 +69,11 @@ export class ChatGateway
   ): Promise<void> {
     // Verify if user is in this room.
     const chat: Chat = await this.chatService.findByName(data.chatName, [
-      'members',
-    ]);
+      'members', 'mutes', 'bans'
+		]);
+		if (this.chatService.userIsBanned(client.user, chat) || this.chatService.userIsMuted(client.user, chat)) {
+			return ;
+		}
     for (const member of chat.members) {
       if (member.id === client.user.id) {
         const addedMessage: Message = await this.chatService.addMessage(
@@ -99,8 +102,12 @@ export class ChatGateway
       data.password,
     );
     const chat: Chat = await this.chatService.findByName(data.roomName, [
-      'members',
-    ]);
+      'members', 'bans'
+		]);
+		if (this.chatService.userIsBanned(client.user, chat)) {
+			client.emit('joinRoomFailure');
+			return ;
+		}
     if (this.chatService.userIsInChat(client.user, chat)) {
       client.emit('joinRoomSuccess');
       return;
