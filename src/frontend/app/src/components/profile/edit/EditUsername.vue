@@ -31,7 +31,7 @@ import { defineComponent } from "vue";
 import { makeApiCallJson } from "@/utils/ApiCall";
 
 export default defineComponent({
-  emits: ["update"],
+  emits: ["update", "updatedUsername"],
   data() {
     return {
       usernameInvalid: false,
@@ -62,6 +62,7 @@ export default defineComponent({
         this.usernameInvalid = true;
         return;
       }
+		this.$emit("updatedUsername")
       this.$emit("update");
       this.resetState();
       this.wasUpdated = true;
