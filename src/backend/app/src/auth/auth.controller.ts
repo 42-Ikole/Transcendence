@@ -1,5 +1,5 @@
-import { Controller, Delete, Get, Req, Res, UseGuards } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Controller, Delete, Get, Req, Res, UseGuards, Post } from '@nestjs/common';
+import { Response } from 'express';
 import { IntraGuard } from './oauth/intra.guard';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestWithUser, AuthenticatedState } from './auth.types';
@@ -8,11 +8,14 @@ import { AuthenticatedGuard } from './auth.guard';
 import { ConfigService } from '@nestjs/config';
 import { GithubGuard } from './oauth/github.guard';
 import { DiscordGuard } from './oauth/discord.guard';
+import { SocketService } from 'src/websocket/socket.service';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    private socketService: SocketService) {}
 
   @Get('login/intra')
   @UseGuards(IntraGuard)
@@ -36,7 +39,7 @@ export class AuthController {
     summary:
       'Returns the current state of authentication: "AUTHENTICATED" | "2FA" | "OAUTH"',
   })
-  @Get('status')
+  @Post('status')
   status(@Req() req: RequestWithUser) {
     let state: AuthenticatedState;
     if (!req.isAuthenticated()) {
@@ -52,12 +55,22 @@ export class AuthController {
   @ApiOperation({ summary: 'Logs the user out and kills the session.' })
   @Delete('logout')
   @UseGuards(OAuthGuard)
-  logout(@Req() req: Request) {
+  async logout(@Req() req: RequestWithUser) {
+    if (!req.session) {
+      return;
+    }
+    if (req.user) {
+      this.socketService.disconnectUser(req.user.id);
+    }
     req.logout();
-    req.session.destroy((error) => {
-      if (error) {
-        console.error(error);
-      }
+    req.session.cookie.maxAge = 0;
+    await new Promise<void>((resolve, reject) => {
+      req.session.destroy((err) => {
+        if (err) {
+          reject(err);
+        }
+        resolve();
+      });
     });
   }
 

@@ -46,12 +46,16 @@ export class SocketService {
 
   disconnectUser(userId: number) {
     if (this.userExists(userId)) {
+      console.log(this.sockets[userId]);
       if (this.sockets[userId].pong) {
         this.sockets[userId].pong.disconnect();
       }
       if (this.sockets[userId].status) {
         this.sockets[userId].status.disconnect();
       }
+      // if (this.sockets[userId].chatroom) {
+      //   this.sockets[userId].chatroom.disconnect();
+      // }
     }
     this.deleteSocket(userId);
   }
