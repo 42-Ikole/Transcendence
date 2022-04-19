@@ -81,18 +81,14 @@
                 Unmute
               </button>
             </div>
+            <button @click="kickUser" class="dropdown-item" type="button">
+              Kick
+            </button>
           </li>
           <li v-if="isAdmin">
-            <div v-if="!isBanned">
-              <button @click="banUser" class="dropdown-item" type="button">
-                Ban
-              </button>
-            </div>
-            <div v-if="isBanned">
-              <button @click="unbanUser" class="dropdown-item" type="button">
-                Unban
-              </button>
-            </div>
+            <button @click="banUser" class="dropdown-item" type="button">
+              Ban
+            </button>
           </li>
           <li v-if="canMakeAdmin">
             <button @click="makeAdmin" class="dropdown-item" type="button">
@@ -198,12 +194,9 @@ export default defineComponent({
     canRemoveAdmin() {
       return this.isOwner && this.role === "ADMIN";
     },
-    isBanned() {
-      //return this.user.isBanned;
-    },
     isMuted() {
       //return this.user.isMuted;
-    }
+    },
   },
   methods: {
     viewProfile() {
@@ -236,11 +229,11 @@ export default defineComponent({
     unmuteUser() {
       return ;
     },
-    banUser() {
-      //this.user.banStatus != this.user.banStatus;
+    kickUser() {
     },
-    unbanUser() {
-      
+    banUser() {
+      //apicall
+      this.kickUser();
     },
     async makeAdmin() {
       if (this.role === "MEMBER") {
