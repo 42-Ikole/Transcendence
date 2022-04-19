@@ -1,7 +1,11 @@
 import { defineStore } from "pinia";
 import { useSocketStore } from "./SocketStore";
 
-export type AuthenticatedState = "AUTHENTICATED" | "2FA" | "OAUTH" | "ACCOUNT_SETUP";
+export type AuthenticatedState =
+  | "AUTHENTICATED"
+  | "2FA"
+  | "OAUTH"
+  | "ACCOUNT_SETUP";
 
 interface AuthenticatedStore {
   authenticatedState: AuthenticatedState;

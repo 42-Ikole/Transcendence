@@ -1,5 +1,5 @@
-interface MatchStats {
-	winCount: number;
-	lossCount: number;
-	rating: number;
+export interface MatchStats {
+  winCount: number;
+  lossCount: number;
+  rating: number;
 }

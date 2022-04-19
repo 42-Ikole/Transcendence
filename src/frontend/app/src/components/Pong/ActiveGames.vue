@@ -17,31 +17,31 @@ interface DataObject {
 }
 
 export default defineComponent({
-    data(): DataObject {
-        return {
-            games: [],
-        };
+  data(): DataObject {
+    return {
+      games: [],
+    };
+  },
+  computed: {
+    ...mapState(useSocketStore, ["pong"]),
+  },
+  methods: {
+    async refresh() {
+      const response = await makeApiCall("/pong/games");
+      if (response.ok) {
+        this.games = await response.json();
+      }
     },
-    computed: {
-        ...mapState(useSocketStore, ["pong"])
-    },
-    methods: {
-        async refresh() {
-          const response = await makeApiCall("/pong/games");
-          if (response.ok) {
-              this.games = await response.json();
-          }
-        },
-    },
-    async mounted() {
-        await this.refresh();
-        this.pong!.emit("subscribeGameUpdate");
-        this.pong!.on("gameUpdate", this.refresh);
-    },
-    unmounted() {
-        this.pong!.emit("unsubscribeGameUpdate");
-        this.pong!.removeListener("gameUpdate", this.refresh);
-    },
-    components: { ActiveGame }
+  },
+  async mounted() {
+    await this.refresh();
+    this.pong!.emit("subscribeGameUpdate");
+    this.pong!.on("gameUpdate", this.refresh);
+  },
+  unmounted() {
+    this.pong!.emit("unsubscribeGameUpdate");
+    this.pong!.removeListener("gameUpdate", this.refresh);
+  },
+  components: { ActiveGame },
 });
 </script>

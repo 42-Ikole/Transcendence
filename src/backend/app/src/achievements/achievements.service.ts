@@ -9,18 +9,21 @@ import { MatchService } from 'src/match/match.service';
 @Injectable()
 export class AchievementService {
   constructor(
-    @InjectRepository(Achievement) private achievementRepository: Repository<Achievement>,
+    @InjectRepository(Achievement)
+    private achievementRepository: Repository<Achievement>,
     @InjectRepository(User) private userRepository: Repository<User>,
     private matchService: MatchService,
   ) {}
 
   async findAll(options?: FindManyOptions<Achievement>) {
-	  return this.achievementRepository.find(options);
+    return this.achievementRepository.find(options);
   }
 
   async seedDatabase() {
-    for (let achievement of ACHIEVEMENTS) {
-      const found = await this.achievementRepository.findOne({ id: achievement.id });
+    for (const achievement of ACHIEVEMENTS) {
+      const found = await this.achievementRepository.findOne({
+        id: achievement.id,
+      });
       if (found) {
         continue;
       }
@@ -30,15 +33,17 @@ export class AchievementService {
   }
 
   async addAchievement(userId: number, achievementId: Achievements) {
-    const user = await this.userRepository.findOne(userId, { relations: ["achievements"] });
+    const user = await this.userRepository.findOne(userId, {
+      relations: ['achievements'],
+    });
     const cheevo = await this.achievementRepository.findOne(achievementId);
-    for (let achievement of user.achievements) {
+    for (const achievement of user.achievements) {
       if (achievement.id === cheevo.id) {
         return;
       }
     }
     user.achievements.push(cheevo);
-    console.log(user.id, "earned", cheevo.name);
+    console.log(user.id, 'earned', cheevo.name);
     this.userRepository.save(user);
   }
 

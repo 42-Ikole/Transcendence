@@ -135,7 +135,7 @@ export class PongService {
 
   clearObservers(gameRoom: GameRoom) {
     gameRoom.observers.forEach((id) => {
-      if (this.statusService.getState(id) !== "OFFLINE") {
+      if (this.statusService.getState(id) !== 'OFFLINE') {
         this.statusService.updateUserState(id, 'VIEWING_SCORE_SCREEN');
         this.socketService.sockets[id].pong.gameRoom = null;
       }

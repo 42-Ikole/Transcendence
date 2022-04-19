@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
 import { Match } from 'src/orm/entities/match.entity';
 import { IMatch } from 'src/match/match.interface';
+import { MatchStats } from './match.types';
 
 @Injectable()
 export class MatchService {
@@ -32,13 +33,13 @@ export class MatchService {
 
   async findUserMatches(id: number): Promise<Match[]> {
     return this.findAll({
-      where: [{winner: id}, {loser: id}],
+      where: [{ winner: id }, { loser: id }],
     }); // SELECT * FROM match WHERE winner == id OR loser == id
   }
 
   async createStats(id: number): Promise<MatchStats> {
-    const wonMatches = await this.findAll({ where: [ { winner: id } ]});
-    const lostMatches = await this.findAll({ where: [ { loser: id } ]});
+    const wonMatches = await this.findAll({ where: [{ winner: id }] });
+    const lostMatches = await this.findAll({ where: [{ loser: id }] });
     const stats: MatchStats = {
       winCount: wonMatches.length,
       lossCount: lostMatches.length,

@@ -166,7 +166,11 @@ export class PongGateway
     return 'playerOne';
   }
 
-  async addMatchHistory(roomName: string, winner: PlayerIndex, loser: PlayerIndex) {
+  async addMatchHistory(
+    roomName: string,
+    winner: PlayerIndex,
+    loser: PlayerIndex,
+  ) {
     const gameRoom = this.pongService.getGameRoom(roomName);
 
     await this.createMatchHistory(
@@ -329,11 +333,7 @@ export class PongGateway
     this.setStateIfOnline(clientOne.user.id, 'PLAYING');
     this.setStateIfOnline(clientTwo.user.id, 'PLAYING');
 
-    const gameState = newGameState(
-      clientOne.user.id,
-      clientTwo.user.id,
-      mode,
-    );
+    const gameState = newGameState(clientOne.user.id, clientTwo.user.id, mode);
     // discuss: timeout for starting game
     setTimeout(() => {
       this.pongService.addGameRoom(roomName, {
@@ -441,18 +441,18 @@ export class PongGateway
 
   @SubscribeMessage('subscribeGameUpdate')
   subscribeGameUpdate(@ConnectedSocket() client: SocketWithUser) {
-    console.log("client subscribe update", client.user.id);
+    console.log('client subscribe update', client.user.id);
     client.join('gameUpdate');
   }
 
   @SubscribeMessage('unsubscribeGameUpdate')
   unsubscribeGameUpdate(@ConnectedSocket() client: SocketWithUser) {
-    console.log("client unsubscribe update", client.user.id);
+    console.log('client unsubscribe update', client.user.id);
     client.leave('gameUpdate');
   }
 
   emitGameUpdate() {
-    console.log("emitting game update");
+    console.log('emitting game update');
     this.socketService.pongServer.to('gameUpdate').emit('gameUpdate');
   }
 }
