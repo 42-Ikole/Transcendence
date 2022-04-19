@@ -88,8 +88,10 @@
                 v-for="message in this.messages"
                 :key="message.author"
               >
-                <p class="chat-author">{{ message.author.username }}:</p>
-                {{ message.message }}
+                <div v-if="!isBlocked(message.author)">
+                  <p class="chat-author">{{ message.author.username }}:</p>
+                  {{ message.message }}
+                </div>
               </div>
             </div>
           </div>
@@ -143,6 +145,7 @@ import ChatUserDropdown from "../ChatDropdown/ChatUserDropdown.vue";
 import { useChatStore} from "@/stores/ChatStore";
 import ChatInviteList from "./ChatInviteList.vue";
 import ChatBanList from "./ChatBanList.vue";
+import { useFriendStore } from "@/stores/FriendStore";
 
 interface DataObject {
   myMessage: string;
@@ -239,6 +242,9 @@ export default defineComponent({
       if (banResponse.ok) {
         this.bannedUsers = await banResponse.json();
       }
+    },
+    isBlocked(user: PublicUser) {
+      return useFriendStore().isPartOfSet(user.id, "BLOCKED");
     },
   },
   computed: {
