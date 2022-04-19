@@ -13,8 +13,8 @@ export async function logoutUser(router: Router) {
     method: "DELETE",
   });
   const userStore = useUserStore();
-  router.push("/login");
-  userStore.logout();
+  await router.push("/login");
+	userStore.logout();
 }
 
 export async function canMakeConnection(): Promise<boolean> {
