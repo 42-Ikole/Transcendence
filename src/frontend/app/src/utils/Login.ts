@@ -14,7 +14,7 @@ export async function logoutUser(router: Router) {
   });
   const userStore = useUserStore();
   await router.push("/login");
-	userStore.logout();
+  userStore.logout();
 }
 
 export async function canMakeConnection(): Promise<boolean> {

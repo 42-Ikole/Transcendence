@@ -10,14 +10,14 @@
         <AchievementList :userId="userId" />
       </div>
       <div class="col-md-7">
-	  	<div class="row align-items-center">
-		  	<div class="col-md-auto">
-				<h1>{{ profileData.username }}</h1>
-			</div>
-			<div class="col	">
-				<ChatUserDropdown :user="profileData" :showChatOptions="false" />
-			</div>
-		</div>
+        <div class="row align-items-center">
+          <div class="col-md-auto">
+            <h1>{{ profileData.username }}</h1>
+          </div>
+          <div class="col">
+            <ChatUserDropdown :user="profileData" :showChatOptions="false" />
+          </div>
+        </div>
         <p class="status" v-bind:class="statusStyling">{{ userStatus }}</p>
         <p class="text-white">Game Wins: {{ matchStats.winCount }}</p>
         <p class="text-white">Game Losses: {{ matchStats.lossCount }}</p>

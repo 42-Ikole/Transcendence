@@ -62,7 +62,7 @@ export default defineComponent({
         this.usernameInvalid = true;
         return;
       }
-		this.$emit("updatedUsername")
+      this.$emit("updatedUsername");
       this.$emit("update");
       this.resetState();
       this.wasUpdated = true;
