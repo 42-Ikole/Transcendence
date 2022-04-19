@@ -10,6 +10,7 @@ import {
   IncomingMessageDtO,
   CreateChatInterface,
   AllChatsDto,
+	ChatActionDto,
 } from './chat.types';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -433,6 +434,36 @@ export class ChatService {
 			returnChats.push(chat);
 		}
 		return returnChats;
+	}
+
+	async banUser(
+		requestingUser: User,
+		banInfo: ChatActionDto,
+	): Promise<void> {
+
+	}
+
+	async unbanUser(
+		requestingUser: User,
+		chatId: number,
+		userId: number,
+	): Promise<void> {
+
+	}
+
+	async muteUser(
+		requestingUser: User,
+		muteInfo: ChatActionDto,
+	): Promise<void> {
+
+	}
+
+	async unmuteUser(
+		requestingUser: User,
+		chatId: number,
+		userId: number,
+	): Promise<void> {
+
 	}
 
   userIsInChat(user: User, chat: Chat): boolean {

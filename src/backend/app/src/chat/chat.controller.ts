@@ -13,7 +13,7 @@ import {
 	Patch,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { CreateChatDto, CreateChatInterface, AllChatsDto, ChatUserDto, ChatPasswordDto } from './chat.types';
+import { CreateChatDto, CreateChatInterface, AllChatsDto, ChatUserDto, ChatPasswordDto, ChatActionDto } from './chat.types';
 import { Chat } from 'src/orm/entities/chat.entity';
 import { User } from 'src/orm/entities/user.entity';
 import { Message } from 'src/orm/entities/message.entity';
@@ -254,5 +254,41 @@ export class ChatController {
 		@Param('chatid', ParseIntPipe) chatId: number,
 		): Promise<void> {
 		await this.chatService.deleteChat(request.user, chatId);
+	}
+
+	@Post('/ban')
+	async banUser(
+		@Req() request: RequestWithUser,
+		@Body() body: ChatActionDto,
+	): Promise<void> {
+		// Ban a user from a chat.
+		await this.chatService.banUser(request.user, body);
+	}
+
+	@Delete('/ban')
+	async unbanUser(
+		@Req() request: RequestWithUser,
+		@Body() body: ChatUserDto,
+	): Promise<void> {
+		// Unban a user from a chat.
+		await this.chatService.unbanUser(request.user, body.chatId, body.userId);
+	}
+
+	@Post('/mute')
+	async muteUser(
+		@Req() request: RequestWithUser,
+		@Body() body: ChatActionDto,
+	): Promise<void> {
+		// Mute a user from a chat.
+		await this.chatService.muteUser(request.user, body);
+	}
+
+	@Delete('/ban')
+	async unmuteUser(
+		@Req() request: RequestWithUser,
+		@Body() body: ChatUserDto,
+	): Promise<void> {
+		// Unmute a user from a chat.
+		await this.chatService.unmuteUser(request.user, body.chatId, body.userId);
 	}
 }
