@@ -34,14 +34,14 @@ export class AuthController {
   async loginIntra(@Res() res: Response) {
     res.redirect(this.configService.get('oauth.REDIRECT_URL'));
   }
-  
+
   @Get('login/github')
   @UseFilters(OAuthExceptionFilter)
   @UseGuards(GithubGuard)
   async loginGithub(@Res() res: Response) {
     res.redirect(this.configService.get('oauth.REDIRECT_URL'));
   }
-  
+
   @Get('login/discord')
   @UseFilters(OAuthExceptionFilter)
   @UseGuards(DiscordGuard)
