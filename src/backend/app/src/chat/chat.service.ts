@@ -19,12 +19,16 @@ import { Message } from 'src/orm/entities/message.entity';
 import { User } from 'src/orm/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { SocketService } from 'src/websocket/socket.service';
+import { Ban } from 'src/orm/entities/ban.entity';
+import { Mute } from 'src/orm/entities/mute.entity';
 
 @Injectable()
 export class ChatService {
   constructor(
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
 		@InjectRepository(Message) private messageRepository: Repository<Message>,
+		@InjectRepository(Ban) private banRepository: Repository<Ban>,
+		@InjectRepository(Mute) private muteRepository: Repository<Mute>,
 		private userService: UserService,
 		private socketService: SocketService,
   ) {}
