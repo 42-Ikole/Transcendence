@@ -52,6 +52,9 @@ export const useSocketStore = defineStore("socket", {
       if (this.status) {
         this.status.disconnect();
       }
+      if (this.chat) {
+        this.chat.disconnect();
+      }
     },
   },
 });
