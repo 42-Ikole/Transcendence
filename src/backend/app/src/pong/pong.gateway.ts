@@ -366,6 +366,7 @@ export class PongGateway
     gameRoom.intervalId = setInterval(() => {
       updateGamestate(gameRoom);
       if (gameHasEnded(gameState)) {
+        this.pongService.deleteInterval(roomName);
         this.endGame(
           roomName,
           this.getWinner(roomName),
