@@ -81,7 +81,6 @@ export class UserController {
     return await this.userService.findLosses(id);
   }
 
-<<<<<<< HEAD
   @Get('chat/owned')
   async findOwnedChats(@Req() request: RequestWithUser) {
     const user = await this.userService.findById(request.user.id, {
@@ -96,14 +95,14 @@ export class UserController {
       relations: ['adminChats']
     });
     return user.adminChats;
-=======
+  }
+
   @Get('achievements/:id')
   async findAchievements(@Param('id', ParseIntPipe) id: number) {
     const user = await this.userService.findById(id, {
       relations: ['achievements'],
     });
     return user.achievements;
->>>>>>> main
   }
 
   @Patch('update')
