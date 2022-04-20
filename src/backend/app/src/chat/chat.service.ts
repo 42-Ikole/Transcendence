@@ -151,7 +151,9 @@ export class ChatService {
     chat.type = 'protected';
     const hashedPassword = await bcrypt.hash(plainTextPassword, 10);
     chat.password = hashedPassword;
-    return await this.chatRepository.save(chat);
+    const result = await this.chatRepository.save(chat);
+    this.socketService.chatServer.emit("roomsUpdate");
+    return result;
   }
   
   async changePassword(requestingUser: User, chatId: number, plainTextPassword: string): Promise<Chat> {
@@ -171,7 +173,9 @@ export class ChatService {
     // Change the password.
     const hashedPassword = await bcrypt.hash(plainTextPassword, 10);
     chat.password = hashedPassword;
-    return await this.chatRepository.save(chat);
+    const result = await this.chatRepository.save(chat);
+    this.socketService.chatServer.emit("roomsUpdate");
+    return result;
   }
 
   async removePassword(requestingUser: User, chatId: number): Promise<Chat> {
@@ -191,7 +195,9 @@ export class ChatService {
     // Remove the password.
     chat.password = '';
     chat.type = 'public';
-    return await this.chatRepository.save(chat);
+    const result = await this.chatRepository.save(chat);
+    this.socketService.chatServer.emit("roomsUpdate");
+    return result;
   }
 
   async addMessage(message: IncomingMessageDtO, user: User): Promise<Message> {
