@@ -56,9 +56,19 @@
           </div>
         </div>
       </form>
-      <div v-if="showDeleted" class="text-danger" style="padding-bottom: 5px">"{{ this.roomDeleted }}" is successfully deleted!</div>
-      <div v-if="!correctPassword" class="text-danger" style="padding-bottom: 5px;">Invalid password!</div>
-      <div v-if="userBanned" class="text-danger" style="padding-bottom: 5px;">You are banned from this chatroom!</div>
+      <div v-if="showDeleted" class="text-danger" style="padding-bottom: 5px">
+        "{{ this.roomDeleted }}" is successfully deleted!
+      </div>
+      <div
+        v-if="!correctPassword"
+        class="text-danger"
+        style="padding-bottom: 5px"
+      >
+        Invalid password!
+      </div>
+      <div v-if="userBanned" class="text-danger" style="padding-bottom: 5px">
+        You are banned from this chatroom!
+      </div>
       <button class="btn btn-info btn-sm float-end" @click="createRoom">
         Create room
       </button>
@@ -72,7 +82,11 @@
     </div>
   </div>
   <div v-if="isJoining">
-    <Chatroom :chat="selectedChat" @roomLeft="setWaiting" @roomDeleted="isDeleted"/>
+    <Chatroom
+      :chat="selectedChat"
+      @roomLeft="setWaiting"
+      @roomDeleted="isDeleted"
+    />
   </div>
   <div v-if="isCreating">
     <CreateRoom @roomCreated="setWaiting" />
@@ -203,6 +217,10 @@ export default defineComponent({
     async refreshChatList() {
       await this.getAllChats();
     },
+    async roomUpdate() {
+      await this.refreshChatList();
+      this.selectedChat = this.findChatByName(this.selectedChat.name);
+    },
   },
   async mounted() {
     await this.getAllChats();
@@ -211,7 +229,7 @@ export default defineComponent({
     this.socket!.on("roomCreated", this.refreshChatList);
     this.socket!.on("roomDeleted", this.refreshChatList);
     this.socket!.on("joinRoomBanned", this.joinRoomFailedBanned);
-    this.socket!.on("roomsUpdate", this.refreshChatList);
+    this.socket!.on("roomsUpdate", this.roomUpdate);
   },
   unmounted() {
     this.socket!.removeListener("joinRoomSuccess", this.joinRoomSuccessfully);
@@ -219,7 +237,7 @@ export default defineComponent({
     this.socket!.removeListener("roomCreated", this.refreshChatList);
     this.socket!.removeListener("roomDeleted", this.refreshChatList);
     this.socket!.removeListener("joinRoomBanned", this.joinRoomFailedBanned);
-    this.socket!.removeListener("roomsUpdate", this.refreshChatList);
+    this.socket!.removeListener("roomsUpdate", this.roomUpdate);
   },
   watch: {
     selectedChatName(newRoom, oldRoom) {

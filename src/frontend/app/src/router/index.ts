@@ -9,7 +9,7 @@ import FindMatchView from "@/views/FindMatchView.vue";
 import EditProfileView from "@/views/EditProfileView.vue";
 import FriendListView from "@/views/FriendListView.vue";
 import DirectMessageView from "@/views/DirectMessageView.vue";
-  
+
 const routes = [
   {
     path: "/",
@@ -54,7 +54,7 @@ const routes = [
   {
     path: "/dm/:id",
     name: "dm",
-    component: DirectMessageView
+    component: DirectMessageView,
   },
 ];
 

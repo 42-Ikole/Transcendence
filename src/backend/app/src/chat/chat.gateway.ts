@@ -9,8 +9,17 @@ import {
   OnGatewayConnection,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { ValidationPipe, UsePipes, UnauthorizedException } from '@nestjs/common';
-import { IncomingMessageDtO, ChatRoomDto, AllChatsDto, DirectMessageDto } from './chat.types';
+import {
+  ValidationPipe,
+  UsePipes,
+  UnauthorizedException,
+} from '@nestjs/common';
+import {
+  IncomingMessageDtO,
+  ChatRoomDto,
+  AllChatsDto,
+  DirectMessageDto,
+} from './chat.types';
 import { SocketWithUser } from 'src/websocket/websocket.types';
 import { CookieService } from 'src/websocket/cookie.service';
 import { ChatService } from './chat.service';
@@ -44,7 +53,7 @@ export class ChatGateway
   handleDisconnect(client: SocketWithUser) {
     if (!client.user) {
       return;
-		}
+    }
   }
 
   async handleConnection(client: SocketWithUser) {
@@ -58,8 +67,8 @@ export class ChatGateway
     const chats: AllChatsDto = await this.chatService.findAll(client.user);
     for (const chat of chats.joinedChats) {
       client.join(chat.name);
-		}
-		this.socketService.addSocket(client.user.id, 'chatroom', client);
+    }
+    this.socketService.addSocket(client.user.id, 'chatroom', client);
   }
 
   @SubscribeMessage('messageToChat')
@@ -69,12 +78,17 @@ export class ChatGateway
   ): Promise<void> {
     // Verify if user is in this room.
     const chat: Chat = await this.chatService.findByName(data.chatName, [
-      'members', 'mutes', 'bans'
-		]);
-		if (await this.chatService.userIsBanned(client.user, chat) || await this.chatService.userIsMuted(client.user, chat)) {
+      'members',
+      'mutes',
+      'bans',
+    ]);
+    if (
+      (await this.chatService.userIsBanned(client.user, chat)) ||
+      (await this.chatService.userIsMuted(client.user, chat))
+    ) {
       client.emit('userIsMuted');
-			return ;
-		}
+      return;
+    }
     for (const member of chat.members) {
       if (member.id === client.user.id) {
         const addedMessage: Message = await this.chatService.addMessage(
@@ -100,12 +114,13 @@ export class ChatGateway
     // Verify password
 
     const chat: Chat = await this.chatService.findByName(data.roomName, [
-      'members', 'bans'
-		]);
-		if (await this.chatService.userIsBanned(client.user, chat)) {
-			client.emit('joinRoomBanned');
-			return ;
-		}
+      'members',
+      'bans',
+    ]);
+    if (await this.chatService.userIsBanned(client.user, chat)) {
+      client.emit('joinRoomBanned');
+      return;
+    }
     if (this.chatService.userIsInChat(client.user, chat)) {
       client.emit('joinRoomSuccess');
       return;
@@ -131,7 +146,8 @@ export class ChatGateway
     @ConnectedSocket() client: SocketWithUser,
   ): Promise<void> {
     const chat: Chat = await this.chatService.findByName(data.roomName, [
-      'members', 'admins'
+      'members',
+      'admins',
     ]);
     if (
       chat === undefined ||
@@ -172,42 +188,54 @@ export class ChatGateway
     client.leave(data.roomName);
   }
 
-  @SubscribeMessage("subscribeChatUpdateInvite")
-  async subscribeChatUpdateInvite(@ConnectedSocket() client: SocketWithUser, @MessageBody() data: UserIdDto) {
+  @SubscribeMessage('subscribeChatUpdateInvite')
+  async subscribeChatUpdateInvite(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: UserIdDto,
+  ) {
     // validate that user is in the chatroom
-    const chat = await this.chatService.findById(data.id, ["owner", "admins"]);
+    const chat = await this.chatService.findById(data.id, ['owner', 'admins']);
     if (!this.chatService.userHasAdminPrivilege(client.user, chat)) {
       throw new UnauthorizedException();
     }
     // subscribe to updates on invites
-    client.join(`chatUpdateInvite_${data.id}`)
+    client.join(`chatUpdateInvite_${data.id}`);
   }
 
-  @SubscribeMessage("unsubscribeChatUpdateInvite")
-  async unsubscribeChatUpdateInvite(@ConnectedSocket() client: SocketWithUser, @MessageBody() data: UserIdDto) {
-    client.leave(`chatUpdateInvite_${data.id}`)
+  @SubscribeMessage('unsubscribeChatUpdateInvite')
+  async unsubscribeChatUpdateInvite(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: UserIdDto,
+  ) {
+    client.leave(`chatUpdateInvite_${data.id}`);
   }
 
-  @SubscribeMessage("subscribeBanMuteUpdate")
-  async subscribeBanMuteUpdate(@ConnectedSocket() client: SocketWithUser, @MessageBody() data: UserIdDto) {
+  @SubscribeMessage('subscribeBanMuteUpdate')
+  async subscribeBanMuteUpdate(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: UserIdDto,
+  ) {
     // validate that user is in the chatroom
-    const chat = await this.chatService.findById(data.id, ["owner", "admins"]);
+    const chat = await this.chatService.findById(data.id, ['owner', 'admins']);
     if (!this.chatService.userHasAdminPrivilege(client.user, chat)) {
       throw new UnauthorizedException();
     }
     // subscribe to updates on invites
-    client.join(`banMuteUpdate_${data.id}`)
+    client.join(`banMuteUpdate_${data.id}`);
   }
 
-  @SubscribeMessage("unsubscrubeBanMuteUpdate")
-  async unsubscrubeBanMuteUpdate(@ConnectedSocket() client: SocketWithUser, @MessageBody() data: UserIdDto) {
-    client.leave(`banMuteUpdate_${data.id}`)
+  @SubscribeMessage('unsubscrubeBanMuteUpdate')
+  async unsubscrubeBanMuteUpdate(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: UserIdDto,
+  ) {
+    client.leave(`banMuteUpdate_${data.id}`);
   }
 
   @SubscribeMessage('sendDirectMessage')
   async sendDirectMessage(
     @ConnectedSocket() client: SocketWithUser,
-    @MessageBody() data: DirectMessageDto
+    @MessageBody() data: DirectMessageDto,
   ) {
     // Store message in DB and send the message
     const roomName = `directMessage_${data.id}`;

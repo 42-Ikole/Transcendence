@@ -29,20 +29,30 @@
     <p>You have no pending chat requests.</p>
   </div>
   <div v-for="chat in chatInvites" :key="chat.id">
-    <p> Chat invite: {{ chat.name }}
-      <button class="btn btn-outline-light btn-sm" @click="acceptChatInvite(chat.id)">
+    <div class="text-white">
+      Chat invite: {{ chat.name }}
+      <button
+        class="btn btn-outline-light btn-sm mx-2"
+        @click="acceptChatInvite(chat.id)"
+      >
         Accept
       </button>
-      <button class="btn btn-outline-light btn-sm" @click="declineChatInvite(chat.id)">
+      <button
+        class="btn btn-outline-light btn-sm"
+        @click="declineChatInvite(chat.id)"
+      >
         Decline
       </button>
-        <div v-if="hasAccepted && selectedChatId === chat.id" class="text-success">
-          You successfully joined "{{ chat.name }}"!
-        </div>
-        <div v-if="hasDeclined && selectedChatId === chat.id" class="text-danger">
-          You declined to join the chat "{{ chat.name }}".
-        </div>
-    </p>
+      <div
+        v-if="hasAccepted && selectedChatId === chat.id"
+        class="text-success"
+      >
+        You successfully joined "{{ chat.name }}"!
+      </div>
+      <div v-if="hasDeclined && selectedChatId === chat.id" class="text-danger">
+        You declined to join the chat "{{ chat.name }}".
+      </div>
+    </div>
   </div>
 </template>
 
@@ -53,7 +63,7 @@ import { useFriendStore } from "@/stores/FriendStore";
 import { useSocketStore } from "@/stores/SocketStore";
 import type { PublicUser } from "@/types/UserType";
 import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
-import { Chat } from "../chatrooms/Chatrooms.types.ts";
+import type { Chat } from "../chatrooms/Chatrooms.types.ts";
 
 enum ChatRequest {
   WAITING,
@@ -65,8 +75,8 @@ enum ChatRequest {
 interface DataObject {
   chatInvites: Chat[];
   chatRequestStatus: ChatRequest;
-  selectedChatId: Number;
-  selectedUserId: Number;
+  selectedChatId: number;
+  selectedUserId: number;
 }
 
 export default defineComponent({
@@ -76,7 +86,7 @@ export default defineComponent({
       chatRequestStatus: ChatRequest.WAITING,
       selectedChatId: 0,
       selectedUserId: 0,
-    }
+    };
   },
   computed: {
     ...mapState(useFriendStore, ["sentRequests", "friendRequests"]),
@@ -111,19 +121,27 @@ export default defineComponent({
         id: user.id,
       });
     },
-    async acceptChatInvite(chatId: Number) {
-      const acceptChatResponse = await makeApiCallJson("/chat/invite/accept", "POST", {
-        chatId: chatId,
-      });
+    async acceptChatInvite(chatId: number) {
+      const acceptChatResponse = await makeApiCallJson(
+        "/chat/invite/accept",
+        "POST",
+        {
+          chatId: chatId,
+        }
+      );
       if (acceptChatResponse.ok) {
         this.chatRequestStatus = ChatRequest.ACCEPTED;
         this.selectedChatId = chatId;
       }
     },
-    async declineChatInvite(chatId: Number) {
-      const declineChatResponse = await makeApiCallJson("/chat/invite/decline", "POST", {
-        chatId: chatId,
-      });
+    async declineChatInvite(chatId: number) {
+      const declineChatResponse = await makeApiCallJson(
+        "/chat/invite/decline",
+        "POST",
+        {
+          chatId: chatId,
+        }
+      );
       if (declineChatResponse.ok) {
         this.chatRequestStatus = ChatRequest.DECLINED;
         this.selectedChatId = chatId;
@@ -135,14 +153,14 @@ export default defineComponent({
       if (chatInvitesResponse.ok) {
         this.chatInvites = await chatInvitesResponse.json();
       }
-    }
+    },
   },
   async mounted() {
     await this.refreshChatData();
-    this.chat!.on('chatInviteUpdate', this.refreshChatData);
+    this.chat!.on("chatInviteUpdate", this.refreshChatData);
   },
   unmounted() {
-    this.chat!.removeListener('chatInviteUpdate', this.refreshChatData);
+    this.chat!.removeListener("chatInviteUpdate", this.refreshChatData);
   },
 });
 </script>

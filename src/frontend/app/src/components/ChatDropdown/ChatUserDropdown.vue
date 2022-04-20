@@ -116,7 +116,7 @@ import { defineComponent, type PropType } from "vue";
 import type { PublicUser } from "@/types/UserType";
 import { useFriendStore } from "@/stores/FriendStore";
 import { useUserStore } from "@/stores/UserStore";
-import { useChatStore} from "@/stores/ChatStore";
+import { useChatStore } from "@/stores/ChatStore";
 import { challengeUser } from "@/utils/Pong";
 import { sendFriendRequest, unfriend, unblock, block } from "@/utils/Friends";
 import { stopTrackingUserStatus, trackUserStatus } from "@/utils/StatusTracker";
@@ -124,7 +124,7 @@ import type { StatusUpdate } from "@/types/StatusTypes";
 import { useSocketStore } from "@/stores/SocketStore";
 import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
 
-type RoleType = "OWNER" | "ADMIN" | "MEMBER"
+type RoleType = "OWNER" | "ADMIN" | "MEMBER";
 
 interface DataObject {
   status: string;
@@ -158,7 +158,10 @@ export default defineComponent({
   },
   computed: {
     canMessage() {
-      return !this.isBlocked && !useFriendStore().isPartOfSet(this.user.id, "BLOCKED_BY");
+      return (
+        !this.isBlocked &&
+        !useFriendStore().isPartOfSet(this.user.id, "BLOCKED_BY")
+      );
     },
     isBlocked() {
       return useFriendStore().isPartOfSet(this.user.id, "BLOCKED");
@@ -205,7 +208,10 @@ export default defineComponent({
       return !!this.mutedUsers.find((muted) => this.user.id === muted.id);
     },
     canBanKickMute() {
-      return this.role !== "OWNER" && (this.isOwner || (this.isAdmin && this.role !== "ADMIN"));
+      return (
+        this.role !== "OWNER" &&
+        (this.isOwner || (this.isAdmin && this.role !== "ADMIN"))
+      );
     },
   },
   methods: {
@@ -231,7 +237,7 @@ export default defineComponent({
       this.status = update.newState;
     },
     async startDirectMessage() {
-      const response = await makeApiCallJson('/chat/directMessage', "POST", {
+      const response = await makeApiCallJson("/chat/directMessage", "POST", {
         id: this.user.id,
       });
       if (response.ok) {
@@ -242,32 +248,32 @@ export default defineComponent({
       return;
     },
     async muteUser() {
-      const muteResponse = await makeApiCallJson("/chat/mute", "POST", {
+      await makeApiCallJson("/chat/mute", "POST", {
         chatId: this.chatId,
         userId: this.user.id,
       });
     },
     async unmuteUser() {
-      const unmuteResponse = await makeApiCallJson("/chat/mute", "DELETE", {
+      await makeApiCallJson("/chat/mute", "DELETE", {
         chatId: this.chatId,
         userId: this.user.id,
       });
     },
     async kickUser() {
-      const kickResponse = await makeApiCallJson("/chat/kick", "DELETE", {
+      await makeApiCallJson("/chat/kick", "DELETE", {
         chatId: this.chatId,
         userId: this.user.id,
       });
     },
     async banUser() {
-      const banResponse = await makeApiCallJson("/chat/ban", "POST", {
+      await makeApiCallJson("/chat/ban", "POST", {
         chatId: this.chatId,
         userId: this.user.id,
       });
     },
     async makeAdmin() {
       if (this.role === "MEMBER") {
-        const makeAdminResponse = await makeApiCallJson("/chat/admin", "POST", {
+        await makeApiCallJson("/chat/admin", "POST", {
           chatId: this.chatId,
           userId: this.user.id,
         });
@@ -275,16 +281,18 @@ export default defineComponent({
     },
     async removeAdmin() {
       if (this.role === "ADMIN") {
-        const removeAdminResponse = await makeApiCallJson("/chat/admin", "DELETE", {
+        await makeApiCallJson("/chat/admin", "DELETE", {
           chatId: this.chatId,
           userId: this.user.id,
         });
       }
     },
     async refreshRole() {
-      const roleResponse = await makeApiCall("/chat/role/" + this.chatId + "/" + this.user.id);
-			if (roleResponse.ok) {
-        this.role = await roleResponse.text();
+      const roleResponse = await makeApiCall(
+        "/chat/role/" + this.chatId + "/" + this.user.id
+      );
+      if (roleResponse.ok) {
+        this.role = (await roleResponse.text()) as RoleType;
       }
     },
     observeUser() {
@@ -302,7 +310,10 @@ export default defineComponent({
   unmounted() {
     stopTrackingUserStatus(this.user.id, this.trackState);
     if (this.showChatOptions) {
-      useSocketStore().chat!.removeListener(`roleUpdate_${this.user.id}`, this.refreshRole);
+      useSocketStore().chat!.removeListener(
+        `roleUpdate_${this.user.id}`,
+        this.refreshRole
+      );
     }
   },
 });

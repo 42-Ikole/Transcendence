@@ -18,7 +18,18 @@ export const config: PostgresConnectionOptions = {
   port: 5432,
   username: 'root',
   password: 'root',
-  entities: [User, Match, TypeORMSession, Chat, Message, Friend, Avatar, Ban, Mute, Achievement, DirectMessage],
+  entities: [
+    User,
+    Match,
+    TypeORMSession,
+    Chat,
+    Message,
+    Friend,
+    Avatar,
+    Ban,
+    Mute,
+    Achievement,
+    DirectMessage,
+  ],
   synchronize: true,
 };
-

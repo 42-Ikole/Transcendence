@@ -59,7 +59,12 @@ export class SocketService {
     this.deleteSocket(userId);
   }
 
-  emitToUser(userId: number, socketType: SocketTypes, message: string, ...args: any[]) {
+  emitToUser(
+    userId: number,
+    socketType: SocketTypes,
+    message: string,
+    ...args: any[]
+  ) {
     if (!this.sockets[userId] || !this.sockets[userId][socketType]) {
       return;
     }

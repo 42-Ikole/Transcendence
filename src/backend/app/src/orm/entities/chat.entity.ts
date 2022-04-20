@@ -42,15 +42,15 @@ export class Chat {
   members: User[];
 
   @Column()
-	type: string;
-	
-	@ManyToMany(() => User, (user) => user.chatInvites)
-	@JoinTable()
-	invitedUsers: User[];
+  type: string;
 
-	@OneToMany(() => Ban, (ban: Ban) => ban.chatId)
-	bans: Ban[];
+  @ManyToMany(() => User, (user) => user.chatInvites)
+  @JoinTable()
+  invitedUsers: User[];
 
-	@OneToMany(() => Mute, (mute: Mute) => mute.chatId)
-	mutes: Mute[];
+  @OneToMany(() => Ban, (ban: Ban) => ban.chatId)
+  bans: Ban[];
+
+  @OneToMany(() => Mute, (mute: Mute) => mute.chatId)
+  mutes: Mute[];
 }

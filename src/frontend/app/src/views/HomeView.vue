@@ -10,10 +10,10 @@ import { useUserStore } from "@/stores/UserStore";
 import DirectMessageList from "../components/DirectMessage/DirectMessageList.vue";
 
 export default defineComponent({
-    name: "HomeView",
-    computed: {
-        ...mapState(useUserStore, ["profileData"]),
-    },
-    components: { DirectMessageList }
+  name: "HomeView",
+  computed: {
+    ...mapState(useUserStore, ["profileData"]),
+  },
+  components: { DirectMessageList },
 });
 </script>

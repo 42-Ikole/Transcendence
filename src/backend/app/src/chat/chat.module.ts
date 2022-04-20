@@ -13,7 +13,12 @@ import { Mute } from 'src/orm/entities/mute.entity';
 import { Ban } from 'src/orm/entities/ban.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Chat, Message, Ban, Mute, DirectMessage]), CookieModule, UserModule, FriendModule],
+  imports: [
+    TypeOrmModule.forFeature([Chat, Message, Ban, Mute, DirectMessage]),
+    CookieModule,
+    UserModule,
+    FriendModule,
+  ],
   exports: [ChatService],
   providers: [ChatService, ChatGateway],
   controllers: [ChatController],

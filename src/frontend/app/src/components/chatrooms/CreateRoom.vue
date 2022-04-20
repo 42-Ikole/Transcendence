@@ -49,7 +49,9 @@
         </div>
       </div>
       <div class="card-header justify-content-between">
-      <p class="text-primary fs-6 fst-italic">Valid characters are A-Z a-z 0-9 _ (can't begin with _ )</p>
+        <p class="text-primary fs-6 fst-italic">
+          Valid characters are A-Z a-z 0-9 _ (can't begin with _ )
+        </p>
         Room name:
         <input
           class="card-title col-8"
@@ -76,8 +78,12 @@
             </i>
           </button>
         </div>
-        <div class="text-danger" style="padding-bottom: 5px;" v-if="errorMessage !== ''">
-        {{ errorMessage }}
+        <div
+          class="text-danger"
+          style="padding-bottom: 5px"
+          v-if="errorMessage !== ''"
+        >
+          {{ errorMessage }}
         </div>
         <div>
           <input
@@ -132,15 +138,12 @@ export default defineComponent({
       console.log(response);
       if (response.ok) {
         this.$emit("roomCreated");
-      }
-      else {
+      } else {
         if (response.status === 406) {
           this.errorMessage = "Invalid room name!";
-        }
-        else if (response.status === 409) {
+        } else if (response.status === 409) {
           this.errorMessage = "Room name already exists!";
-        }
-        else if (response.status === 418) {
+        } else if (response.status === 418) {
           this.errorMessage = "I'm a teapot";
         }
       }
@@ -165,7 +168,7 @@ export default defineComponent({
       if (oldName !== newName) {
         this.errorMessage = "";
       }
-    }
+    },
   },
   computed: {
     invalidRoomInput() {

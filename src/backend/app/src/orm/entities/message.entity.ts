@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 import { Chat } from './chat.entity';
 import { DirectMessage } from './directmessage.entity';
@@ -12,12 +18,12 @@ export class Message {
   author: User;
 
   @ManyToOne(() => Chat, (chat) => chat.messages, {
-		onDelete: "CASCADE",
-	})
+    onDelete: 'CASCADE',
+  })
   chatRoom: Chat;
 
   @ManyToOne(() => DirectMessage, (dm) => dm.messages, {
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   directMessage: DirectMessage;
 

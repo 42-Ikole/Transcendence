@@ -66,16 +66,16 @@ export class User {
   ownedChats: Chat[]; // chats where user is an owner
 
   @ManyToMany(() => Chat, (chat) => chat.admins)
-	adminChats: Chat[]; // chats where user is an admin
-	
-	@ManyToMany(() => Chat, (chat) => chat.invitedUsers)
-	chatInvites: Chat[];
+  adminChats: Chat[]; // chats where user is an admin
 
-	@OneToMany(() => Ban, (ban: Ban) => ban.userId)
-	bans: Ban[];
+  @ManyToMany(() => Chat, (chat) => chat.invitedUsers)
+  chatInvites: Chat[];
 
-	@OneToMany(() => Mute, (mute: Mute) => mute.userId)
-	mutes: Mute[];
+  @OneToMany(() => Ban, (ban: Ban) => ban.userId)
+  bans: Ban[];
+
+  @OneToMany(() => Mute, (mute: Mute) => mute.userId)
+  mutes: Mute[];
   @OneToMany(() => DirectMessage, (dm) => dm.userOne)
   relatingDM: DirectMessage[];
 

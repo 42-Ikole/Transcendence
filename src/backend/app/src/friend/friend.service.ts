@@ -156,7 +156,7 @@ export class FriendService {
   }
 
   async haveBlockRelation(userOne: User, userTwo: User): Promise<boolean> {
-    const relation = new FriendDto(userOne.id, userTwo.id, "BLOCK");
+    const relation = new FriendDto(userOne.id, userTwo.id, 'BLOCK');
     const entity = await this.findFriendship(relation);
     return !!entity;
   }

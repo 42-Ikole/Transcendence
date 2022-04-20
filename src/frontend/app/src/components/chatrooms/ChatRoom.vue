@@ -11,7 +11,12 @@
           <div class="card-body" style="height: auto; overflow-y: scroll">
             <div class="flex-row justify-content-start">
               <div class="small" v-for="user in users" :key="user.username">
-                <ChatUserDropdown :user="user" :show-chat-options="true" :chatId="chat.id" :muted-users="mutedUsers" />
+                <ChatUserDropdown
+                  :user="user"
+                  :show-chat-options="true"
+                  :chatId="chat.id"
+                  :muted-users="mutedUsers"
+                />
               </div>
             </div>
           </div>
@@ -24,23 +29,51 @@
           >
             <h3 class="mb-0 cr-name">{{ this.chat.name }}</h3>
             <div class="btn-toolbar" role="toolbar">
-              <div class="btn-group me-2" role="group" v-if="(isAdmin || isOwner) && isPrivateChat">
+              <div
+                class="btn-group me-2"
+                role="group"
+                v-if="(isAdmin || isOwner) && isPrivateChat"
+              >
                 <div class="dropdown">
-                  <button class="btn btn-outline-success dropdown btn-lg" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" >
+                  <button
+                    class="btn btn-outline-success dropdown btn-lg"
+                    type="button"
+                    id="dropdownMenuButton"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
                     Invite
                   </button>
                   <ul class="dropdown-menu">
-                    <ChatInviteList :usersInChatArray="users" :chatId="chat.id" :bannedUsersArray="bannedUsers" />
+                    <ChatInviteList
+                      :usersInChatArray="users"
+                      :chatId="chat.id"
+                      :bannedUsersArray="bannedUsers"
+                    />
                   </ul>
                 </div>
               </div>
-              <div class="btn-group me-2" role="group" v-if="isAdmin || isOwner">
+              <div
+                class="btn-group me-2"
+                role="group"
+                v-if="isAdmin || isOwner"
+              >
                 <div class="dropdown">
-                  <button class="btn btn-outline-primary dropdown btn-lg" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" >
+                  <button
+                    class="btn btn-outline-primary dropdown btn-lg"
+                    type="button"
+                    id="dropdownMenuButton"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
                     Ban list
                   </button>
                   <ul class="dropdown-menu">
-                    <ChatBanList :chatId="chat.id" :banned-users="bannedUsers" :muted-users="mutedUsers" />
+                    <ChatBanList
+                      :chatId="chat.id"
+                      :banned-users="bannedUsers"
+                      :muted-users="mutedUsers"
+                    />
                   </ul>
                 </div>
               </div>
@@ -73,27 +106,48 @@
                 >
                   Leave chat
                 </button>
-                </div>
-                <div v-if="isOwner && chat.type !== 'private'">
-                  <IconChatGear type="button" data-bs-toggle="dropdown" @click="newPassword = ''" />
-                    <ul class="dropdown-menu" style="padding: 15px">
-                      <form @submit.prevent="changePassword">
-                      <div v-if="chat.type === 'protected'">
-                      <p class="text-dark">New password: </p>
-                      </div>
-                      <div v-else-if="chat.type === 'public'">
-                      <p class="text-dark">Add password: </p>
-                      </div>
-                        <input style="margin-bottom: 5px" class="col-lg-12" type="password" placeholder="Type password" v-model="newPassword" />
-                        <input :disabled="newPassword === ''" class="btn btn-secondary" type="submit" value="Change password" />
-                      </form>
-                      <div v-if="chat.type === 'protected'">
-                      <hr class="dropdown-divider" />
-                      <button style="padding-left: 11px; padding-right: 11px" type="button" class="btn btn-warning" data-mdb-ripple-color="dark" @click="removePassword">
-                        Remove password
-                      </button>
-                      </div>
-                    </ul>
+              </div>
+              <div v-if="isOwner && chat.type !== 'private'">
+                <IconChatGear
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  @click="newPassword = ''"
+                />
+                <ul class="dropdown-menu" style="padding: 15px">
+                  <form @submit.prevent="changePassword">
+                    <div v-if="chat.type === 'protected'">
+                      <p class="text-dark">New password:</p>
+                    </div>
+                    <div v-else-if="chat.type === 'public'">
+                      <p class="text-dark">Add password:</p>
+                    </div>
+                    <input
+                      style="margin-bottom: 5px"
+                      class="col-lg-12"
+                      type="password"
+                      placeholder="Type password"
+                      v-model="newPassword"
+                    />
+                    <input
+                      :disabled="newPassword === ''"
+                      class="btn btn-secondary"
+                      type="submit"
+                      value="Change password"
+                    />
+                  </form>
+                  <div v-if="chat.type === 'protected'">
+                    <hr class="dropdown-divider" />
+                    <button
+                      style="padding-left: 11px; padding-right: 11px"
+                      type="button"
+                      class="btn btn-warning"
+                      data-mdb-ripple-color="dark"
+                      @click="removePassword"
+                    >
+                      Remove password
+                    </button>
+                  </div>
+                </ul>
               </div>
             </div>
           </div>
@@ -116,7 +170,7 @@
             </div>
           </div>
           <div class="card-footer d-flex justify-content-start p-3">
-            <p v-if="isMuted" class="text-danger"> You are muted </p>
+            <p v-if="isMuted" class="text-danger">You are muted</p>
             <form class="input-group" @submit.prevent="sendMessage">
               <input
                 class="form-control form-control-lg"
@@ -162,7 +216,7 @@ import { mapState } from "pinia";
 import { Chat, SendChatMessage } from "./Chatrooms.types.ts";
 import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
 import ChatUserDropdown from "../ChatDropdown/ChatUserDropdown.vue";
-import { useChatStore} from "@/stores/ChatStore";
+import { useChatStore } from "@/stores/ChatStore";
 import ChatInviteList from "./ChatInviteList.vue";
 import ChatBanList from "./ChatBanList.vue";
 import { useFriendStore } from "@/stores/FriendStore";
@@ -235,7 +289,9 @@ export default defineComponent({
       this.socket.emit("leaveRoom", { roomName: this.chat.name });
     },
     async deleteRoom() {
-      const removeChatResponse = await makeApiCall("/chat/" + this.chat.id, { method: "DELETE" });
+      const removeChatResponse = await makeApiCall("/chat/" + this.chat.id, {
+        method: "DELETE",
+      });
       if (removeChatResponse.ok) {
         this.$emit("roomDeleted", this.chat.name);
         this.switchToRoomList();
@@ -272,32 +328,21 @@ export default defineComponent({
       return useFriendStore().isPartOfSet(user.id, "BLOCKED");
     },
     async changePassword() {
-      console.log("TYPE: " + this.chat.type);
-      if (this.chat.type === 'public') {
-        const addPasswordResponse = await makeApiCallJson("/chat/password", "POST", {
+      if (this.chat.type === "public") {
+        await makeApiCallJson("/chat/password", "POST", {
           chatId: this.chat.id,
           password: this.newPassword,
         });
-        if (addPasswordResponse.ok) {
-          this.chat.type = 'protected';
-          console.log("password toegevoegd");
-        }
-      } else if (this.chat.type === 'protected') {
-        const changePasswordResponse = await makeApiCallJson("/chat/password", "PATCH", {
+      } else if (this.chat.type === "protected") {
+        await makeApiCallJson("/chat/password", "PATCH", {
           chatId: this.chat.id,
           password: this.newPassword,
         });
-        if (changePasswordResponse.ok) {
-          console.log("password veranderd");
-        }
       }
-      this.newPassword = '';
+      this.newPassword = "";
     },
     async removePassword() {
-      const removePasswordResponse = await makeApiCall("chat/password/" + this.chat.id, { method: "DELETE" });
-      if (removePasswordResponse.ok) {
-        this.chat.type = 'public';
-      }
+      await makeApiCall("chat/password/" + this.chat.id, { method: "DELETE" });
     },
     userIsMuted() {
       this.isMuted = true;
@@ -346,7 +391,10 @@ export default defineComponent({
   unmounted() {
     if (this.hasAdminRights) {
       this.socket!.emit("unsubscribeBanMuteUpdate", { id: this.chat.id });
-      this.socket!.removeListener(`banMuteUpdate_${this.chat.id}`, this.refreshMuteBans);
+      this.socket!.removeListener(
+        `banMuteUpdate_${this.chat.id}`,
+        this.refreshMuteBans
+      );
     }
     this.socket!.emit("unsubscribeToChat", { roomName: this.chat.name });
     this.socket!.removeListener("subscribeToChatSuccess", this.refreshChat);

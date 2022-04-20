@@ -22,31 +22,31 @@ import type { Message } from "./DirectMessage.types";
 import DisplayMessage from "./DisplayMessage.vue";
 
 export default defineComponent({
-    props: {
-        messages: {
-            type: Object as PropType<Message[]>,
-            required: true,
-        },
+  props: {
+    messages: {
+      type: Object as PropType<Message[]>,
+      required: true,
     },
-    watch: {
-      messages: {
-        deep: true,
-        handler() {
-          this.$nextTick(() => {
-            this.scrollBottom();
-          });
-        },
+  },
+  watch: {
+    messages: {
+      deep: true,
+      handler() {
+        this.$nextTick(() => {
+          this.scrollBottom();
+        });
       },
     },
-    methods: {
-      scrollBottom() {
-        const autoScroll = this.$el.querySelector("#autoScrollBottom");
-        autoScroll.scrollTop = autoScroll.scrollHeight;
-      }
+  },
+  methods: {
+    scrollBottom() {
+      const autoScroll = this.$el.querySelector("#autoScrollBottom");
+      autoScroll.scrollTop = autoScroll.scrollHeight;
     },
-    mounted() {
-      this.scrollBottom();
-    },
-    components: { DisplayMessage }
+  },
+  mounted() {
+    this.scrollBottom();
+  },
+  components: { DisplayMessage },
 });
 </script>

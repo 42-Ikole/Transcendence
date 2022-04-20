@@ -76,12 +76,14 @@ export class UserService {
       throw new NotFoundException();
     }
     return this.avatarService.getAvatarById(user.avatarId);
-	}
+  }
 
-	async getInvites(id: number) {
-		const user = await this.userRepository.findOne(id, { relations: ['chatInvites'] });
-		return user.chatInvites;
-	}
+  async getInvites(id: number) {
+    const user = await this.userRepository.findOne(id, {
+      relations: ['chatInvites'],
+    });
+    return user.chatInvites;
+  }
 
   ////////////
   // Update //

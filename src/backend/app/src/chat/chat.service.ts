@@ -23,9 +23,8 @@ import { UserService } from 'src/user/user.service';
 import { SocketService } from 'src/websocket/socket.service';
 import { Ban } from 'src/orm/entities/ban.entity';
 import { Mute } from 'src/orm/entities/mute.entity';
-import * as bcrypt from "bcrypt";
+import * as bcrypt from 'bcrypt';
 import { DirectMessage } from 'src/orm/entities/directmessage.entity';
-import { WsException } from '@nestjs/websockets';
 import { FriendService } from 'src/friend/friend.service';
 
 @Injectable()
@@ -33,12 +32,13 @@ export class ChatService {
   constructor(
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
     @InjectRepository(Message) private messageRepository: Repository<Message>,
-    @InjectRepository(DirectMessage) private directMessageRepository: Repository<DirectMessage>,
+    @InjectRepository(DirectMessage)
+    private directMessageRepository: Repository<DirectMessage>,
     @InjectRepository(Ban) private banRepository: Repository<Ban>,
     @InjectRepository(Mute) private muteRepository: Repository<Mute>,
     private userService: UserService,
     private socketService: SocketService,
-		private friendService: FriendService,
+    private friendService: FriendService,
   ) {}
 
   async findAll(user: User): Promise<AllChatsDto> {
@@ -60,7 +60,10 @@ export class ChatService {
     return allChats;
   }
 
-  async matchPassword(roomName: string, plainTextPassword: string): Promise<boolean> {
+  async matchPassword(
+    roomName: string,
+    plainTextPassword: string,
+  ): Promise<boolean> {
     const chat = await this.chatRepository.findOne({
       select: ['password', 'type'],
       where: [{ name: roomName }],
@@ -71,10 +74,7 @@ export class ChatService {
     if (chat.type !== 'protected') {
       return true;
     }
-    return await bcrypt.compare(
-      plainTextPassword,
-      chat.password,
-    );
+    return await bcrypt.compare(plainTextPassword, chat.password);
   }
 
   async findByName(name: string, relations = []): Promise<Chat> {
@@ -87,14 +87,14 @@ export class ChatService {
   async findByNameOrFail(name: string, relations = []): Promise<Chat> {
     const chat: Chat = await this.findByName(name, relations);
     if (chat === undefined) {
-      throw new NotFoundException()
+      throw new NotFoundException();
     }
     return chat;
   }
 
   async findById(id: number, relations = []): Promise<Chat> {
     const chat: Chat = await this.chatRepository.findOne({
-      where: [{id: id}],
+      where: [{ id: id }],
       relations: relations,
     });
     if (chat === undefined) {
@@ -121,7 +121,7 @@ export class ChatService {
     const chat: Chat = this.chatRepository.create(param);
     await this.chatRepository.save(chat);
     // Broadcast that a new room has been created.
-    this.socketService.chatServer.emit('roomCreated', {room: chat});
+    this.socketService.chatServer.emit('roomCreated', { room: chat });
     return chat;
   }
 
@@ -135,12 +135,16 @@ export class ChatService {
     // Remove the chat.
     await this.chatRepository.remove(chat);
     // Broadcast to everyone in the room that it has been deleted.
-    this.socketService.chatServer.emit('roomDeleted', {room: chat});
+    this.socketService.chatServer.emit('roomDeleted', { room: chat });
     this.socketService.chatServer.emit('chatInviteUpdate');
     return chat;
   }
 
-  async addPassword(requestingUser: User, chatId: number, plainTextPassword: string): Promise<Chat> {
+  async addPassword(
+    requestingUser: User,
+    chatId: number,
+    plainTextPassword: string,
+  ): Promise<Chat> {
     // Get the chat.
     const chat: Chat = await this.findById(chatId, ['owner']);
     if (chat === undefined) {
@@ -159,11 +163,15 @@ export class ChatService {
     const hashedPassword = await bcrypt.hash(plainTextPassword, 10);
     chat.password = hashedPassword;
     const result = await this.chatRepository.save(chat);
-    this.socketService.chatServer.emit("roomsUpdate");
+    this.socketService.chatServer.emit('roomsUpdate');
     return result;
   }
-  
-  async changePassword(requestingUser: User, chatId: number, plainTextPassword: string): Promise<Chat> {
+
+  async changePassword(
+    requestingUser: User,
+    chatId: number,
+    plainTextPassword: string,
+  ): Promise<Chat> {
     // Get the chat.
     const chat: Chat = await this.findById(chatId, ['owner']);
     if (chat === undefined) {
@@ -181,7 +189,7 @@ export class ChatService {
     const hashedPassword = await bcrypt.hash(plainTextPassword, 10);
     chat.password = hashedPassword;
     const result = await this.chatRepository.save(chat);
-    this.socketService.chatServer.emit("roomsUpdate");
+    this.socketService.chatServer.emit('roomsUpdate');
     return result;
   }
 
@@ -203,7 +211,7 @@ export class ChatService {
     chat.password = '';
     chat.type = 'public';
     const result = await this.chatRepository.save(chat);
-    this.socketService.chatServer.emit("roomsUpdate");
+    this.socketService.chatServer.emit('roomsUpdate');
     return result;
   }
 
@@ -305,20 +313,24 @@ export class ChatService {
 
   async userRoleInChat(chatId: number, userId: number): Promise<string> {
     // Get the chat.
-    const chat: Chat = await this.findById(chatId, ['members', 'admins', 'owner']);
+    const chat: Chat = await this.findById(chatId, [
+      'members',
+      'admins',
+      'owner',
+    ]);
     // Get the user.
     const user: User = await this.userService.findById(userId);
     if (chat.owner.id === user.id) {
-      return "OWNER";
+      return 'OWNER';
     }
     for (const admin of chat.admins) {
       if (admin.id === user.id) {
-        return "ADMIN";
+        return 'ADMIN';
       }
     }
     for (const member of chat.members) {
       if (member.id === user.id) {
-        return "MEMBER";
+        return 'MEMBER';
       }
     }
     // User wasn't found, so throw a 404.
@@ -335,7 +347,13 @@ export class ChatService {
       return;
     }
     // Get the chat.
-    const chat: Chat = await this.findById(chatId, ['members', 'admins', 'owner', 'invitedUsers', 'bans']);
+    const chat: Chat = await this.findById(chatId, [
+      'members',
+      'admins',
+      'owner',
+      'invitedUsers',
+      'bans',
+    ]);
     // Check if the chat is private.
     if (chat.type !== 'private') {
       return;
@@ -355,13 +373,17 @@ export class ChatService {
     }
     // Check if the user was not already invited.
     if (this.userIsInvited(user, chat)) {
-      return ;
+      return;
     }
     // Invite the user.
     chat.invitedUsers.push(user);
     await this.chatRepository.save(chat);
     // Emit the event to both invited user and inviting user.
-    this.socketService.emitToUser(requestingUser.id, 'chatroom', 'chatRoleUpdate');
+    this.socketService.emitToUser(
+      requestingUser.id,
+      'chatroom',
+      'chatRoleUpdate',
+    );
     this.socketService.emitToUser(user.id, 'chatroom', 'chatRoleUpdate');
     this.socketService.emitToUser(user.id, 'chatroom', 'chatInviteUpdate');
     this.broadcastInviteUpdate(chat.id);
@@ -377,7 +399,12 @@ export class ChatService {
       return;
     }
     // Get the chat.
-    const chat: Chat = await this.findById(chatId, ['members', 'admins', 'owner', 'invitedUsers']);
+    const chat: Chat = await this.findById(chatId, [
+      'members',
+      'admins',
+      'owner',
+      'invitedUsers',
+    ]);
     // Check if the chat is private.
     if (chat.type !== 'private') {
       return;
@@ -396,16 +423,17 @@ export class ChatService {
     chat.invitedUsers = chat.invitedUsers.filter((item) => item.id != user.id);
     await this.chatRepository.save(chat);
     // Emit the event to both invited user and uninviting user.
-    this.socketService.emitToUser(requestingUser.id, 'chatroom', 'chatRoleUpdate');
+    this.socketService.emitToUser(
+      requestingUser.id,
+      'chatroom',
+      'chatRoleUpdate',
+    );
     this.socketService.emitToUser(user.id, 'chatroom', 'chatRoleUpdate');
     this.socketService.emitToUser(user.id, 'chatroom', 'chatInviteUpdate');
     this.broadcastInviteUpdate(chat.id);
   }
 
-  async acceptInvite(
-    requestingUser: User,
-    chatId: number,
-  ): Promise<void> {
+  async acceptInvite(requestingUser: User, chatId: number): Promise<void> {
     // Get the chat.
     const chat: Chat = await this.findById(chatId, ['invitedUsers', 'members']);
     // Check if this user is invited.
@@ -413,19 +441,24 @@ export class ChatService {
       throw new NotFoundException();
     }
     // Remove from invitedUsers, add to members.
-    chat.invitedUsers = chat.invitedUsers.filter((item) => item.id != requestingUser.id);
+    chat.invitedUsers = chat.invitedUsers.filter(
+      (item) => item.id != requestingUser.id,
+    );
     chat.members.push(requestingUser);
     await this.chatRepository.save(chat);
     // Broadcast.
-    this.socketService.chatServer.to(chat.name).emit('userJoinedRoom', { chatName: chat.name, user: requestingUser });
-    this.socketService.emitToUser(requestingUser.id, 'chatroom', 'chatInviteUpdate');
+    this.socketService.chatServer
+      .to(chat.name)
+      .emit('userJoinedRoom', { chatName: chat.name, user: requestingUser });
+    this.socketService.emitToUser(
+      requestingUser.id,
+      'chatroom',
+      'chatInviteUpdate',
+    );
     this.broadcastInviteUpdate(chat.id);
   }
 
-  async declineInvite(
-    requestingUser: User,
-    chatId: number,
-  ): Promise<void> {
+  async declineInvite(requestingUser: User, chatId: number): Promise<void> {
     // Get the chat.
     const chat: Chat = await this.findById(chatId, ['invitedUsers']);
     // Check if this user is invited.
@@ -433,57 +466,64 @@ export class ChatService {
       throw new NotFoundException();
     }
     // Remove from the invitedUsers.
-    chat.invitedUsers = chat.invitedUsers.filter((item) => item.id != requestingUser.id);
+    chat.invitedUsers = chat.invitedUsers.filter(
+      (item) => item.id != requestingUser.id,
+    );
     await this.chatRepository.save(chat);
-    this.socketService.emitToUser(requestingUser.id, 'chatroom', 'chatInviteUpdate');
+    this.socketService.emitToUser(
+      requestingUser.id,
+      'chatroom',
+      'chatInviteUpdate',
+    );
   }
 
-  async getUserInvites(
-    requestingUser: User,
-  ): Promise<Chat[]> {
+  async getUserInvites(requestingUser: User): Promise<Chat[]> {
     // Get the invites through the user service.
     return await this.userService.getInvites(requestingUser.id);
   }
 
-  async getChatInvites(
-    requestingUser: User,
-    chatId: number,
-  ): Promise<User[]> {
+  async getChatInvites(requestingUser: User, chatId: number): Promise<User[]> {
     // Get the invites for a particular chat.
-    const chat: Chat = await this.findById(chatId, ['invitedUsers', 'admins', 'owner']);
+    const chat: Chat = await this.findById(chatId, [
+      'invitedUsers',
+      'admins',
+      'owner',
+    ]);
     if (!this.userHasAdminPrivilege(requestingUser, chat)) {
       throw new UnauthorizedException();
     }
     return chat.invitedUsers;
   }
 
-  async getChatUninvites(
-    requestingUser: User,
-  ): Promise<Chat[]> {
-    let returnChats: Chat[] = [];
+  async getChatUninvites(requestingUser: User): Promise<Chat[]> {
+    const returnChats: Chat[] = [];
     // Get all the chats where this user is owner or admin.
     const userChats: User = await this.userService.findById(requestingUser.id, {
       relations: ['adminChats', 'ownedChats'],
     });
-    const chats: Chat[] = userChats.ownedChats.concat(userChats.adminChats).filter((item) => item.type === 'private');
+    const chats: Chat[] = userChats.ownedChats
+      .concat(userChats.adminChats)
+      .filter((item) => item.type === 'private');
     // Cycle through the chats and find the invited users for those chats.
-    for (let adminChat of chats) {
+    for (const adminChat of chats) {
       const chat: Chat = await this.findById(adminChat.id, ['invitedUsers']);
       returnChats.push(chat);
     }
     return returnChats;
   }
 
-  async banUser(
-    requestingUser: User,
-    banInfo: ChatActionDto,
-  ): Promise<void> {
+  async banUser(requestingUser: User, banInfo: ChatActionDto): Promise<void> {
     // Is the user banning themselves?
     if (requestingUser.id === banInfo.userId) {
-      return ;
+      return;
     }
     // Get the chat.
-    const chat: Chat = await this.findById(banInfo.chatId, ['admins', 'owner', 'members', 'bans']);
+    const chat: Chat = await this.findById(banInfo.chatId, [
+      'admins',
+      'owner',
+      'members',
+      'bans',
+    ]);
     // Get the user.
     const user: User = await this.userService.findById(banInfo.userId);
     // Check if the requesting user can ban the target user.
@@ -493,7 +533,7 @@ export class ChatService {
     const expirationDate = this.getExpirationDate();
     // See if the user is already banned, if so, update it. Else, create it.
     if (await this.userIsBanned(user, chat)) {
-      let ban: Ban = chat.bans.filter((item) => item.userId === user.id)[0];
+      const ban: Ban = chat.bans.filter((item) => item.userId === user.id)[0];
       ban.expirationDate = expirationDate;
       await this.banRepository.update(ban, ban);
     } else {
@@ -506,7 +546,7 @@ export class ChatService {
     // broadcast the update
     this.broadcastBanMuteUpdate(banInfo.chatId);
     // if the user is a member, remove it as a member
-    const chatTwo = await this.findById(chat.id, ["members", "admins"]);
+    const chatTwo = await this.findById(chat.id, ['members', 'admins']);
     await this.userLeavesRoom(user, chatTwo);
   }
 
@@ -517,10 +557,15 @@ export class ChatService {
   ): Promise<void> {
     // Are we unbanning ourselves?
     if (requestingUser.id === userId) {
-      return ;
+      return;
     }
     // Get the chat.
-    const chat: Chat = await this.findById(chatId, ['admins', 'owner', 'members', 'bans']);
+    const chat: Chat = await this.findById(chatId, [
+      'admins',
+      'owner',
+      'members',
+      'bans',
+    ]);
     // Get the user.
     const user: User = await this.userService.findById(userId);
     // Check if the requesting user has the right permissions.
@@ -535,16 +580,18 @@ export class ChatService {
     this.removeBan(chatId, ban);
   }
 
-  async muteUser(
-    requestingUser: User,
-    muteInfo: ChatActionDto,
-  ): Promise<void> {
+  async muteUser(requestingUser: User, muteInfo: ChatActionDto): Promise<void> {
     // Is the user muting themselves?
     if (requestingUser.id === muteInfo.userId) {
-      return ;
+      return;
     }
     // Get the chat.
-    const chat: Chat = await this.findById(muteInfo.chatId, ['owner', 'admins', 'members', 'mutes']);
+    const chat: Chat = await this.findById(muteInfo.chatId, [
+      'owner',
+      'admins',
+      'members',
+      'mutes',
+    ]);
     // Get the user.
     const user: User = await this.userService.findById(muteInfo.userId);
     // Check if the requesting user can mute the target user.
@@ -554,7 +601,9 @@ export class ChatService {
     const expirationDate = this.getExpirationDate();
     // See if the user is already muted, if so, update it. Else, create it.
     if (await this.userIsMuted(user, chat)) {
-      let mute: Mute = chat.mutes.filter((item) => item.userId === user.id)[0];
+      const mute: Mute = chat.mutes.filter(
+        (item) => item.userId === user.id,
+      )[0];
       mute.expirationDate = expirationDate;
       await this.muteRepository.update(mute, mute);
     } else {
@@ -574,10 +623,15 @@ export class ChatService {
   ): Promise<void> {
     // Are we unmuting ourselves?
     if (requestingUser.id === userId) {
-      return ;
+      return;
     }
     // Get the chat.
-    const chat: Chat = await this.findById(chatId, ['admins', 'owner', 'members', 'mutes']);
+    const chat: Chat = await this.findById(chatId, [
+      'admins',
+      'owner',
+      'members',
+      'mutes',
+    ]);
     // Get the user.
     const user: User = await this.userService.findById(userId);
     // Check if the requesting user has the right permissions.
@@ -593,17 +647,17 @@ export class ChatService {
     this.removeMute(chatId, mute);
   }
 
-  async kickUser(
-    requestingUser: User,
-    chatId: number,
-    userId: number,
-  ) {
+  async kickUser(requestingUser: User, chatId: number, userId: number) {
     // Are we kicking ourselves?
     if (requestingUser.id === userId) {
-      return ;
+      return;
     }
     // Get the chat.
-    const chat: Chat = await this.findById(chatId, ['admins', 'owner', 'members']);
+    const chat: Chat = await this.findById(chatId, [
+      'admins',
+      'owner',
+      'members',
+    ]);
     // Get the user.
     const user: User = await this.userService.findById(userId);
     // Check if the requesting user has the right permissions.
@@ -614,10 +668,7 @@ export class ChatService {
     this.userLeavesRoom(user, chat);
   }
 
-  async getBannedUsers(
-    requestingUser: User,
-    chatId: number,
-  ): Promise<User[]> {
+  async getBannedUsers(requestingUser: User, chatId: number): Promise<User[]> {
     // Get the chat.
     const chat: Chat = await this.findById(chatId, ['owner', 'admins', 'bans']);
     // Check if the requesting user has the right permissions.
@@ -625,38 +676,37 @@ export class ChatService {
       throw new UnauthorizedException();
     }
     // Get a list of the banned users.
-    let userList: User[] = [];
+    const userList: User[] = [];
     for (const ban of chat.bans) {
-			if (! (await this.IsBanExpired(ban))) {
-				userList.push(await this.userService.findById(ban.userId));
-			}
+      if (!(await this.IsBanExpired(ban))) {
+        userList.push(await this.userService.findById(ban.userId));
+      }
     }
     return userList;
   }
 
-  async getMutedUsers(
-    requestingUser: User,
-    chatId: number,
-  ): Promise<User[]> {
+  async getMutedUsers(requestingUser: User, chatId: number): Promise<User[]> {
     // Get the chat.
-    const chat: Chat = await this.findById(chatId, ['owner', 'admins', 'mutes']);
+    const chat: Chat = await this.findById(chatId, [
+      'owner',
+      'admins',
+      'mutes',
+    ]);
     // Check if the requesting user has the right permissions.
     if (!this.userHasAdminPrivilege(requestingUser, chat)) {
       throw new UnauthorizedException();
     }
     // Get a list of the muted users.
-    let userList: User[] = [];
+    const userList: User[] = [];
     for (const mute of chat.mutes) {
-			if (!(await this.IsMuteExpired(mute))) {
-				userList.push(await this.userService.findById(mute.userId));
-			}
+      if (!(await this.IsMuteExpired(mute))) {
+        userList.push(await this.userService.findById(mute.userId));
+      }
     }
     return userList;
   }
 
-  async IsBanExpired(
-    ban: Ban,
-  ): Promise<boolean> {
+  async IsBanExpired(ban: Ban): Promise<boolean> {
     // Check if the ban expiration date has passed.
     const currentTime: Date = new Date();
     if (ban.expirationDate > currentTime) {
@@ -667,9 +717,7 @@ export class ChatService {
     return true;
   }
 
-  async IsMuteExpired(
-    mute: Mute,
-  ): Promise<boolean> {
+  async IsMuteExpired(mute: Mute): Promise<boolean> {
     // Check if the mute expiration date has passed.
     const currentTime: Date = new Date();
     if (mute.expirationDate > currentTime) {
@@ -689,7 +737,7 @@ export class ChatService {
     }
     return false;
   }
-  
+
   userIsInvited(user: User, chat: Chat): boolean {
     // Look through the invitedUsers and see if the user is in there.
     for (const invitedUser of chat.invitedUsers) {
@@ -765,7 +813,7 @@ export class ChatService {
   broadcastRoleUpdate(chatName: string, userId: number): void {
     // Do 2 emits:
     // 1. roleUpdate. To the user that was promoted.
-    this.socketService.emitToUser(userId, 'chatroom', 'roleUpdate')
+    this.socketService.emitToUser(userId, 'chatroom', 'roleUpdate');
     // 2. roleUpdate_{id}. To all users in the chat room where it happened.
     this.socketService.chatServer.to(chatName).emit('roleUpdate_' + userId);
   }
@@ -784,9 +832,9 @@ export class ChatService {
 
   private async removeMute(chatId: number, mute: Mute) {
     const userId = mute.userId;
-    console.log("Unmute:", userId);
+    console.log('Unmute:', userId);
     await this.muteRepository.remove(mute);
-    this.socketService.emitToUser(userId, "chatroom", "userIsUnMuted");
+    this.socketService.emitToUser(userId, 'chatroom', 'userIsUnMuted');
     this.broadcastBanMuteUpdate(chatId);
   }
 
@@ -801,9 +849,10 @@ export class ChatService {
   }
 
   broadcastLeaveRoom(client: User, chatName: string) {
-    this.socketService.emitToUser(client.id, "chatroom", "leaveRoomSuccess");
+    this.socketService.emitToUser(client.id, 'chatroom', 'leaveRoomSuccess');
     this.socketService.chatServer.to(chatName).emit('userLeftRoom', {
-      chatName: chatName, user: client,
+      chatName: chatName,
+      user: client,
     });
   }
 
@@ -813,91 +862,103 @@ export class ChatService {
       return true;
     }
     // requesting user is admin and other user is a regular user
-    return this.userHasAdminPrivilege(requestingUser, chat) && !this.userHasAdminPrivilege(targetUser, chat);
+    return (
+      this.userHasAdminPrivilege(requestingUser, chat) &&
+      !this.userHasAdminPrivilege(targetUser, chat)
+    );
   }
 
-	async createDirectMessage(userOne: User, userTwoId: number): Promise<DirectMessage> {
-		const userTwo = await this.userService.findById(userTwoId); // throws NOT_FOUND
-		const dm = await this.findDirectMessageByUsers(userOne, userTwo);
-		if (dm) {
-			return dm;
-		}
-		const entity = this.directMessageRepository.create({
-			userOne, userTwo,
-		});
-		await this.directMessageRepository.save(entity);
-		this.socketService.emitToUser(userOne.id, "chatroom", "dmCreated");
-		this.socketService.emitToUser(userTwo.id, "chatroom", "dmCreated");
-		return entity;
-	}
+  async createDirectMessage(
+    userOne: User,
+    userTwoId: number,
+  ): Promise<DirectMessage> {
+    const userTwo = await this.userService.findById(userTwoId); // throws NOT_FOUND
+    const dm = await this.findDirectMessageByUsers(userOne, userTwo);
+    if (dm) {
+      return dm;
+    }
+    const entity = this.directMessageRepository.create({
+      userOne,
+      userTwo,
+    });
+    await this.directMessageRepository.save(entity);
+    this.socketService.emitToUser(userOne.id, 'chatroom', 'dmCreated');
+    this.socketService.emitToUser(userTwo.id, 'chatroom', 'dmCreated');
+    return entity;
+  }
 
-	async findDirectMessageByUsers(userOne: User, userTwo: User) {
-		const dm = await this.directMessageRepository.findOne({
-			where: [
-				{ userOne: userOne, userTwo: userTwo },
-				{ userOne: userTwo, userTwo: userOne},
-			]
-		});
-		return dm;
-	}
+  async findDirectMessageByUsers(userOne: User, userTwo: User) {
+    const dm = await this.directMessageRepository.findOne({
+      where: [
+        { userOne: userOne, userTwo: userTwo },
+        { userOne: userTwo, userTwo: userOne },
+      ],
+    });
+    return dm;
+  }
 
-	async findDirectMessageById(id: number, options?: FindOneOptions<DirectMessage>) {
-		const dm = await this.directMessageRepository.findOne(id, options);
-		if (!dm) {
-			throw new NotFoundException();
-		}
-		return dm;
-	}
+  async findDirectMessageById(
+    id: number,
+    options?: FindOneOptions<DirectMessage>,
+  ) {
+    const dm = await this.directMessageRepository.findOne(id, options);
+    if (!dm) {
+      throw new NotFoundException();
+    }
+    return dm;
+  }
 
-	async findDirectMessages(user: User, options?: FindManyOptions<DirectMessage>) {
-		options.where = [
-			{ userOne: user },
-			{ userTwo: user },
-		];
-		const dm = await this.directMessageRepository.find(options);
-		if (!dm) {
-			throw new NotFoundException();
-		}
-		return dm;
-	}
+  async findDirectMessages(
+    user: User,
+    options?: FindManyOptions<DirectMessage>,
+  ) {
+    options.where = [{ userOne: user }, { userTwo: user }];
+    const dm = await this.directMessageRepository.find(options);
+    if (!dm) {
+      throw new NotFoundException();
+    }
+    return dm;
+  }
 
-	async findAllDirectMessages() {
-		return await this.directMessageRepository.find({
-			relations: ["userOne", "userTwo", "messages"]
-		});
-	}
+  async findAllDirectMessages() {
+    return await this.directMessageRepository.find({
+      relations: ['userOne', 'userTwo', 'messages'],
+    });
+  }
 
-	async authorizeDirectMessage(user: User, id: number) {
-		const dm = await this.directMessageRepository.findOne(id, { relations: ["userOne", "userTwo"] });
-		if (!dm) {
-			throw new NotFoundException();
-		}
-		return user.id === dm.userOne.id || user.id === dm.userTwo.id;
-	}
+  async authorizeDirectMessage(user: User, id: number) {
+    const dm = await this.directMessageRepository.findOne(id, {
+      relations: ['userOne', 'userTwo'],
+    });
+    if (!dm) {
+      throw new NotFoundException();
+    }
+    return user.id === dm.userOne.id || user.id === dm.userTwo.id;
+  }
 
-	async validateUserDM(userId: number, directMessageId: number) {
-		const dm = await this.findDirectMessageById(directMessageId, {
-			relations: ["userOne", "userTwo"],
-		});
-		if (dm.userOne.id !== userId && dm.userTwo.id !== userId) {
-			throw new UnauthorizedException();
-		}
-		return dm;
-	}
+  async validateUserDM(userId: number, directMessageId: number) {
+    const dm = await this.findDirectMessageById(directMessageId, {
+      relations: ['userOne', 'userTwo'],
+    });
+    if (dm.userOne.id !== userId && dm.userTwo.id !== userId) {
+      throw new UnauthorizedException();
+    }
+    return dm;
+  }
 
-	async addMessageDM(authorId: number, data: DirectMessageDto) {
-		const dm = await this.validateUserDM(authorId, data.id);
-		const user = await this.userService.findById(authorId);
-		const entity = this.messageRepository.create({
-			author: user,
-			directMessage: dm,
-			message: data.message,
-		});
-		if (await this.friendService.haveBlockRelation(dm.userOne, dm.userTwo)) {
-			throw new UnauthorizedException();
-		}
-		await this.messageRepository.save(entity);
-		delete entity.directMessage;
-		return entity;
-	}
+  async addMessageDM(authorId: number, data: DirectMessageDto) {
+    const dm = await this.validateUserDM(authorId, data.id);
+    const user = await this.userService.findById(authorId);
+    const entity = this.messageRepository.create({
+      author: user,
+      directMessage: dm,
+      message: data.message,
+    });
+    if (await this.friendService.haveBlockRelation(dm.userOne, dm.userTwo)) {
+      throw new UnauthorizedException();
+    }
+    await this.messageRepository.save(entity);
+    delete entity.directMessage;
+    return entity;
+  }
 }

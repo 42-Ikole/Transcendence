@@ -84,7 +84,7 @@ export class UserController {
   @Get('chat/owned')
   async findOwnedChats(@Req() request: RequestWithUser) {
     const user = await this.userService.findById(request.user.id, {
-      relations: ['ownedChats']
+      relations: ['ownedChats'],
     });
     return user.ownedChats;
   }
@@ -92,7 +92,7 @@ export class UserController {
   @Get('chat/admin')
   async findAdminChats(@Req() request: RequestWithUser) {
     const user = await this.userService.findById(request.user.id, {
-      relations: ['adminChats']
+      relations: ['adminChats'],
     });
     return user.adminChats;
   }
