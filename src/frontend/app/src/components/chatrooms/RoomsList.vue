@@ -84,7 +84,7 @@ import CreateRoom from "./CreateRoom.vue";
 import Chatroom from "./ChatRoom.vue";
 import { defineComponent } from "vue";
 import { makeApiCall } from "@/utils/ApiCall";
-import { Chat, AllChats } from "./Chatrooms.types.ts";
+import type { Chat, AllChats } from "./Chatrooms.types";
 import { useSocketStore } from "@/stores/SocketStore";
 import { mapState } from "pinia";
 import ChatLockIcon from "../icons/IconChatLock.vue";
@@ -206,18 +206,20 @@ export default defineComponent({
   },
   async mounted() {
     await this.getAllChats();
-    this.socket.on("joinRoomSuccess", this.joinRoomSuccessfully);
-    this.socket.on("joinRoomFailure", this.joinRoomFailedPassword);
-    this.socket.on("roomCreated", this.refreshChatList);
-    this.socket.on("roomDeleted", this.refreshChatList);
-    this.socket.on("joinRoomBanned", this.joinRoomFailedBanned);
+    this.socket!.on("joinRoomSuccess", this.joinRoomSuccessfully);
+    this.socket!.on("joinRoomFailure", this.joinRoomFailedPassword);
+    this.socket!.on("roomCreated", this.refreshChatList);
+    this.socket!.on("roomDeleted", this.refreshChatList);
+    this.socket!.on("joinRoomBanned", this.joinRoomFailedBanned);
+    this.socket!.on("roomsUpdate", this.refreshChatList);
   },
   unmounted() {
-    this.socket.removeListener("joinRoomSuccess", this.joinRoomSuccessfully);
-    this.socket.removeListener("joinRoomFailure", this.joinRoomFailedPassword);
-    this.socket.removeListener("roomCreated", this.refreshChatList);
-    this.socket.removeListener("roomDeleted", this.refreshChatList);
-    this.socket.removeListener("joinRoomBanned", this.joinRoomFailedBanned);
+    this.socket!.removeListener("joinRoomSuccess", this.joinRoomSuccessfully);
+    this.socket!.removeListener("joinRoomFailure", this.joinRoomFailedPassword);
+    this.socket!.removeListener("roomCreated", this.refreshChatList);
+    this.socket!.removeListener("roomDeleted", this.refreshChatList);
+    this.socket!.removeListener("joinRoomBanned", this.joinRoomFailedBanned);
+    this.socket!.removeListener("roomsUpdate", this.refreshChatList);
   },
   watch: {
     selectedChatName(newRoom, oldRoom) {
