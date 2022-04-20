@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository } from 'typeorm';
+import { Repository, FindOneOptions } from 'typeorm';
 import { User, PartialUser } from 'src/orm/entities/user.entity';
 import { IntraUser } from 'src/user/user.interface';
 import { AvatarService } from 'src/avatar/avatar.service';
@@ -76,6 +76,13 @@ export class UserService {
       throw new NotFoundException();
     }
     return this.avatarService.getAvatarById(user.avatarId);
+  }
+
+  async getInvites(id: number) {
+    const user = await this.userRepository.findOne(id, {
+      relations: ['chatInvites'],
+    });
+    return user.chatInvites;
   }
 
   ////////////

@@ -36,9 +36,6 @@ export const useSocketStore = defineStore("socket", {
     },
     initPongSocket() {
       this.pong = io(PONG_WS_ADDR, { withCredentials: true });
-      this.pong.on("exception", (error: string) => {
-        console.error("Received Exception:", error);
-      });
     },
     initChatSocket() {
       this.chat = io(CHAT_WS_ADDR, {

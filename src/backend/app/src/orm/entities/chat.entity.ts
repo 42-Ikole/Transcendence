@@ -10,6 +10,8 @@ import {
 import { User } from './user.entity';
 import { Message } from './message.entity';
 import { Exclude } from 'class-transformer';
+import { Ban } from './ban.entity';
+import { Mute } from './mute.entity';
 
 @Entity()
 export class Chat {
@@ -19,10 +21,10 @@ export class Chat {
   @Column({ unique: true })
   name: string;
 
-  @ManyToOne(() => User, (user) => user.id)
+  @ManyToOne(() => User, (user) => user.ownedChats)
   owner: User;
 
-  @ManyToMany(() => User)
+  @ManyToMany(() => User, (user) => user.adminChats)
   @JoinTable()
   admins: User[];
 
@@ -41,4 +43,14 @@ export class Chat {
 
   @Column()
   type: string;
+
+  @ManyToMany(() => User, (user) => user.chatInvites)
+  @JoinTable()
+  invitedUsers: User[];
+
+  @OneToMany(() => Ban, (ban: Ban) => ban.chatId)
+  bans: Ban[];
+
+  @OneToMany(() => Mute, (mute: Mute) => mute.chatId)
+  mutes: Mute[];
 }

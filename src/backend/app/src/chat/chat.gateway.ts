@@ -9,14 +9,24 @@ import {
   OnGatewayConnection,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { ValidationPipe, UsePipes } from '@nestjs/common';
-import { IncomingMessageDtO, ChatRoomDto, AllChatsDto } from './chat.types';
+import {
+  ValidationPipe,
+  UsePipes,
+  UnauthorizedException,
+} from '@nestjs/common';
+import {
+  IncomingMessageDtO,
+  ChatRoomDto,
+  AllChatsDto,
+  DirectMessageDto,
+} from './chat.types';
 import { SocketWithUser } from 'src/websocket/websocket.types';
 import { CookieService } from 'src/websocket/cookie.service';
 import { ChatService } from './chat.service';
 import { Message } from 'src/orm/entities/message.entity';
 import { Chat } from 'src/orm/entities/chat.entity';
 import { SocketService } from 'src/websocket/socket.service';
+import { UserIdDto } from 'src/status/status.types';
 
 @UsePipes(new ValidationPipe())
 @WebSocketGateway({
@@ -44,8 +54,6 @@ export class ChatGateway
     if (!client.user) {
       return;
     }
-    console.log('chat gateway: OnDisconnect');
-    console.log('client id:', client.id);
   }
 
   async handleConnection(client: SocketWithUser) {
@@ -53,16 +61,14 @@ export class ChatGateway
       client.handshake.headers.cookie,
     );
     if (!client.user) {
-      console.log('/chat connection denied:', client.id);
       client.disconnect();
       return;
     }
-    console.log('chat gateway: OnConnection');
-    console.log('client id:', client.id);
     const chats: AllChatsDto = await this.chatService.findAll(client.user);
     for (const chat of chats.joinedChats) {
       client.join(chat.name);
     }
+    this.socketService.addSocket(client.user.id, 'chatroom', client);
   }
 
   @SubscribeMessage('messageToChat')
@@ -73,7 +79,16 @@ export class ChatGateway
     // Verify if user is in this room.
     const chat: Chat = await this.chatService.findByName(data.chatName, [
       'members',
+      'mutes',
+      'bans',
     ]);
+    if (
+      (await this.chatService.userIsBanned(client.user, chat)) ||
+      (await this.chatService.userIsMuted(client.user, chat))
+    ) {
+      client.emit('userIsMuted');
+      return;
+    }
     for (const member of chat.members) {
       if (member.id === client.user.id) {
         const addedMessage: Message = await this.chatService.addMessage(
@@ -84,7 +99,6 @@ export class ChatGateway
           chatName: chat.name,
           message: addedMessage,
         });
-        console.log('sent message to room [' + chat.name + ']');
         return;
       }
     }
@@ -98,17 +112,23 @@ export class ChatGateway
     // If user is already in the room, skip password check
 
     // Verify password
-    const success: boolean = await this.chatService.matchPassword(
-      data.roomName,
-      data.password,
-    );
+
     const chat: Chat = await this.chatService.findByName(data.roomName, [
       'members',
+      'bans',
     ]);
+    if (await this.chatService.userIsBanned(client.user, chat)) {
+      client.emit('joinRoomBanned');
+      return;
+    }
     if (this.chatService.userIsInChat(client.user, chat)) {
       client.emit('joinRoomSuccess');
       return;
     }
+    const success: boolean = await this.chatService.matchPassword(
+      data.roomName,
+      data.password,
+    );
     if (!success || chat === undefined) {
       client.emit('joinRoomFailure');
       return;
@@ -127,6 +147,7 @@ export class ChatGateway
   ): Promise<void> {
     const chat: Chat = await this.chatService.findByName(data.roomName, [
       'members',
+      'admins',
     ]);
     if (
       chat === undefined ||
@@ -137,10 +158,6 @@ export class ChatGateway
     }
     client.leave(data.roomName);
     await this.chatService.userLeavesRoom(client.user, chat);
-    client.emit('leaveRoomSuccess');
-    this.wss
-      .to(chat.name)
-      .emit('userLeftRoom', { chatName: chat.name, user: client.user });
   }
 
   @SubscribeMessage('subscribeToChat')
@@ -169,5 +186,77 @@ export class ChatGateway
     @ConnectedSocket() client: SocketWithUser,
   ): Promise<void> {
     client.leave(data.roomName);
+  }
+
+  @SubscribeMessage('subscribeChatUpdateInvite')
+  async subscribeChatUpdateInvite(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: UserIdDto,
+  ) {
+    // validate that user is in the chatroom
+    const chat = await this.chatService.findById(data.id, ['owner', 'admins']);
+    if (!this.chatService.userHasAdminPrivilege(client.user, chat)) {
+      throw new UnauthorizedException();
+    }
+    // subscribe to updates on invites
+    client.join(`chatUpdateInvite_${data.id}`);
+  }
+
+  @SubscribeMessage('unsubscribeChatUpdateInvite')
+  async unsubscribeChatUpdateInvite(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: UserIdDto,
+  ) {
+    client.leave(`chatUpdateInvite_${data.id}`);
+  }
+
+  @SubscribeMessage('subscribeBanMuteUpdate')
+  async subscribeBanMuteUpdate(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: UserIdDto,
+  ) {
+    // validate that user is in the chatroom
+    const chat = await this.chatService.findById(data.id, ['owner', 'admins']);
+    if (!this.chatService.userHasAdminPrivilege(client.user, chat)) {
+      throw new UnauthorizedException();
+    }
+    // subscribe to updates on invites
+    client.join(`banMuteUpdate_${data.id}`);
+  }
+
+  @SubscribeMessage('unsubscrubeBanMuteUpdate')
+  async unsubscrubeBanMuteUpdate(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: UserIdDto,
+  ) {
+    client.leave(`banMuteUpdate_${data.id}`);
+  }
+
+  @SubscribeMessage('sendDirectMessage')
+  async sendDirectMessage(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: DirectMessageDto,
+  ) {
+    // Store message in DB and send the message
+    const roomName = `directMessage_${data.id}`;
+    const message = await this.chatService.addMessageDM(client.user.id, data);
+    this.socketService.chatServer.to(roomName).emit(roomName, message);
+  }
+
+  @SubscribeMessage('subscribeToDm')
+  async subscribeToDm(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: UserIdDto,
+  ) {
+    await this.chatService.validateUserDM(client.user.id, data.id);
+    client.join(`directMessage_${data.id}`);
+  }
+
+  @SubscribeMessage('unsubscribeToDm')
+  unsubscribeToDm(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: UserIdDto,
+  ) {
+    client.leave(`directMessage_${data.id}`);
   }
 }

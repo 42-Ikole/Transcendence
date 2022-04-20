@@ -1,6 +1,14 @@
-import { IsString, IsNotEmpty, IsOptional, IsIn } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsIn,
+  IsInt,
+  IsNumber,
+} from 'class-validator';
 import { User } from 'src/orm/entities/user.entity';
 import { Chat } from 'src/orm/entities/chat.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 const CHATROOM_TYPES = ['private', 'protected', 'public'];
 
@@ -46,4 +54,54 @@ export class ChatRoomDto {
   @IsString()
   @IsOptional()
   password: string;
+}
+
+export class ChatUserDto {
+  @IsInt()
+  @IsNotEmpty()
+  @ApiProperty({
+    type: Number,
+  })
+  chatId: number;
+
+  @IsInt()
+  @IsNotEmpty()
+  @ApiProperty({
+    type: Number,
+  })
+  userId: number;
+}
+
+export class ChatPasswordDto {
+  @IsInt()
+  @IsNotEmpty()
+  @ApiProperty({
+    type: Number,
+  })
+  chatId: number;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty()
+  password: string;
+}
+
+export class ChatActionDto extends ChatUserDto {
+  // @IsDate()
+  // @IsNotEmpty()
+  // @Type(() => Date)
+  // @ApiProperty({
+  // 	type: Date,
+  // })
+  // expirationDate: Date;
+}
+
+export class DirectMessageDto {
+  @IsNumber()
+  @IsNotEmpty()
+  id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  message: string;
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="input-group">
     <button
-      class="btn btn dropdown-toggle mb-2"
+      class="btn dropdown mb-2"
       type="button"
       data-bs-toggle="dropdown"
       aria-expanded="false"
@@ -22,7 +22,7 @@
         </button>
       </li>
       <div v-if="!isSelf">
-        <li>
+        <li v-if="canMessage">
           <button
             @click="startDirectMessage"
             class="dropdown-item"
@@ -68,16 +68,29 @@
             Send Friend Request
           </button>
         </li>
+        <li v-if="isFriend">
+          <button @click="unfriendUser" class="dropdown-item" type="button">
+            Unfriend
+          </button>
+        </li>
         <div v-if="showChatOptions">
-          <li>
+          <li v-if="canBanKickMute">
             <hr class="dropdown-divider" />
-          </li>
-          <li v-if="isAdmin">
-            <button @click="muteUser" class="dropdown-item" type="button">
-              Mute
+            <div v-if="!isMuted">
+              <button @click="muteUser" class="dropdown-item" type="button">
+                Mute
+              </button>
+            </div>
+            <div v-if="isMuted">
+              <button @click="unmuteUser" class="dropdown-item" type="button">
+                Unmute
+              </button>
+            </div>
+            <button @click="kickUser" class="dropdown-item" type="button">
+              Kick
             </button>
           </li>
-          <li v-if="isAdmin">
+          <li v-if="canBanKickMute">
             <button @click="banUser" class="dropdown-item" type="button">
               Ban
             </button>
@@ -103,11 +116,20 @@ import { defineComponent, type PropType } from "vue";
 import type { PublicUser } from "@/types/UserType";
 import { useFriendStore } from "@/stores/FriendStore";
 import { useUserStore } from "@/stores/UserStore";
-import { useSocketStore } from "@/stores/SocketStore";
+import { useChatStore } from "@/stores/ChatStore";
 import { challengeUser } from "@/utils/Pong";
 import { sendFriendRequest, unfriend, unblock, block } from "@/utils/Friends";
 import { stopTrackingUserStatus, trackUserStatus } from "@/utils/StatusTracker";
 import type { StatusUpdate } from "@/types/StatusTypes";
+import { useSocketStore } from "@/stores/SocketStore";
+import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
+
+type RoleType = "OWNER" | "ADMIN" | "MEMBER";
+
+interface DataObject {
+  status: string;
+  role: RoleType;
+}
 
 export default defineComponent({
   props: {
@@ -119,13 +141,28 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
+    chatId: {
+      type: Number,
+      required: false,
+    },
+    mutedUsers: {
+      type: Array as PropType<Array<PublicUser>>,
+      required: false,
+    },
   },
-  data() {
+  data(): DataObject {
     return {
       status: "",
+      role: "MEMBER",
     };
   },
   computed: {
+    canMessage() {
+      return (
+        !this.isBlocked &&
+        !useFriendStore().isPartOfSet(this.user.id, "BLOCKED_BY")
+      );
+    },
     isBlocked() {
       return useFriendStore().isPartOfSet(this.user.id, "BLOCKED");
     },
@@ -142,7 +179,6 @@ export default defineComponent({
       return this.status === "ONLINE";
     },
     onlineOutline() {
-      console.log("online", this.status === "ONLINE");
       return this.status === "ONLINE"
         ? "btn-outline-success"
         : "btn-outline-danger";
@@ -154,17 +190,28 @@ export default defineComponent({
       return ["PLAYING", "OBSERVING"].includes(this.status);
     },
     isAdmin() {
-      // SELF === the user that is controlling the frontend (userStore), not the user the dropdown belongs to
-      // true if SELF is ADMIN in chat
-      return true;
+      return useChatStore().isAdmin(this.chatId) || this.isOwner;
+    },
+    isOwner() {
+      return useChatStore().isOwner(this.chatId);
     },
     canMakeAdmin() {
-      // true if SELF (controller) is owner and USER is NOT admin
-      return true;
+      return this.isOwner && this.role !== "ADMIN";
     },
     canRemoveAdmin() {
-      // true if SELF! is owner of chat and USER is admin
-      return true;
+      return this.isOwner && this.role === "ADMIN";
+    },
+    isMuted() {
+      if (!this.mutedUsers) {
+        return false;
+      }
+      return !!this.mutedUsers.find((muted) => this.user.id === muted.id);
+    },
+    canBanKickMute() {
+      return (
+        this.role !== "OWNER" &&
+        (this.isOwner || (this.isAdmin && this.role !== "ADMIN"))
+      );
     },
   },
   methods: {
@@ -187,23 +234,66 @@ export default defineComponent({
       unfriend(this.user);
     },
     trackState(update: StatusUpdate) {
-      console.log("friend state:", update);
       this.status = update.newState;
     },
-    startDirectMessage() {
+    async startDirectMessage() {
+      const response = await makeApiCallJson("/chat/directMessage", "POST", {
+        id: this.user.id,
+      });
+      if (response.ok) {
+        const dm = await response.json();
+        console.log(dm);
+        this.$router.push(`/dm/${dm.id}`);
+      }
       return;
     },
-    muteUser() {
-      return;
+    async muteUser() {
+      await makeApiCallJson("/chat/mute", "POST", {
+        chatId: this.chatId,
+        userId: this.user.id,
+      });
     },
-    banUser() {
-      return;
+    async unmuteUser() {
+      await makeApiCallJson("/chat/mute", "DELETE", {
+        chatId: this.chatId,
+        userId: this.user.id,
+      });
     },
-    makeAdmin() {
-      return;
+    async kickUser() {
+      await makeApiCallJson("/chat/kick", "DELETE", {
+        chatId: this.chatId,
+        userId: this.user.id,
+      });
     },
-    removeAdmin() {
-      return;
+    async banUser() {
+      await makeApiCallJson("/chat/ban", "POST", {
+        chatId: this.chatId,
+        userId: this.user.id,
+      });
+    },
+    async makeAdmin() {
+      if (this.role === "MEMBER") {
+        await makeApiCallJson("/chat/admin", "POST", {
+          chatId: this.chatId,
+          userId: this.user.id,
+        });
+      }
+    },
+    async removeAdmin() {
+      if (this.role === "ADMIN") {
+        await makeApiCallJson("/chat/admin", "DELETE", {
+          chatId: this.chatId,
+          userId: this.user.id,
+        });
+      }
+    },
+    async refreshRole() {
+      const roleResponse = await makeApiCall(
+        "/chat/role/" + this.chatId + "/" + this.user.id
+      );
+      if (roleResponse.ok) {
+        this.role = (await roleResponse.text()) as RoleType;
+      }
     },
     observeUser() {
       useSocketStore().pong!.emit("requestObserve", { userId: this.user.id });
@@ -212,9 +302,19 @@ export default defineComponent({
   mounted() {
     this.status = this.user.status;
     trackUserStatus(this.user.id, this.trackState);
+    if (this.showChatOptions) {
+      this.refreshRole();
+      useSocketStore().chat!.on(`roleUpdate_${this.user.id}`, this.refreshRole);
+    }
   },
   unmounted() {
     stopTrackingUserStatus(this.user.id, this.trackState);
+    if (this.showChatOptions) {
+      useSocketStore().chat!.removeListener(
+        `roleUpdate_${this.user.id}`,
+        this.refreshRole
+      );
+    }
   },
 });
 </script>

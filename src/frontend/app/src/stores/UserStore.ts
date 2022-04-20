@@ -8,6 +8,7 @@ import type {
 import makeApiCall from "@/utils/ApiCall";
 import { canMakeConnection } from "@/utils/Login";
 import { useFriendStore } from "./FriendStore";
+import { useChatStore } from "./ChatStore";
 
 interface UserStore {
   state: UserState;
@@ -75,6 +76,7 @@ export const useUserStore = defineStore("user", {
       useSocketStore().init();
       await this.refreshUserData();
       useFriendStore().init();
+      useChatStore().init();
       this.setListeners();
     },
     async refreshUserData() {

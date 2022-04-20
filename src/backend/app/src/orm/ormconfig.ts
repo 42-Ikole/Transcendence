@@ -6,7 +6,10 @@ import { Chat } from './entities/chat.entity';
 import { Message } from './entities/message.entity';
 import { Friend } from './entities/friend.entity';
 import { Avatar } from './entities/avatar.entity';
+import { Ban } from './entities/ban.entity';
+import { Mute } from './entities/mute.entity';
 import { Achievement } from './entities/achievement.entity';
+import { DirectMessage } from './entities/directmessage.entity';
 
 export const config: PostgresConnectionOptions = {
   type: 'postgres',
@@ -23,7 +26,10 @@ export const config: PostgresConnectionOptions = {
     Message,
     Friend,
     Avatar,
+    Ban,
+    Mute,
     Achievement,
+    DirectMessage,
   ],
   synchronize: true,
 };

@@ -22,20 +22,86 @@
       </button>
     </p>
   </div>
+
+  <hr class="divider" />
+
+  <div v-if="!hasChatRequests">
+    <p>You have no pending chat requests.</p>
+  </div>
+  <div v-for="chat in chatInvites" :key="chat.id">
+    <div class="text-white">
+      Chat invite: {{ chat.name }}
+      <button
+        class="btn btn-outline-light btn-sm mx-2"
+        @click="acceptChatInvite(chat.id)"
+      >
+        Accept
+      </button>
+      <button
+        class="btn btn-outline-light btn-sm"
+        @click="declineChatInvite(chat.id)"
+      >
+        Decline
+      </button>
+      <div
+        v-if="hasAccepted && selectedChatId === chat.id"
+        class="text-success"
+      >
+        You successfully joined "{{ chat.name }}"!
+      </div>
+      <div v-if="hasDeclined && selectedChatId === chat.id" class="text-danger">
+        You declined to join the chat "{{ chat.name }}".
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "pinia";
 import { useFriendStore } from "@/stores/FriendStore";
+import { useSocketStore } from "@/stores/SocketStore";
 import type { PublicUser } from "@/types/UserType";
 import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
+import type { Chat } from "../chatrooms/Chatrooms.types.ts";
+
+enum ChatRequest {
+  WAITING,
+  ACCEPTED,
+  DECLINED,
+  CANCELED,
+}
+
+interface DataObject {
+  chatInvites: Chat[];
+  chatRequestStatus: ChatRequest;
+  selectedChatId: number;
+  selectedUserId: number;
+}
 
 export default defineComponent({
+  data(): DataObject {
+    return {
+      chatInvites: [],
+      chatRequestStatus: ChatRequest.WAITING,
+      selectedChatId: 0,
+      selectedUserId: 0,
+    };
+  },
   computed: {
     ...mapState(useFriendStore, ["sentRequests", "friendRequests"]),
+    ...mapState(useSocketStore, ["chat"]),
     hasRequests(): boolean {
       return this.friendRequests.length === 0 && this.sentRequests.length === 0;
+    },
+    hasChatRequests() {
+      return this.chatInvites.length !== 0;
+    },
+    hasAccepted() {
+      return this.chatRequestStatus === ChatRequest.ACCEPTED;
+    },
+    hasDeclined() {
+      return this.chatRequestStatus === ChatRequest.DECLINED;
     },
   },
   methods: {
@@ -55,6 +121,46 @@ export default defineComponent({
         id: user.id,
       });
     },
+    async acceptChatInvite(chatId: number) {
+      const acceptChatResponse = await makeApiCallJson(
+        "/chat/invite/accept",
+        "POST",
+        {
+          chatId: chatId,
+        }
+      );
+      if (acceptChatResponse.ok) {
+        this.chatRequestStatus = ChatRequest.ACCEPTED;
+        this.selectedChatId = chatId;
+      }
+    },
+    async declineChatInvite(chatId: number) {
+      const declineChatResponse = await makeApiCallJson(
+        "/chat/invite/decline",
+        "POST",
+        {
+          chatId: chatId,
+        }
+      );
+      if (declineChatResponse.ok) {
+        this.chatRequestStatus = ChatRequest.DECLINED;
+        this.selectedChatId = chatId;
+      }
+    },
+    async refreshChatData() {
+      this.chatRequestStatus = ChatRequest.WAITING;
+      const chatInvitesResponse = await makeApiCall("/chat/user/invite");
+      if (chatInvitesResponse.ok) {
+        this.chatInvites = await chatInvitesResponse.json();
+      }
+    },
+  },
+  async mounted() {
+    await this.refreshChatData();
+    this.chat!.on("chatInviteUpdate", this.refreshChatData);
+  },
+  unmounted() {
+    this.chat!.removeListener("chatInviteUpdate", this.refreshChatData);
   },
 });
 </script>

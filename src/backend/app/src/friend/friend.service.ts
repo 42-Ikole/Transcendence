@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Friend } from 'src/orm/entities/friend.entity';
+import { User } from 'src/orm/entities/user.entity';
 import { StatusService } from 'src/status/status.service';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
@@ -152,6 +153,12 @@ export class FriendService {
   async clear() {
     const entities = await this.friendRepository.find();
     return await this.friendRepository.remove(entities);
+  }
+
+  async haveBlockRelation(userOne: User, userTwo: User): Promise<boolean> {
+    const relation = new FriendDto(userOne.id, userTwo.id, 'BLOCK');
+    const entity = await this.findFriendship(relation);
+    return !!entity;
   }
 
   /* Private */

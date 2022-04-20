@@ -2,17 +2,20 @@
   <div class="container py-5" v-if="isWaiting">
     <div
       class="card-header justify-content-between align-items-center p-3"
-      style="width: 30%; background-color: #dee"
+      style="width: 40%; background-color: #dee"
     >
       <form
         class="form-check"
-        style="padding-bottom: 20px"
+        style="padding-bottom: 20x"
         v-for="allChats in chats"
         :key="allChats.chat"
         @submit.prevent="joinRoom"
       >
         <h3 v-if="allChats === chats.joinedChats">Your chatrooms:</h3>
         <h3 v-else>Other chatrooms:</h3>
+        <div v-if="allChats.length === 0">
+          <i class="text-muted fs-6">There are no chatrooms here.</i>
+        </div>
         <div class="form-check" v-for="chat in allChats" :key="chat.name">
           <input
             class="form-check-input"
@@ -53,6 +56,19 @@
           </div>
         </div>
       </form>
+      <div v-if="showDeleted" class="text-danger" style="padding-bottom: 5px">
+        "{{ this.roomDeleted }}" is successfully deleted!
+      </div>
+      <div
+        v-if="!correctPassword"
+        class="text-danger"
+        style="padding-bottom: 5px"
+      >
+        Invalid password!
+      </div>
+      <div v-if="userBanned" class="text-danger" style="padding-bottom: 5px">
+        You are banned from this chatroom!
+      </div>
       <button class="btn btn-info btn-sm float-end" @click="createRoom">
         Create room
       </button>
@@ -66,7 +82,11 @@
     </div>
   </div>
   <div v-if="isJoining">
-    <Chatroom :chat="selectedChat" @roomLeft="setWaiting" />
+    <Chatroom
+      :chat="selectedChat"
+      @roomLeft="setWaiting"
+      @roomDeleted="isDeleted"
+    />
   </div>
   <div v-if="isCreating">
     <CreateRoom @roomCreated="setWaiting" />
@@ -78,7 +98,7 @@ import CreateRoom from "./CreateRoom.vue";
 import Chatroom from "./ChatRoom.vue";
 import { defineComponent } from "vue";
 import { makeApiCall } from "@/utils/ApiCall";
-import { Chat, AllChats } from "./Chatrooms.types.ts";
+import type { Chat, AllChats } from "./Chatrooms.types";
 import { useSocketStore } from "@/stores/SocketStore";
 import { mapState } from "pinia";
 import ChatLockIcon from "../icons/IconChatLock.vue";
@@ -99,7 +119,10 @@ interface DataObject {
   selectedChatName: string;
   typedPassword: string;
   showPassword: boolean;
-  passwordIcon: any;
+  correctPassword: boolean;
+  showDeleted: boolean;
+  roomDeleted: string;
+  showBanned: boolean;
 }
 
 export default defineComponent({
@@ -111,6 +134,11 @@ export default defineComponent({
       selectedChatName: "",
       typedPassword: "",
       showPassword: false,
+      correctPassword: true,
+      userBanned: false,
+      showDeleted: false,
+      roomDeleted: "",
+      showBanned: false,
     };
   },
   computed: {
@@ -133,6 +161,8 @@ export default defineComponent({
   methods: {
     createRoom() {
       this.state = State.CREATING;
+      this.showDeleted = false;
+      this.roomDeleted = "";
     },
     async joinRoom() {
       this.socket.emit("joinRoom", {
@@ -144,8 +174,17 @@ export default defineComponent({
       this.showPassword = !this.showPassword;
     },
     setWaiting() {
-      this.getAllChats();
+      this.refreshChatList();
       this.state = State.WAITING;
+      this.selectedChatName = "";
+      this.typedPassword = "";
+      this.showPassword = false;
+      this.correctPassword = true;
+    },
+    isDeleted(roomName: string) {
+      this.showDeleted = true;
+      this.roomDeleted = roomName;
+      this.setWaiting();
     },
     async getAllChats() {
       const response = await makeApiCall("/chat");
@@ -156,11 +195,12 @@ export default defineComponent({
     joinRoomSuccessfully() {
       this.selectedChat = this.findChatByName(this.selectedChatName);
       this.state = State.JOINING;
-      this.typedPassword = "";
-      this.selectedChatName = "";
     },
-    joinRoomFailed() {
-      console.log("Joining failed");
+    joinRoomFailedPassword() {
+      this.correctPassword = false;
+    },
+    joinRoomFailedBanned() {
+      this.userBanned = true;
     },
     findChatByName(name: string): Chat {
       for (let chat of this.chats.joinedChats) {
@@ -177,25 +217,37 @@ export default defineComponent({
     async refreshChatList() {
       await this.getAllChats();
     },
-  },
-  created() {
-    this.socket.on("joinRoomSuccess", () => {
-      this.joinRoomSuccessfully();
-    });
-    this.socket.on("joinRoomFailure", () => {
-      this.joinRoomFailed();
-    });
-    this.socket.on("createRoom", () => {
-      this.refreshChatList();
-    });
+    async roomUpdate() {
+      await this.refreshChatList();
+      this.selectedChat = this.findChatByName(this.selectedChat.name);
+    },
   },
   async mounted() {
     await this.getAllChats();
+    this.socket!.on("joinRoomSuccess", this.joinRoomSuccessfully);
+    this.socket!.on("joinRoomFailure", this.joinRoomFailedPassword);
+    this.socket!.on("roomCreated", this.refreshChatList);
+    this.socket!.on("roomDeleted", this.refreshChatList);
+    this.socket!.on("joinRoomBanned", this.joinRoomFailedBanned);
+    this.socket!.on("roomsUpdate", this.roomUpdate);
+  },
+  unmounted() {
+    this.socket!.removeListener("joinRoomSuccess", this.joinRoomSuccessfully);
+    this.socket!.removeListener("joinRoomFailure", this.joinRoomFailedPassword);
+    this.socket!.removeListener("roomCreated", this.refreshChatList);
+    this.socket!.removeListener("roomDeleted", this.refreshChatList);
+    this.socket!.removeListener("joinRoomBanned", this.joinRoomFailedBanned);
+    this.socket!.removeListener("roomsUpdate", this.roomUpdate);
   },
   watch: {
     selectedChatName(newRoom, oldRoom) {
       if (oldRoom !== this.selectedChatName) {
         this.typedPassword = "";
+        this.correctPassword = true;
+        this.userBanned = false;
+        this.showDeleted = false;
+        this.roomDeleted = "";
+        this.showBanned = false;
       }
     },
   },

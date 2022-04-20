@@ -14,7 +14,10 @@ import { Exclude } from 'class-transformer';
 import { Friend } from './friend.entity';
 import { Chat } from './chat.entity';
 import { Avatar } from './avatar.entity';
+import { Ban } from './ban.entity';
+import { Mute } from './mute.entity';
 import { Achievement } from './achievement.entity';
+import { DirectMessage } from './directmessage.entity';
 
 //////     //////
 // User Entity //
@@ -55,8 +58,29 @@ export class User {
   @Column({ default: 'OFFLINE' })
   status: string;
 
+  // Chats
   @ManyToMany(() => Chat, (chat) => chat.members)
   chats: Chat[];
+
+  @OneToMany(() => Chat, (chat) => chat.owner)
+  ownedChats: Chat[]; // chats where user is an owner
+
+  @ManyToMany(() => Chat, (chat) => chat.admins)
+  adminChats: Chat[]; // chats where user is an admin
+
+  @ManyToMany(() => Chat, (chat) => chat.invitedUsers)
+  chatInvites: Chat[];
+
+  @OneToMany(() => Ban, (ban: Ban) => ban.userId)
+  bans: Ban[];
+
+  @OneToMany(() => Mute, (mute: Mute) => mute.userId)
+  mutes: Mute[];
+  @OneToMany(() => DirectMessage, (dm) => dm.userOne)
+  relatingDM: DirectMessage[];
+
+  @OneToMany(() => DirectMessage, (dm) => dm.userTwo)
+  relatedDM: DirectMessage[];
 
   // Two Factor
   @Column({ nullable: true })
