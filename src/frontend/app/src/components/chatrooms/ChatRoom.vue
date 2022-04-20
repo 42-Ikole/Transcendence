@@ -116,6 +116,7 @@
             </div>
           </div>
           <div class="card-footer d-flex justify-content-start p-3">
+            <p v-if="isMuted" class="text-danger"> You are muted </p>
             <form class="input-group" @submit.prevent="sendMessage">
               <input
                 class="form-control form-control-lg"
@@ -123,7 +124,6 @@
                 placeholder="Type message"
                 v-model="myMessage"
                 ref="messageBox"
-                :disabled="isMuted"
               />
               <input
                 class="btn btn-lg btn-outline-info btn-rounded float-end"
@@ -177,6 +177,7 @@ interface DataObject {
   mutedUsers: PublicUser[];
   bannedUsers: PublicUser[];
   newPassword: string;
+  isMuted: boolean;
 }
 
 export default defineComponent({
@@ -199,6 +200,7 @@ export default defineComponent({
       mutedUsers: [],
       bannedUsers: [],
       newPassword: "",
+      isMuted: false,
     };
   },
   methods: {
@@ -297,6 +299,12 @@ export default defineComponent({
         this.chat.type = 'public';
       }
     },
+    userIsMuted() {
+      this.isMuted = true;
+    },
+    userIsUnMuted() {
+      this.isMuted = false;
+    },
   },
   computed: {
     ...mapState(useSocketStore, {
@@ -310,9 +318,6 @@ export default defineComponent({
     },
     isOwner() {
       return useChatStore().isOwner(this.chat.id);
-    },
-    isMuted() {
-      return false; // checken of user muted is
     },
     isPrivateChat() {
       return this.chat.type === "private";
@@ -335,6 +340,8 @@ export default defineComponent({
       console.log("failed");
     });
     this.socket!.on("roomDeleted", this.switchToRoomList);
+    this.socket!.on("userIsMuted", this.userIsMuted);
+    this.socket!.on("userIsUnMuted", this.userIsUnMuted);
   },
   unmounted() {
     if (this.hasAdminRights) {
@@ -348,6 +355,8 @@ export default defineComponent({
     this.socket!.removeListener("userLeftRoom", this.userLeavesChat);
     this.socket!.removeListener("leaveRoomSuccess", this.switchToRoomList);
     this.socket!.removeListener("roomDeleted", this.switchToRoomList);
+    this.socket!.removeListener("userIsMuted", this.userIsMuted);
+    this.socket!.removeListener("userIsUnMuted", this.userIsUnMuted);
   },
   components: {
     ChatUserDropdown,

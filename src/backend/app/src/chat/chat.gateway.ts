@@ -72,6 +72,7 @@ export class ChatGateway
       'members', 'mutes', 'bans'
 		]);
 		if (await this.chatService.userIsBanned(client.user, chat) || await this.chatService.userIsMuted(client.user, chat)) {
+      client.emit('userIsMuted');
 			return ;
 		}
     for (const member of chat.members) {

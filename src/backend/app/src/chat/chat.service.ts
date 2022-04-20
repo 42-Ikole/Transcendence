@@ -777,7 +777,10 @@ export class ChatService {
   }
 
   private async removeMute(chatId: number, mute: Mute) {
+    const userId = mute.userId;
+    console.log("Unmute:", userId);
     await this.muteRepository.remove(mute);
+    this.socketService.emitToUser(userId, "chatroom", "userIsUnMuted");
     this.broadcastBanMuteUpdate(chatId);
   }
 
