@@ -11,6 +11,8 @@ import {
 	Delete,
 	ParseIntPipe,
 	Patch,
+	BadRequestException,
+	UnauthorizedException,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto, CreateChatInterface, AllChatsDto, ChatUserDto, ChatPasswordDto, ChatActionDto } from './chat.types';
@@ -21,6 +23,9 @@ import { SocketService } from 'src/websocket/socket.service';
 import { AuthenticatedGuard } from 'src/auth/auth.guard';
 import { RequestWithUser } from '../auth/auth.types';
 import * as bcrypt from "bcrypt";
+import { UserIdDto } from 'src/status/status.types';
+import { DirectMessage } from 'src/orm/entities/directmessage.entity';
+import { FriendService } from 'src/friend/friend.service';
 
 @ApiTags('chat')
 @Controller('chat')
@@ -29,6 +34,7 @@ export class ChatController {
   constructor(
     private readonly chatService: ChatService,
     private socketService: SocketService,
+	private friendService: FriendService,
   ) {}
 
   @Get()
@@ -333,5 +339,48 @@ export class ChatController {
 		@Param('chatid', ParseIntPipe) chatId: number,
 		): Promise<void> {
 		await this.chatService.deleteChat(request.user, chatId);
+	}
+
+	@Get('directMessage/all')
+	async findAllDirectMessages() {
+		return await this.chatService.findAllDirectMessages();
+	}
+
+	@Get('directMessage')
+	async getDirectMessages(@Req() request: RequestWithUser) {
+		const messages = await this.chatService.findDirectMessages(request.user, {
+			relations: ["userOne", "userTwo"],
+		});
+		// filter users with block relation
+		const result = await Promise.all(messages.map(async (dm) => {
+			return !await this.friendService.haveBlockRelation(dm.userOne, dm.userTwo)
+		}));
+		return messages.filter((_v, index) => result[index]);
+	}
+
+	@Get('directMessage/authorize/:id')
+	async authorizeId(@Req() request: RequestWithUser, @Param('id', ParseIntPipe) id: number) {
+		const result = await this.chatService.authorizeDirectMessage(request.user, id);
+		if (!result) {
+			throw new UnauthorizedException();
+		}
+	}
+
+	@Get('directMessage/:id')
+	async getDmMessages(@Req() request: RequestWithUser, @Param('id', ParseIntPipe) id: number) {
+		await this.authorizeId(request, id);
+		const dm = await this.chatService.findDirectMessageById(id, {
+			relations: ["userOne", "userTwo", "messages", "messages.author"],
+		});
+		return dm;
+	}
+
+	// Create the DM if it doesn't exist, return the new DM
+	@Post('directMessage')
+	async createDirectMessage(@Req() request: RequestWithUser, @Body() body: UserIdDto) {
+		if (request.user.id === body.id) {
+			throw new BadRequestException();
+		}
+		return await this.chatService.createDirectMessage(request.user, body.id);
 	}
 }

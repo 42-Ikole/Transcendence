@@ -10,7 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { ValidationPipe, UsePipes, UnauthorizedException } from '@nestjs/common';
-import { IncomingMessageDtO, ChatRoomDto, AllChatsDto } from './chat.types';
+import { IncomingMessageDtO, ChatRoomDto, AllChatsDto, DirectMessageDto } from './chat.types';
 import { SocketWithUser } from 'src/websocket/websocket.types';
 import { CookieService } from 'src/websocket/cookie.service';
 import { ChatService } from './chat.service';
@@ -202,5 +202,33 @@ export class ChatGateway
   @SubscribeMessage("unsubscrubeBanMuteUpdate")
   async unsubscrubeBanMuteUpdate(@ConnectedSocket() client: SocketWithUser, @MessageBody() data: UserIdDto) {
     client.leave(`banMuteUpdate_${data.id}`)
+  }
+
+  @SubscribeMessage('sendDirectMessage')
+  async sendDirectMessage(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: DirectMessageDto
+  ) {
+    // Store message in DB and send the message
+    const roomName = `directMessage_${data.id}`;
+    const message = await this.chatService.addMessageDM(client.user.id, data);
+    this.socketService.chatServer.to(roomName).emit(roomName, message);
+  }
+
+  @SubscribeMessage('subscribeToDm')
+  async subscribeToDm(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: UserIdDto,
+  ) {
+    await this.chatService.validateUserDM(client.user.id, data.id);
+    client.join(`directMessage_${data.id}`);
+  }
+
+  @SubscribeMessage('unsubscribeToDm')
+  unsubscribeToDm(
+    @ConnectedSocket() client: SocketWithUser,
+    @MessageBody() data: UserIdDto,
+  ) {
+    client.leave(`directMessage_${data.id}`);
   }
 }

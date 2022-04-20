@@ -1,9 +1,7 @@
-import { IsString, IsNotEmpty, IsOptional, IsIn, IsInt, IsDate } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsIn, IsInt, IsNumber } from 'class-validator';
 import { User } from 'src/orm/entities/user.entity';
 import { Chat } from 'src/orm/entities/chat.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { Timestamp } from 'typeorm';
-import { Type } from 'class-transformer';
 
 const CHATROOM_TYPES = ['private', 'protected', 'public'];
 
@@ -89,4 +87,14 @@ export class ChatActionDto extends ChatUserDto {
 	// 	type: Date,
 	// })
 	// expirationDate: Date;
+}
+
+export class DirectMessageDto {
+  @IsNumber()
+  @IsNotEmpty()
+  id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  message: string;
 }

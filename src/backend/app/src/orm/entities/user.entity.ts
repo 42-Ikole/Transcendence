@@ -17,6 +17,7 @@ import { Avatar } from './avatar.entity';
 import { Ban } from './ban.entity';
 import { Mute } from './mute.entity';
 import { Achievement } from './achievement.entity';
+import { DirectMessage } from './directmessage.entity';
 
 //////     //////
 // User Entity //
@@ -75,6 +76,11 @@ export class User {
 
 	@OneToMany(() => Mute, (mute: Mute) => mute.userId)
 	mutes: Mute[];
+  @OneToMany(() => DirectMessage, (dm) => dm.userOne)
+  relatingDM: DirectMessage[];
+
+  @OneToMany(() => DirectMessage, (dm) => dm.userTwo)
+  relatedDM: DirectMessage[];
 
   // Two Factor
   @Column({ nullable: true })

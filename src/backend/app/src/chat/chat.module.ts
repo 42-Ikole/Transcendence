@@ -6,12 +6,14 @@ import { ChatService } from './chat.service';
 import { Chat } from 'src/orm/entities/chat.entity';
 import { Message } from 'src/orm/entities/message.entity';
 import { CookieModule } from 'src/websocket/cookie.module';
+import { DirectMessage } from 'src/orm/entities/directmessage.entity';
+import { FriendModule } from 'src/friend/friend.module';
 import { UserModule } from 'src/user/user.module';
 import { Mute } from 'src/orm/entities/mute.entity';
 import { Ban } from 'src/orm/entities/ban.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Chat, Message, Ban, Mute]), CookieModule, UserModule],
+  imports: [TypeOrmModule.forFeature([Chat, Message, Ban, Mute, DirectMessage]), CookieModule, UserModule, FriendModule],
   exports: [ChatService],
   providers: [ChatService, ChatGateway],
   controllers: [ChatController],

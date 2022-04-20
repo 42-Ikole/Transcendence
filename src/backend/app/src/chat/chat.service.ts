@@ -12,9 +12,10 @@ import {
   CreateChatInterface,
   AllChatsDto,
   ChatActionDto,
+  DirectMessageDto,
 } from './chat.types';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { Chat } from 'src/orm/entities/chat.entity';
 import { Message } from 'src/orm/entities/message.entity';
 import { User } from 'src/orm/entities/user.entity';
@@ -23,16 +24,21 @@ import { SocketService } from 'src/websocket/socket.service';
 import { Ban } from 'src/orm/entities/ban.entity';
 import { Mute } from 'src/orm/entities/mute.entity';
 import * as bcrypt from "bcrypt";
+import { DirectMessage } from 'src/orm/entities/directmessage.entity';
+import { WsException } from '@nestjs/websockets';
+import { FriendService } from 'src/friend/friend.service';
 
 @Injectable()
 export class ChatService {
   constructor(
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
     @InjectRepository(Message) private messageRepository: Repository<Message>,
+    @InjectRepository(DirectMessage) private directMessageRepository: Repository<DirectMessage>,
     @InjectRepository(Ban) private banRepository: Repository<Ban>,
     @InjectRepository(Mute) private muteRepository: Repository<Mute>,
     private userService: UserService,
     private socketService: SocketService,
+		private friendService: FriendService,
   ) {}
 
   async findAll(user: User): Promise<AllChatsDto> {
@@ -809,4 +815,89 @@ export class ChatService {
     // requesting user is admin and other user is a regular user
     return this.userHasAdminPrivilege(requestingUser, chat) && !this.userHasAdminPrivilege(targetUser, chat);
   }
+
+	async createDirectMessage(userOne: User, userTwoId: number): Promise<DirectMessage> {
+		const userTwo = await this.userService.findById(userTwoId); // throws NOT_FOUND
+		const dm = await this.findDirectMessageByUsers(userOne, userTwo);
+		if (dm) {
+			return dm;
+		}
+		const entity = this.directMessageRepository.create({
+			userOne, userTwo,
+		});
+		await this.directMessageRepository.save(entity);
+		this.socketService.emitToUser(userOne.id, "chatroom", "dmCreated");
+		this.socketService.emitToUser(userTwo.id, "chatroom", "dmCreated");
+		return entity;
+	}
+
+	async findDirectMessageByUsers(userOne: User, userTwo: User) {
+		const dm = await this.directMessageRepository.findOne({
+			where: [
+				{ userOne: userOne, userTwo: userTwo },
+				{ userOne: userTwo, userTwo: userOne},
+			]
+		});
+		return dm;
+	}
+
+	async findDirectMessageById(id: number, options?: FindOneOptions<DirectMessage>) {
+		const dm = await this.directMessageRepository.findOne(id, options);
+		if (!dm) {
+			throw new NotFoundException();
+		}
+		return dm;
+	}
+
+	async findDirectMessages(user: User, options?: FindManyOptions<DirectMessage>) {
+		options.where = [
+			{ userOne: user },
+			{ userTwo: user },
+		];
+		const dm = await this.directMessageRepository.find(options);
+		if (!dm) {
+			throw new NotFoundException();
+		}
+		return dm;
+	}
+
+	async findAllDirectMessages() {
+		return await this.directMessageRepository.find({
+			relations: ["userOne", "userTwo", "messages"]
+		});
+	}
+
+	async authorizeDirectMessage(user: User, id: number) {
+		const dm = await this.directMessageRepository.findOne(id, { relations: ["userOne", "userTwo"] });
+		if (!dm) {
+			throw new NotFoundException();
+		}
+		return user.id === dm.userOne.id || user.id === dm.userTwo.id;
+	}
+
+	async validateUserDM(userId: number, directMessageId: number) {
+		const dm = await this.findDirectMessageById(directMessageId, {
+			relations: ["userOne", "userTwo"],
+		});
+		if (dm.userOne.id !== userId && dm.userTwo.id !== userId) {
+			throw new UnauthorizedException();
+		}
+		return dm;
+	}
+
+	async addMessageDM(authorId: number, data: DirectMessageDto) {
+		const dm = await this.validateUserDM(authorId, data.id);
+		const user = await this.userService.findById(authorId);
+		const entity = this.messageRepository.create({
+			author: user,
+			directMessage: dm,
+			message: data.message,
+		});
+		if (await this.friendService.haveBlockRelation(dm.userOne, dm.userTwo)) {
+			throw new UnauthorizedException();
+		}
+		await this.messageRepository.save(entity);
+		delete entity.directMessage;
+		return entity;
+	}
 }
