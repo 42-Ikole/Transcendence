@@ -612,7 +612,9 @@ export class ChatService {
     // Get a list of the banned users.
     let userList: User[] = [];
     for (const ban of chat.bans) {
-      userList.push(await this.userService.findById(ban.userId));
+			if (! (await this.IsBanExpired(ban))) {
+				userList.push(await this.userService.findById(ban.userId));
+			}
     }
     return userList;
   }
@@ -630,7 +632,9 @@ export class ChatService {
     // Get a list of the muted users.
     let userList: User[] = [];
     for (const mute of chat.mutes) {
-      userList.push(await this.userService.findById(mute.userId));
+			if (!(await this.IsMuteExpired(mute))) {
+				userList.push(await this.userService.findById(mute.userId));
+			}
     }
     return userList;
   }
