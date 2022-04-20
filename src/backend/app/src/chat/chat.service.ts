@@ -130,6 +130,7 @@ export class ChatService {
     await this.chatRepository.remove(chat);
     // Broadcast to everyone in the room that it has been deleted.
     this.socketService.chatServer.emit('roomDeleted', {room: chat});
+    this.socketService.chatServer.emit('chatInviteUpdate');
     return chat;
   }
 
@@ -328,7 +329,7 @@ export class ChatService {
       return;
     }
     // Get the chat.
-    const chat: Chat = await this.findById(chatId, ['members', 'admins', 'owner', 'invitedUsers']);
+    const chat: Chat = await this.findById(chatId, ['members', 'admins', 'owner', 'invitedUsers', 'bans']);
     // Check if the chat is private.
     if (chat.type !== 'private') {
       return;
@@ -342,6 +343,9 @@ export class ChatService {
     // Check if the user is not already in the room.
     if (this.userIsInChat(user, chat)) {
       return;
+    }
+    if (await this.userIsBanned(user, chat)) {
+      throw new UnauthorizedException();
     }
     // Check if the user was not already invited.
     if (this.userIsInvited(user, chat)) {
@@ -426,7 +430,6 @@ export class ChatService {
     chat.invitedUsers = chat.invitedUsers.filter((item) => item.id != requestingUser.id);
     await this.chatRepository.save(chat);
     this.socketService.emitToUser(requestingUser.id, 'chatroom', 'chatInviteUpdate');
-    this.broadcastInviteUpdate(chat.id);
   }
 
   async getUserInvites(

@@ -30,7 +30,7 @@
                     Invite
                   </button>
                   <ul class="dropdown-menu">
-                    <ChatInviteList :usersInChatArray="users" :chatId="chat.id"/>
+                    <ChatInviteList :usersInChatArray="users" :chatId="chat.id" :bannedUsersArray="bannedUsers" />
                   </ul>
                 </div>
               </div>

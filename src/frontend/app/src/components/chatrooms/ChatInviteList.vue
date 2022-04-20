@@ -35,7 +35,11 @@ interface DataObject {
 export default defineComponent ({
 	props: {
 		usersInChatArray: {
-			users: Object as PropType<PublicUser>,
+			type: Object as PropType<PublicUser>,
+			required: true,
+		},
+		bannedUsersArray: {
+			type: Object as PropType<PublicUser>,
 			required: true,
 		},
 		chatId: {
@@ -48,7 +52,7 @@ export default defineComponent ({
 			allUsers: [],
 			invitedUsersArray: [],
 			invitedUsers: new Set<number>(),
-		}
+		};
 	},
 	methods: {
 		async inviteUser(user: PublicUser) {
@@ -72,7 +76,9 @@ export default defineComponent ({
 		...mapState(useSocketStore, ["chat"]),
 		usersToInvite() {
 			return this.allUsers.filter((user) => {
-				return !this.usersInChat.has(user.id) && !this.invitedUsers.has(user.id);
+				return !this.usersInChat.has(user.id)
+				&& !this.invitedUsers.has(user.id)
+				&& !this.bannedUsers.has(user.id);
 			});
 		},
 		usersToUninvite() {
@@ -80,6 +86,9 @@ export default defineComponent ({
 		},
 		usersInChat() {
 			return new Set(this.usersInChatArray.map((user) => user.id));
+		},
+		bannedUsers() {
+			return new Set(this.bannedUsersArray.map((user) => user.id));
 		},
 	},
 	async mounted() {
