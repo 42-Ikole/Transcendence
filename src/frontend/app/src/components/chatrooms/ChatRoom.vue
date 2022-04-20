@@ -81,7 +81,7 @@
                       <div v-if="chat.type === 'protected'">
                       <p class="text-dark">New password: </p>
                       </div>
-                      <div v-else>
+                      <div v-else-if="chat.type === 'public'">
                       <p class="text-dark">Add password: </p>
                       </div>
                         <input style="margin-bottom: 5px" class="col-lg-12" type="password" placeholder="Type password" v-model="newPassword" />
@@ -277,6 +277,7 @@ export default defineComponent({
           password: this.newPassword,
         });
         if (addPasswordResponse.ok) {
+          this.chat.type = 'protected';
           console.log("password toegevoegd");
         }
       } else if (this.chat.type === 'protected') {
@@ -292,6 +293,9 @@ export default defineComponent({
     },
     async removePassword() {
       const removePasswordResponse = await makeApiCall("chat/password/" + this.chat.id, { method: "DELETE" });
+      if (removePasswordResponse.ok) {
+        this.chat.type = 'public';
+      }
     },
   },
   computed: {
