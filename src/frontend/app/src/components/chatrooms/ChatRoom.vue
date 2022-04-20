@@ -274,7 +274,7 @@ export default defineComponent({
       if (this.chat.type === 'public') {
         const addPasswordResponse = await makeApiCallJson("/chat/password", "POST", {
           chatId: this.chat.id,
-          plainTextPassword: this.newPassword,
+          password: this.newPassword,
         });
         if (addPasswordResponse.ok) {
           console.log("password toegevoegd");
@@ -282,7 +282,7 @@ export default defineComponent({
       } else if (this.chat.type === 'protected') {
         const changePasswordResponse = await makeApiCallJson("/chat/password", "PATCH", {
           chatId: this.chat.id,
-          plainTextPassword: this.newPassword,
+          password: this.newPassword,
         });
         if (changePasswordResponse.ok) {
           console.log("password veranderd");
