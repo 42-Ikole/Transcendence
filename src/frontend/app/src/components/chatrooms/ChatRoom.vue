@@ -319,12 +319,12 @@ export default defineComponent({
     },
   },
   async mounted() {
+    await useChatStore().refresh();
     if (this.hasAdminRights) {
       this.socket!.emit("subscribeBanMuteUpdate", { id: this.chat.id });
       await this.refreshMuteBans();
       this.socket!.on(`banMuteUpdate_${this.chat.id}`, this.refreshMuteBans);
     }
-
     this.socket!.emit("subscribeToChat", { roomName: this.chat.name });
     this.socket!.on("subscribeToChatSuccess", this.refreshChat);
     this.socket!.on("messageToClient", this.receivedMessage);
@@ -335,7 +335,6 @@ export default defineComponent({
       console.log("failed");
     });
     this.socket!.on("roomDeleted", this.switchToRoomList);
-    useChatStore().refresh();
   },
   unmounted() {
     if (this.hasAdminRights) {

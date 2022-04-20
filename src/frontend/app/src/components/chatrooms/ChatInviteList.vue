@@ -22,13 +22,13 @@
 
 import { defineComponent, type PropType } from "vue";
 import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
-import { PublicUser } from "@/types/UserType";
+import type { PublicUser } from "@/types/UserType";
 import { useSocketStore } from "@/stores/SocketStore";
 import { mapState } from "pinia";
 
 interface DataObject {
 	allUsers: PublicUser[],
-	usersInChat: Set<number>;
+	invitedUsersArray: PublicUser[];
 	invitedUsers: Set<number>;
 }
 
@@ -51,10 +51,10 @@ export default defineComponent ({
 		}
 	},
 	methods: {
-		async inviteUser(user: User) {
+		async inviteUser(user: PublicUser) {
 			const inviteResponse = await makeApiCallJson("/chat/invite", "POST", {chatId: this.chatId, userId: user.id} );
 		},
-		async uninviteUser(user: User) {
+		async uninviteUser(user: PublicUser) {
 			const cancelChatResponse = await makeApiCallJson("/chat/invite", "DELETE", {
 				chatId: this.chatId,
 				userId: user.id,
