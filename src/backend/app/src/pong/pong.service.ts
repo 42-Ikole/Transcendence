@@ -115,9 +115,6 @@ export class PongService {
   }
 
   deleteGameRoom(roomName: string) {
-    if (this.gameRooms[roomName].intervalId) {
-      clearInterval(this.gameRooms[roomName].intervalId);
-    }
     this.deleteDisconnectedUser(this.gameRooms[roomName].playerOne.userId);
     this.deleteDisconnectedUser(this.gameRooms[roomName].playerTwo.userId);
     const gameRoom = this.getGameRoom(roomName);
@@ -131,6 +128,12 @@ export class PongService {
     }
     this.clearObservers(gameRoom);
     delete this.gameRooms[roomName];
+  }
+
+  deleteInterval(roomName: string) {
+    if (this.gameRooms[roomName] && this.gameRooms[roomName].intervalId) {
+      clearInterval(this.gameRooms[roomName].intervalId);
+    }    
   }
 
   clearObservers(gameRoom: GameRoom) {
