@@ -13,7 +13,7 @@ export async function logoutUser(router: Router) {
     method: "DELETE",
   });
   const userStore = useUserStore();
-  router.push("/login");
+  await router.push("/login");
   userStore.logout();
 }
 
@@ -29,7 +29,7 @@ export async function checkUserSession() {
   if (isLoggedIn()) {
     return;
   }
-  const response = await makeApiCall("/auth/status");
+  const response = await makeApiCall("/auth/status", { method: "POST" });
   const state: AuthenticatedState = (await response.json()).state;
   const userStore = useUserStore();
   userStore.setAuthState(state);

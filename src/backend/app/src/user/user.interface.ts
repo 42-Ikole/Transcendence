@@ -1,7 +1,3 @@
-import { Avatar } from 'src/orm/entities/avatar.entity';
-
-export interface IUser {
+export interface IntraUser {
   intraId: string;
-  username: string;
-  avatar?: Avatar;
 }

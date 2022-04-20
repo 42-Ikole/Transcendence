@@ -24,6 +24,7 @@ export class StatusController {
     if (this.socketService.userExists(request.user.id)) {
       return 'CONNECTION DENIED';
     } else {
+      this.socketService.reserveSocket(request.user.id);
       return 'OK';
     }
   }

@@ -44,6 +44,11 @@
         <li>
           <hr class="dropdown-divider" />
         </li>
+        <li v-if="isFriend">
+          <button @click="unfriendUser" class="dropdown-item" type="button">
+            Unfriend
+          </button>
+        </li>
         <li v-if="!isBlocked">
           <button @click="blockUser" class="dropdown-item" type="button">
             Block
@@ -197,7 +202,6 @@ export default defineComponent({
       return !!this.mutedUsers.find((muted) => this.user.id === muted.id);
     },
     canBanKickMute() {
-      console.log(this.user.username, this.role);
       return this.role !== "OWNER" && (this.isOwner || (this.isAdmin && this.role !== "ADMIN"));
     },
   },

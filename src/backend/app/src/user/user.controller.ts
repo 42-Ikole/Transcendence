@@ -25,13 +25,20 @@ import { Response } from 'express';
 import { Readable } from 'stream';
 import { createReadStream } from 'fs';
 import { join } from 'path';
-import { request } from 'http';
+import { imageFileFilter } from 'src/avatar/avatar.utils';
+import { SocketService } from 'src/websocket/socket.service';
+import { AchievementService } from 'src/achievements/achievements.service';
+import { Achievements } from 'src/achievements/achievements';
 
 @ApiTags('user')
 @Controller('user')
 @UseGuards(AuthenticatedGuard)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly socketService: SocketService,
+    private readonly achievementService: AchievementService,
+  ) {}
 
   ////////////
   // Create //
@@ -52,6 +59,7 @@ export class UserController {
   }
 
   @Get()
+  // Returns private user specifically because there is more information
   @UseGuards(AuthenticatedGuard)
   async findUser(@Req() req: RequestWithUser): Promise<PrivateUser> {
     const user = await this.userService.findById(req.user.id);
@@ -60,24 +68,20 @@ export class UserController {
 
   @Get('/:id')
   async findById(@Param('id', ParseIntPipe) id: number): Promise<PublicUser> {
-    return new PublicUser(await this.userService.findById(id));
-  }
-
-  @Get('findIntraId/:id')
-  async findByIntraId(@Param('id') id): Promise<User> {
-    return await this.userService.findByIntraId(id);
+    return await this.userService.findById(id);
   }
 
   @Get('matches_won/:id')
-  async findWinner(@Param('id') id) {
+  async findWinner(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findWins(id);
   }
 
   @Get('matches_lost/:id')
-  async findLosses(@Param('id') id) {
+  async findLosses(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findLosses(id);
   }
 
+<<<<<<< HEAD
   @Get('chat/owned')
   async findOwnedChats(@Req() request: RequestWithUser) {
     const user = await this.userService.findById(request.user.id, {
@@ -92,24 +96,46 @@ export class UserController {
       relations: ['adminChats']
     });
     return user.adminChats;
+=======
+  @Get('achievements/:id')
+  async findAchievements(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.userService.findById(id, {
+      relations: ['achievements'],
+    });
+    return user.achievements;
+>>>>>>> main
   }
 
   @Patch('update')
   async updateUser(@Req() request: RequestWithUser, @Body() user: PartialUser) {
-    return await this.userService.update(request.user.id, user);
+    await this.userService.update(request.user.id, user);
+    this.socketService.statusServer.emit('friendUpdate');
+    this.achievementService.addAchievement(
+      request.user.id,
+      Achievements.SETUP_ACCOUNT,
+    );
   }
 
   @Post('uploadAvatar')
   @UseGuards(AuthenticatedGuard)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      fileFilter: imageFileFilter,
+    }),
+  )
   async uploadAvatar(
     @Req() request: RequestWithUser,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.userService.addAvatar(request.user.id, {
+    const avatar = await this.userService.addAvatar(request.user.id, {
       filename: file.originalname,
       data: file.buffer,
     });
+    this.achievementService.addAchievement(
+      request.user.id,
+      Achievements.UPLOAD_AVATAR,
+    );
+    return avatar;
   }
 
   @Get('avatar/:id/:hahagetrektbitch')

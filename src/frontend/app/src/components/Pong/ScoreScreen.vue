@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center">
+  <div>
     <h3>Game Result</h3>
     <p>{{ playerOneName }}: {{ playerOneScore }}</p>
     <p>{{ playerTwoName }}: {{ playerTwoScore }}</p>
@@ -11,8 +11,15 @@
 
 <script lang="ts">
 import { useSocketStore } from "@/stores/SocketStore";
+import type { PublicUser } from "@/types/UserType";
+import makeApiCall from "@/utils/ApiCall";
 import { defineComponent, type PropType } from "vue";
 import type { GameState } from "./PongTypes";
+
+interface DataObject {
+  playerOne: PublicUser | undefined;
+  playerTwo: PublicUser | undefined;
+}
 
 export default defineComponent({
   props: {
@@ -23,16 +30,16 @@ export default defineComponent({
   },
   computed: {
     playerOneName() {
-      if (!this.gameState) {
+      if (!this.playerOne) {
         return "unknown";
       }
-      return this.gameState.playerOne.username;
+      return this.playerOne.username;
     },
     playerTwoName() {
-      if (!this.gameState) {
+      if (!this.playerTwo) {
         return "unknown";
       }
-      return this.gameState.playerTwo.username;
+      return this.playerTwo.username;
     },
     playerOneScore() {
       if (!this.gameState) {
@@ -46,11 +53,38 @@ export default defineComponent({
       }
       return this.gameState.playerTwo.score;
     },
+    isDefined() {
+      return this.playerOne !== undefined && this.playerTwo !== undefined;
+    },
+  },
+  data(): DataObject {
+    return {
+      playerOne: undefined,
+      playerTwo: undefined,
+    };
   },
   methods: {
     exitScoreScreen() {
       useSocketStore().pong!.emit("exitScoreScreen");
     },
+    async loadPlayer(id: number) {
+      const response = await makeApiCall(`/user/${id}`);
+      return await response.json();
+    },
+    async refresh() {
+      if (this.gameState) {
+        this.playerOne = await this.loadPlayer(this.gameState.playerOne.id);
+        this.playerTwo = await this.loadPlayer(this.gameState.playerTwo.id);
+      }
+    },
+  },
+  watch: {
+    gameState() {
+      this.refresh();
+    },
+  },
+  mounted() {
+    this.refresh();
   },
 });
 </script>

@@ -7,9 +7,17 @@ import { PongGateway } from './pong.gateway';
 import { PongService } from './pong.service';
 import { CookieModule } from 'src/websocket/cookie.module';
 import { StatusModule } from 'src/status/status.module';
+import { AchievementModule } from 'src/achievements/achievements.module';
 
 @Module({
-  imports: [UserModule, ConfigModule, MatchModule, CookieModule, StatusModule],
+  imports: [
+    UserModule,
+    ConfigModule,
+    MatchModule,
+    CookieModule,
+    StatusModule,
+    AchievementModule,
+  ],
   controllers: [PongController],
   providers: [PongGateway, PongService],
 })

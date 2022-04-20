@@ -115,9 +115,6 @@ export class PongService {
   }
 
   deleteGameRoom(roomName: string) {
-    if (this.gameRooms[roomName].intervalId) {
-      clearInterval(this.gameRooms[roomName].intervalId);
-    }
     this.deleteDisconnectedUser(this.gameRooms[roomName].playerOne.userId);
     this.deleteDisconnectedUser(this.gameRooms[roomName].playerTwo.userId);
     const gameRoom = this.getGameRoom(roomName);
@@ -133,10 +130,18 @@ export class PongService {
     delete this.gameRooms[roomName];
   }
 
+  deleteInterval(roomName: string) {
+    if (this.gameRooms[roomName] && this.gameRooms[roomName].intervalId) {
+      clearInterval(this.gameRooms[roomName].intervalId);
+    }
+  }
+
   clearObservers(gameRoom: GameRoom) {
     gameRoom.observers.forEach((id) => {
-      this.statusService.updateUserState(id, 'ONLINE');
-      this.socketService.sockets[id].pong.gameRoom = null;
+      if (this.statusService.getState(id) !== 'OFFLINE') {
+        this.statusService.updateUserState(id, 'VIEWING_SCORE_SCREEN');
+        this.socketService.sockets[id].pong.gameRoom = null;
+      }
     });
   }
 

@@ -4,7 +4,7 @@ export async function makeApiCall(uri: string, init?: RequestInit) {
 }
 
 // Change this if you need more methods with a JSON body
-type MethodWithBody = "POST" | "PATCH";
+type MethodWithBody = "POST" | "PATCH" | "DELETE";
 
 export async function makeApiCallJson(
   uri: string,

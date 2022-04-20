@@ -11,7 +11,7 @@ export interface PongBar {
 
 export interface Player {
   bar: PongBar;
-  username: string;
+  id: number;
   score: number;
 }
 
@@ -26,4 +26,9 @@ export interface GameState {
   playerTwo: Player;
   ball: Ball;
   default: boolean;
+}
+
+export interface LiveGameData {
+  state: GameState;
+  name: string;
 }

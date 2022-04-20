@@ -44,7 +44,7 @@ function newBall(): Ball {
   };
 }
 
-function newPlayer(username: string): Player {
+function newPlayer(id: number): Player {
   return {
     bar: {
       position: {
@@ -54,7 +54,7 @@ function newPlayer(username: string): Player {
       width: 0.015,
       height: 0.2,
     },
-    username: username,
+    id: id,
     score: 0,
     specialMoves: {
       speedUp: false,
@@ -65,8 +65,8 @@ function newPlayer(username: string): Player {
 }
 
 export function newGameState(
-  userOne: string,
-  userTwo: string,
+  userOne: number,
+  userTwo: number,
   mode: boolean,
 ): GameState {
   const state: GameState = {
@@ -82,8 +82,8 @@ export function newGameState(
 function resetGameState(state: GameState) {
   const scoreOne = state.playerOne.score;
   const scoreTwo = state.playerTwo.score;
-  state.playerOne = newPlayer(state.playerOne.username);
-  state.playerTwo = newPlayer(state.playerTwo.username);
+  state.playerOne = newPlayer(state.playerOne.id);
+  state.playerTwo = newPlayer(state.playerTwo.id);
   state.ball = newBall();
   state.playerTwo.bar.position.x = 0.975; // 0.99 - bar.width
   state.playerOne.score = scoreOne;

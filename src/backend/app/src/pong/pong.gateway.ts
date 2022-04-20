@@ -24,6 +24,7 @@ import { WsExceptionFilter } from 'src/websocket/websocket.exception.filter';
 import { SocketService } from '../websocket/socket.service';
 import { StatusService } from 'src/status/status.service';
 import { UserState } from 'src/status/status.types';
+import { AchievementService } from 'src/achievements/achievements.service';
 import { ModeType } from 'src/match/match.interface';
 
 type PlayerIndex = 'playerOne' | 'playerTwo';
@@ -68,6 +69,7 @@ export class PongGateway
     private matchService: MatchService,
     private socketService: SocketService,
     private statusService: StatusService,
+    private achievementService: AchievementService,
   ) {}
 
   @WebSocketServer() wss: Server;
@@ -132,14 +134,15 @@ export class PongGateway
     this.socketService.pongServer.to(roomName).emit('endGame', gameState);
     this.pongService.deleteGameRoom(roomName);
     this.socketService.pongServer.socketsLeave(roomName);
+    this.emitGameUpdate();
   }
 
-  endGame(roomName: string, winner: PlayerIndex, loser: PlayerIndex) {
+  async endGame(roomName: string, winner: PlayerIndex, loser: PlayerIndex) {
     console.log('game ended:', roomName, 'winner:', winner, 'loser:', loser);
     const gameRoom = this.pongService.getGameRoom(roomName);
     this.setStateIfOnline(gameRoom.playerOne.userId, 'VIEWING_SCORE_SCREEN');
     this.setStateIfOnline(gameRoom.playerTwo.userId, 'VIEWING_SCORE_SCREEN');
-    this.addMatchHistory(roomName, winner, loser);
+    await this.addMatchHistory(roomName, winner, loser);
     this.deleteGame(roomName);
   }
 
@@ -163,16 +166,22 @@ export class PongGateway
     return 'playerOne';
   }
 
-  addMatchHistory(roomName: string, winner: PlayerIndex, loser: PlayerIndex) {
+  async addMatchHistory(
+    roomName: string,
+    winner: PlayerIndex,
+    loser: PlayerIndex,
+  ) {
     const gameRoom = this.pongService.getGameRoom(roomName);
 
-    this.createMatchHistory(
+    await this.createMatchHistory(
       gameRoom[winner].userId,
       gameRoom.gameState[winner].score,
       gameRoom[loser].userId,
       gameRoom.gameState[loser].score,
       gameRoom.gameState.default ? 'DEFAULT' : 'SPECIAL',
     );
+    this.achievementService.checkPongAchievements(gameRoom.playerOne.userId);
+    this.achievementService.checkPongAchievements(gameRoom.playerTwo.userId);
   }
 
   async createMatchHistory(
@@ -184,7 +193,7 @@ export class PongGateway
   ) {
     const winner = await this.userService.findById(winnerId);
     const loser = await this.userService.findById(loserId);
-    this.matchService.createMatch({
+    await this.matchService.createMatch({
       winner,
       winnerScore,
       loser,
@@ -324,11 +333,7 @@ export class PongGateway
     this.setStateIfOnline(clientOne.user.id, 'PLAYING');
     this.setStateIfOnline(clientTwo.user.id, 'PLAYING');
 
-    const gameState = newGameState(
-      clientOne.user.username,
-      clientTwo.user.username,
-      mode,
-    );
+    const gameState = newGameState(clientOne.user.id, clientTwo.user.id, mode);
     // discuss: timeout for starting game
     setTimeout(() => {
       this.pongService.addGameRoom(roomName, {
@@ -347,6 +352,7 @@ export class PongGateway
         gameState,
       });
       this.startGameLoop(roomName, gameState);
+      this.emitGameUpdate();
     }, 100);
   }
 
@@ -360,6 +366,7 @@ export class PongGateway
     gameRoom.intervalId = setInterval(() => {
       updateGamestate(gameRoom);
       if (gameHasEnded(gameState)) {
+        this.pongService.deleteInterval(roomName);
         this.endGame(
           roomName,
           this.getWinner(roomName),
@@ -431,5 +438,22 @@ export class PongGateway
   @SubscribeMessage('exitScoreScreen')
   exitScoreScreen(@ConnectedSocket() client: SocketWithUser) {
     this.setStateIfOnline(client.user.id, 'ONLINE');
+  }
+
+  @SubscribeMessage('subscribeGameUpdate')
+  subscribeGameUpdate(@ConnectedSocket() client: SocketWithUser) {
+    console.log('client subscribe update', client.user.id);
+    client.join('gameUpdate');
+  }
+
+  @SubscribeMessage('unsubscribeGameUpdate')
+  unsubscribeGameUpdate(@ConnectedSocket() client: SocketWithUser) {
+    console.log('client unsubscribe update', client.user.id);
+    client.leave('gameUpdate');
+  }
+
+  emitGameUpdate() {
+    console.log('emitting game update');
+    this.socketService.pongServer.to('gameUpdate').emit('gameUpdate');
   }
 }

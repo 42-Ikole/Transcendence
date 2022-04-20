@@ -7,6 +7,7 @@
         class="input-group-text form-control-lg"
         @keyup.enter="updateUsername"
         v-model="newUsername"
+        maxlength="30"
         :placeholder="username"
       />
       <button
@@ -41,7 +42,10 @@ export default defineComponent({
   computed: {
     ...mapState(useUserStore, ["profileData"]),
     username() {
-      return this.profileData!.username;
+      if (!this.profileData) {
+        return "new username";
+      }
+      return this.profileData.username;
     },
   },
   methods: {

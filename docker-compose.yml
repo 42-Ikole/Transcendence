@@ -33,6 +33,7 @@ services:
       - ./src/frontend/app:/app
     ports:
       - 8080:8080
+    restart: on-failure
 # Backend Service
   backend:
     container_name: backend
@@ -45,6 +46,7 @@ services:
       - ./src/backend/.env
     ports:
       - 3000:3000
+    restart: on-failure
 # PostgreSQL Service
   postgres:
     container_name: postgres
@@ -53,6 +55,7 @@ services:
       - "./src/postgres/postgres.env"
     volumes:
       - pgdata:/var/lib/postgresql/data/
+    restart: on-failure
 # PgAdmin (v4) Service
   pgadmin:
     container_name: pgadmin

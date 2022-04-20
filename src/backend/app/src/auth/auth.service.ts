@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
-import { IUser } from 'src/user/user.interface';
+import { IntraUser } from 'src/user/user.interface';
 
 @Injectable()
 export class AuthService {
   constructor(private userService: UserService) {}
 
-  async validateUser(user: IUser) {
+  async validateUser(user: IntraUser) {
     const user_db = await this.findUser(user);
     if (!user_db) {
       return await this.createUser(user);
@@ -15,12 +15,12 @@ export class AuthService {
     return user_db;
   }
 
-  async createUser(user: IUser) {
+  async createUser(user: IntraUser) {
     console.log('Creating User:', user);
     return await this.userService.addUser(user);
   }
 
-  async findUser(user: IUser) {
+  async findUser(user: IntraUser) {
     return this.userService.findByIntraId(user);
   }
 }

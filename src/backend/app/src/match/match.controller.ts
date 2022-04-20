@@ -13,8 +13,8 @@ export class MatchController {
   /////////////
 
   @Get('all')
-  async findALL(): Promise<Match[]> {
-    return this.matchService.findALL(); // SELECT * FROM match
+  async findAll(): Promise<Match[]> {
+    return this.matchService.findAll(); // SELECT * FROM match
   }
 
   @Get('userMatches/:id')
@@ -22,5 +22,10 @@ export class MatchController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Match[]> {
     return await this.matchService.findUserMatches(id);
+  }
+
+  @Get('stats/:id')
+  async getUserStats(@Param('id', ParseIntPipe) id: number) {
+    return await this.matchService.createStats(id);
   }
 }

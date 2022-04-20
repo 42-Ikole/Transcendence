@@ -34,8 +34,8 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
     profile: any,
     callback: (error: any, user: SessionUser) => void,
   ) {
-    const { username, id: intraId } = profile;
-    const details = { username, intraId };
+    const { id: intraId } = profile;
+    const details = { username: null, intraId };
     console.log('Intra User:', details);
     const user = await this.authService.validateUser(details);
     callback(null, { id: user.id, twoFactorPassed: !user.twoFactorEnabled });
