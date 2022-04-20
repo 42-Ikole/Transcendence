@@ -6,7 +6,7 @@
           <div
             class="card-header d-flex justify-content-between align-items-center p-3"
           >
-            <h2 class="mb-0">Users in chat:</h2>
+            <h3 class="mb-0">Users in chat:</h3>
           </div>
           <div class="card-body" style="height: auto; overflow-y: scroll">
             <div class="flex-row justify-content-start">
@@ -59,7 +59,6 @@
                   type="button"
                   class="btn btn-outline-danger btn-lg"
                   data-mdb-ripple-color="dark"
-                  style="line-height: 1"
                   @click="deleteRoom"
                   v-if="isOwner"
                 >
@@ -74,6 +73,27 @@
                 >
                   Leave chat
                 </button>
+                </div>
+                <div v-if="isOwner && chat.type !== 'private'">
+                  <IconChatGear type="button" data-bs-toggle="dropdown" @click="newPassword = ''" />
+                    <ul class="dropdown-menu" style="padding: 15px">
+                      <form @submit.prevent="changePassword">
+                      <div v-if="chat.type === 'protected'">
+                      <p class="text-dark">New password: </p>
+                      </div>
+                      <div v-else>
+                      <p class="text-dark">Add password: </p>
+                      </div>
+                        <input style="margin-bottom: 5px" class="col-lg-12" type="password" placeholder="Type password" v-model="newPassword" />
+                        <input :disabled="newPassword === ''" class="btn btn-secondary" type="submit" value="Change password" />
+                      </form>
+                      <div v-if="chat.type === 'protected'">
+                      <hr class="dropdown-divider" />
+                      <button style="padding-left: 11px; padding-right: 11px" type="button" class="btn btn-warning" data-mdb-ripple-color="dark" @click="removePassword">
+                        Remove password
+                      </button>
+                      </div>
+                    </ul>
               </div>
             </div>
           </div>
@@ -140,12 +160,13 @@ import { PublicUser } from "../../types/UserType.ts";
 import { useSocketStore } from "@/stores/SocketStore";
 import { mapState } from "pinia";
 import { Chat, SendChatMessage } from "./Chatrooms.types.ts";
-import { makeApiCall } from "@/utils/ApiCall";
+import { makeApiCall, makeApiCallJson } from "@/utils/ApiCall";
 import ChatUserDropdown from "../ChatDropdown/ChatUserDropdown.vue";
 import { useChatStore} from "@/stores/ChatStore";
 import ChatInviteList from "./ChatInviteList.vue";
 import ChatBanList from "./ChatBanList.vue";
 import { useFriendStore } from "@/stores/FriendStore";
+import IconChatGear from "../icons/IconChatGear.vue";
 
 interface DataObject {
   myMessage: string;
@@ -155,6 +176,7 @@ interface DataObject {
   admins: any[];
   mutedUsers: PublicUser[];
   bannedUsers: PublicUser[];
+  newPassword: string;
 }
 
 export default defineComponent({
@@ -176,6 +198,7 @@ export default defineComponent({
       admins: [],
       mutedUsers: [],
       bannedUsers: [],
+      newPassword: "",
     };
   },
   methods: {
@@ -246,6 +269,30 @@ export default defineComponent({
     isBlocked(user: PublicUser) {
       return useFriendStore().isPartOfSet(user.id, "BLOCKED");
     },
+    async changePassword() {
+      console.log("TYPE: " + this.chat.type);
+      if (this.chat.type === 'public') {
+        const addPasswordResponse = await makeApiCallJson("/chat/password", "POST", {
+          chatId: this.chat.id,
+          plainTextPassword: this.newPassword,
+        });
+        if (addPasswordResponse.ok) {
+          console.log("password toegevoegd");
+        }
+      } else if (this.chat.type === 'protected') {
+        const changePasswordResponse = await makeApiCallJson("/chat/password", "PATCH", {
+          chatId: this.chat.id,
+          plainTextPassword: this.newPassword,
+        });
+        if (changePasswordResponse.ok) {
+          console.log("password veranderd");
+        }
+      }
+      this.newPassword = '';
+    },
+    async removePassword() {
+      const removePasswordResponse = await makeApiCall("chat/password/" + this.chat.id, { method: "DELETE" });
+    },
   },
   computed: {
     ...mapState(useSocketStore, {
@@ -303,6 +350,7 @@ export default defineComponent({
     ChatUserDropdown,
     ChatInviteList,
     ChatBanList,
+    IconChatGear,
   },
 });
 </script>
