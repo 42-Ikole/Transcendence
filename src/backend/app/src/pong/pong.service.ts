@@ -133,7 +133,7 @@ export class PongService {
   deleteInterval(roomName: string) {
     if (this.gameRooms[roomName] && this.gameRooms[roomName].intervalId) {
       clearInterval(this.gameRooms[roomName].intervalId);
-    }    
+    }
   }
 
   clearObservers(gameRoom: GameRoom) {
